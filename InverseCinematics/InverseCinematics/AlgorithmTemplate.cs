@@ -35,6 +35,43 @@ namespace InverseCinematics
             FingersArcMin = fingersArcMin;
             FingersArcMax = fingersArcMax;
         }
+
+        public Specification(int targets, List<string> spec)
+        {
+            ArmArcLen = new List<double>();
+            ArmArcMin = new List<double>();
+            ArmArcMax = new List<double>();
+            FingersArcLen = new List<List<double>>();
+            FingersArcMin = new List<List<double>>();
+            FingersArcMax = new List<List<double>>();
+
+            var armSize = int.Parse(spec[0]);
+
+            for (var i = 0; i < armSize; i++)
+            {
+                var part = spec[1 + i].Split();
+                ArmArcLen.Add(double.Parse(part[0]));
+                ArmArcMin.Add(double.Parse(part[1]));
+                ArmArcMax.Add(double.Parse(part[2]));
+            }
+
+            var size = 1 + armSize;
+            for (var i = 0; i < targets; i++)
+            {
+                FingersArcLen.Add(new List<double>());
+                FingersArcMin.Add(new List<double>());
+                FingersArcMax.Add(new List<double>());
+                var len = int.Parse(spec[size]);
+                for (var j = 0; j < len; j++)
+                {
+                    var part = spec[size + 1 + i].Split();
+                    FingersArcLen[i].Add(double.Parse(part[0]));
+                    FingersArcMin[i].Add(double.Parse(part[1]));
+                    FingersArcMax[i].Add(double.Parse(part[2]));
+                }
+                size += 1 + len;
+            }
+        }
     }
 
     class World
