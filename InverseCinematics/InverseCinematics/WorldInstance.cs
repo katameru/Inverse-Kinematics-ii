@@ -6,6 +6,94 @@ using System.Text;
 
 namespace InverseCinematics
 {
+    static class Distances
+    {
+        public static double Distance(Point p1, Point p2)
+        {
+            return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
+        }
+
+        /* Tutaj liczymy rzut punkto na prosta zeby sprawdzic czy mozemy skorzystac ze wzoru 
+         * czy musimy patrzec na odleglosci do koncow odcinka.                              */
+        public static double Distance(Point p, Line l)
+        {
+            double A, B, C, x1, x2, y1, y2, d;
+            x1 = l.P1.X; y1 = l.P1.Y;
+            x2 = l.P2.X; y2 = l.P2.Y;
+            //liczymy wspolczynniki rownania prostej
+            A = x2 - x1;
+            B = y1 - y2;
+            C = x1 * y2 - x2 * y1;
+            //odleglosc punktu od prostek
+            d = Math.Abs(A * p.X + B * p.Y + C) / Math.Sqrt(A * A + B * B);
+            //wektor normalny prostopadly do prostej
+            var nx = A / Math.Sqrt(A * A + B * B);
+            var ny = B / Math.Sqrt(A * A + B * B);
+            //Nasz punkt +- wektor normalny wektor prostopadly razy dlugosc lezy na prostej
+            //Patrzymy czy + czy -
+            var x = p.X + nx * d;
+            var y = p.Y + ny * d;
+            if (A * x + B * y + C != 0)
+            {
+                x = p.X - nx * d;
+                y = p.Y - ny * d;
+            }
+            //rzut powinien teraz lezec na prostej wyznaczonej przez odcinek l
+            //troche mnie martwi czy zamiast (!= 0) nie lepiej dac (> eps) dla malego jakiegos malego epsilon
+            Point rzut = new Point(x, y);
+            double d1, d2;
+            d1 = Distance(p, l.P1);
+            d2 = Distance(p, l.P2);
+
+            //Patrzymy czy rzut lezy na odinku, i jesli nie to zwracamy odleglosc do najblizszego punktu
+            if (d1 + d2 == l.Len)
+            {
+                return d;
+            }
+            else
+            {
+                return Math.Min(d1, d2);
+            }
+        }
+
+        public static double Distance(Line l, Point p)
+        {
+            return Distance(p, l);
+        }
+
+        public static double Distance(Point p, Obstacle o)
+        {
+            return o.Edges.Min(edge => Distance(p, edge));
+        }
+
+        public static double Distance(Obstacle o, Point p)
+        {
+            return Distance(p, o);
+        }
+
+        public static double Distance(Line l1, Line l2)
+        {
+            return Math.Min(
+                            Math.Min(Distance(l1.P1, l2), Distance(l1.P2, l2)),
+                            Math.Min(Distance(l1, l2.P1), Distance(l1, l2.P2)));
+        }
+
+        public static double Distance(Line l, Obstacle o)
+        {
+            return o.Edges.Min(edge => Distance(l, edge));
+        }
+
+        public static double Distance(Obstacle o, Line l)
+        {
+            return Distance(l, o);
+        }
+
+        public static double Distance(Obstacle o1, Obstacle o2)
+        {
+            return o1.Edges.Min(edge => Distance(edge, o2));
+        }
+    }
+
     class Point : IComparable<Point>
     {
         public double X;
@@ -67,60 +155,6 @@ namespace InverseCinematics
             if (this.X < other.X) return -1;
             if (this.X > other.X) return 1;
             return this.Y.CompareTo(other.Y);
-        }
-
-        public double distance(Point p)
-        {
-            return Math.Sqrt(Math.Pow(p.X - this.X, 2) + Math.Pow(p.Y - this.Y, 2)); ;
-        }
-
-
-        /* Tutaj liczymy rzut punkto na prosta zeby sprawdzic czy mozemy skorzystac ze wzoru 
-         * czy musimy patrzec na odleglosci do koncow odcinka.                              */
-        public double distance(Line l)
-        {
-            double A, B, C, x1, x2, y1, y2, d;
-            x1 = l.P1.X; y1 = l.P1.Y;
-            x2 = l.P2.X; y2 = l.P2.Y;
-            //liczymy wspolczynniki rownania prostej
-            A = x2 - x1; 
-            B = y1 - y2; 
-            C = x1*y2 - x2*y1;
-            //odleglosc punktu od prostek
-            d = Math.Abs(A * this.X + B * this.Y + C)/Math.Sqrt(A*A + B*B);
-            //wektor normalny prostopadly do prostej
-            var nx = A / Math.Sqrt(A * A + B * B);
-            var ny = B / Math.Sqrt(A * A + B * B);
-            //Nasz punkt +- wektor normalny wektor prostopadly razy dlugosc lezy na prostej
-            //Patrzymy czy + czy -
-            var x = this.X + nx * d;
-            var y = this.Y + ny * d;
-            if (A * x + B * y + C != 0)
-            {
-                x = this.X - nx * d;
-                y = this.Y - ny * d;
-            }
-            //rzut powinien teraz lezec na prostej wyznaczonej przez odcinek l
-            //troche mnie martwi czy zamiast (!= 0) nie lepiej dac (> eps) dla malego jakiegos malego epsilon
-            Point rzut = new Point(x, y);
-            double d1, d2;
-            d1 = this.distance(l.P1);
-            d2 = this.distance(l.P2);
-
-            //Patrzymy czy rzut lezy na odinku, i jesli nie to zwracamy odleglosc do najblizszego punktu
-            if (d1 + d2 == l.Len)
-            {
-                return d;
-            }
-            else
-            {
-                return Math.Min(d1, d2);
-            }
-        }
-
-        public double distance(Obstacle o)
-        {
-            return o.Edges.Min(edge => this.distance(edge));
         }
     }
 
@@ -192,19 +226,6 @@ namespace InverseCinematics
         {
             return !(a == b);
         }
-
-        //TODO
-        public double distance(Point p)
-        {
-            return 0;
-        }
-
-        //TODO
-        public double distance(Line l)
-        {
-            return 0;
-        }
-
     }
 
     class Obstacle
