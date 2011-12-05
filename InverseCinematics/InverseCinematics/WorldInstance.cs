@@ -283,7 +283,7 @@ namespace InverseCinematics
             }
         }
 
-        public override Hull convexHull()
+        new public Hull convexHull()
         {
             return this;
         }
