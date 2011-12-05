@@ -184,6 +184,18 @@ namespace InverseCinematics
             B = p1.Y - A * p1.X;
         }
 
+        public Line(Point p1, double len, double angle) // angle is from north
+        {
+            var deg = (360 - (angle - 90))%360;
+            var rad = Math.PI*deg/180.0;
+
+            P1 = p1;
+            P2 = new Point(P1.X + len*Math.Cos(rad), P1.Y + len*Math.Sin(rad));
+            Len = len;
+            A = (P2.Y - P1.Y) / (P2.X - P1.X);
+            B = P1.Y - A * P1.X;
+        }
+
         public override string ToString()
         {
             return string.Format("[{0}, {1}]", P1, P2);
@@ -305,7 +317,7 @@ namespace InverseCinematics
             }
         }
 
-        new public Hull convexHull()
+        public Hull convexHull()
         {
             return this;
         }
@@ -360,26 +372,23 @@ namespace InverseCinematics
 
         }
 
-        public Bitmap ShowWorld(int x, int y)
+        public Bitmap ShowWorld(int x, int y, float penwidth)
         {
-            const int width = 3;
-
-            var sx = (float)x / SizeX;
-            var sy = (float)y / SizeY;
+            var s = Math.Min((float)x / SizeX, (float)y / SizeY);
 
             var world = new Bitmap(x, y);
-            var p = new Pen(Color.Green, width);
+            var p = new Pen(Color.Green, penwidth);
             var g = Graphics.FromImage(world);
             
-            g.DrawRectangle(p, sx*(float)Start.X, sy*(float)Start.Y, width, width);
+            g.DrawRectangle(p, s*(float)Start.X-penwidth/2, s*(float)Start.Y-penwidth/2, penwidth, penwidth);
 
             p.Color = Color.Orange;
             foreach (var t in Targets)
-                g.DrawRectangle(p, sx*(float)t.X, sy*(float)t.Y, width, width);
+                g.DrawRectangle(p, s*(float)t.X - penwidth/2, s*(float)t.Y-penwidth/2, penwidth, penwidth);
 
             p.Color = Color.Red;
             foreach (var l in Obstacles.SelectMany(o => o.Edges))
-                g.DrawLine(p, sx*(float) l.P1.X, sy*(float) l.P1.Y, sx*(float) l.P2.X, sy*(float) l.P2.Y);
+                g.DrawLine(p, s*(float) l.P1.X, s*(float) l.P1.Y, s*(float) l.P2.X, s*(float) l.P2.Y);
 
             g.DrawImage(world, 0, 0, x, y);
             g.Dispose();

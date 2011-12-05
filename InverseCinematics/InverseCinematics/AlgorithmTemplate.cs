@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -9,12 +10,40 @@ namespace InverseCinematics
     {
         public List<double> Arm;
         public List<List<double>> Fingers;
+        public List<Point> TouchPoints;
+        public List<Line> Bones;
 
-        public Chromosome(List<double> arm, List<List<double>> fingers)
+        public Chromosome(List<double> arm, List<List<double>> fingers, WorldInstance world)
         {
             Arm = arm;
             Fingers = fingers;
+
+
+            var angle = 0.0; // Initial angle is north
+            var point = world.Start;
+            Bones = new List<Line>();
+            TouchPoints = new List<Point>();
+
+            for (var i = 0; i < arm.Count; i++)
+            {
+                Bones.Add(new Line(point, world.Specification.ArmArcLen[i], Arm[i]));
+                point = Bones[i].P2;
+            }
+
+            for (var i = 0; i < Fingers.Count; i++)
+            {
+                var point2 = point;
+                for (var j = 0; j < fingers[i].Count; j++)
+                {
+                    Bones.Add(new Line(point2, world.Specification.FingersArcLen[i][j], Fingers[i][j]));
+                    point2 = Bones.Last().P2;
+                }
+                TouchPoints.Add(point2);
+            }
+
         }
+
+
     }
 
     class Specification
@@ -76,10 +105,12 @@ namespace InverseCinematics
 
     class AlgorithmTemplate
     {
-        public static List<Chromosome> GenerateRandomPopulation(Specification spec, int size)
+        public static List<Chromosome> GenerateRandomPopulation(WorldInstance world, int size)
         {
             var rand = new Random();
             var population = new List<Chromosome>();
+
+            var spec = world.Specification;
 
             for (var i =0; i < size; i++)
             {
@@ -92,16 +123,30 @@ namespace InverseCinematics
                 for (var k = 0; k < spec.FingersArcLen.Count; k++)
                 {
                     fingers.Add(new List<double>());
-                    for (var l = 0; l < spec.FingersArcLen[l].Count; l++)
+                    for (var l = 0; l < spec.FingersArcLen[k].Count; l++)
                         fingers[k].Add(spec.FingersArcMin[k][l] + rand.NextDouble()*(spec.FingersArcMax[k][l] - spec.FingersArcMin[k][l]));
                 }
-                population.Add(new Chromosome(arm, fingers));
+                population.Add(new Chromosome(arm, fingers, world));
             }
 
             return population;
         }
 
 
+        public static Bitmap PrintPopulation(WorldInstance world, List<Chromosome> population, Bitmap img, float penwidth)
+        {
+            var s = Math.Min((float)img.Width / world.SizeX, (float)img.Height / world.SizeY);
 
+            var p = new Pen(Color.Blue, penwidth);
+            var g = Graphics.FromImage(img);
+
+            foreach (var c in population)
+                foreach (var b in c.Bones)
+                    g.DrawLine(p, s*(float) b.P1.X, s*(float) b.P1.Y, s*(float) b.P2.X, s*(float) b.P2.Y);
+                
+            g.DrawImage(img, 0, 0, img.Width, img.Height);
+            g.Dispose();
+            return img;
+        }
     }
 }

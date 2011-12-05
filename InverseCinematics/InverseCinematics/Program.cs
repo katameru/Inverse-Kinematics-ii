@@ -12,11 +12,7 @@ namespace InverseCinematics
         /// </summary>
         [STAThread]
         static void Main()
-        {
-            var q = new Line(3, 7, -2, -8);
-
-            
-
+        {            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
