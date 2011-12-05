@@ -253,8 +253,8 @@ namespace InverseCinematics
                 endpoint = points[0];
                 foreach (Point p in points)
                 {
-                    if ((endpoint == pointOnHull) || 
-                        ((endpoint.X - pointOnHull.X)*(p.Y - pointOnHull.Y) - (p.X - pointOnHull.X)*(endpoint.Y - pointOnHull.Y)) > 0)
+                    var det = (endpoint.X - pointOnHull.X) * (p.Y - pointOnHull.Y) - (p.X - pointOnHull.X) * (endpoint.Y - pointOnHull.Y);
+                    if ( (endpoint == pointOnHull) || ( det > 0) )
                     {
                         endpoint = p;
                     }
@@ -262,7 +262,8 @@ namespace InverseCinematics
                 pointOnHull = endpoint;
             }
             while (endpoint != points[0]);
-            cachedHull = new Hull(points);
+            hullPoints.Add(points[0]);
+            cachedHull = new Hull(hullPoints);
             return cachedHull;
         }
     }
