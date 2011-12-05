@@ -65,10 +65,53 @@ namespace InverseCinematics
             return Math.Sqrt(Math.Pow(p.X - this.X, 2) + Math.Pow(p.Y - this.Y, 2)); ;
         }
 
-        //TODO
+
+        /* Tutaj liczymy rzut punkto na prosta zeby sprawdzic czy mozemy skorzystac ze wzoru 
+         * czy musimy patrzec na odleglosci do koncow odcinka.                              */
         public double distance(Line l)
         {
-            return 0;
+            double A, B, C, x1, x2, y1, y2, d;
+            x1 = l.P1.X; y1 = l.P1.Y;
+            x2 = l.P2.X; y2 = l.P2.Y;
+            //liczymy wspolczynniki rownania prostej
+            A = x2 - x1; 
+            B = y1 - y2; 
+            C = x1*y2 - x2*y1;
+            //odleglosc punktu od prostek
+            d = Math.Abs(A * this.X + B * this.Y + C)/Math.Sqrt(A*A + B*B);
+            //wektor normalny prostopadly do prostej
+            var nx = A / Math.Sqrt(A * A + B * B);
+            var ny = B / Math.Sqrt(A * A + B * B);
+            //Nasz punkt +- wektor normalny wektor prostopadly razy dlugosc lezy na prostej
+            //Patrzymy czy + czy -
+            var x = this.X + nx * d;
+            var y = this.Y + ny * d;
+            if (A * x + B * y + C != 0)
+            {
+                x = this.X - nx * d;
+                y = this.Y - ny * d;
+            }
+            //rzut powinien teraz lezec na prostej wyznaczonej przez odcinek l
+            //troche mnie martwi czy zamiast (!= 0) nie lepiej dac (> eps) dla malego jakiegos malego epsilon
+            Point rzut = new Point(x, y);
+            double d1, d2;
+            d1 = this.distance(l.P1);
+            d2 = this.distance(l.P2);
+
+            //Patrzymy czy rzut lezy na odinku, i jesli nie to zwracamy odleglosc do najblizszego punktu
+            if (d1 + d2 == l.Len)
+            {
+                return d;
+            }
+            else
+            {
+                return Math.Min(d1, d2);
+            }
+        }
+
+        public double distance(Obstacle o)
+        {
+            return o.Edges.Min(edge => this.distance(edge));
         }
     }
 
