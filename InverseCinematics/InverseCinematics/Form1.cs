@@ -14,6 +14,12 @@ namespace InverseCinematics
         public Form1()
         {
             InitializeComponent();
+            var w = new WorldInstance("scenario_01.txt");            
+
+            pictureBox1.Image = w.ShowWorld(400, 400);
+
         }
+
+      
     }
 }

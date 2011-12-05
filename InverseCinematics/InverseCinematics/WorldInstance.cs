@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -15,6 +16,14 @@ namespace InverseCinematics
             X = x;
             Y = y;
         }
+
+        public Point(string point) // "x y"
+        {
+            var p = point.Split();
+            X = double.Parse(p[0]);
+            Y = double.Parse(p[1]);
+        }
+
 
         public override string ToString()
         {
@@ -47,7 +56,7 @@ namespace InverseCinematics
             return a.X == b.X && a.Y == b.Y;
         }
 
-        public static bool operator !=(Line a, Line b)
+        public static bool operator !=(Point a, Point b)
         {
             return !(a == b);
         }
@@ -92,7 +101,7 @@ namespace InverseCinematics
 
         public override string ToString()
         {
-            return string.Format("[{0}, {1}]", P1.ToString(), P2.ToString(), );
+            return string.Format("[{0}, {1}]", P1, P2);
         }
 
         public override bool Equals(Object obj)
@@ -176,21 +185,77 @@ namespace InverseCinematics
 
     class WorldInstance
     {
-        public int N; // X size of plane (?)
-        public int M;
-        public double Sx; // Start point x coordinate
-        public double Sy;
-        public double Ox; // Object point x coordinate
-        public double Oy;
-        public List<double> Segments; // list of segments length;
-        public List<double> AlphaMin; // list of min angles;
-        public List<double> AlphaMax; // list of max angles;
-        public List<List<Line>> Obstacles;
-
+        //public int N;
+        public int SizeX;
+        public int SizeY;
+        public List<Point> Targets = new List<Point>();
+        public Point Start;
+        public List<Obstacle> Obstacles;
+        public Specification Specification;
+        public string DebugSTR = "";
 
         public WorldInstance(string filename)
         {
+            var lines = System.IO.File.ReadAllLines(filename).Where(l => l.Length != 0 && l[0] != '#').ToList();
+
+            SizeX = int.Parse(lines[0]);
+            SizeY = int.Parse(lines[1]);
+            Start = new Point(lines[2]);
+            var T = int.Parse(lines[3]);
+            for (var i = 0; i < T; i++) // Reading targets points
+                Targets.Add(new Point(lines[4+i]));
+
+            var size = 1 + int.Parse(lines[4+T]); // Reading arm specification
+            for (var i = 0; i < T; i++)
+                size += 1 + int.Parse(lines[4+T+size]);
+            Specification = new Specification(T, lines.GetRange(4 + T, size));
+
+            size = 4 + T + size;
+            var O = int.Parse(lines[size]); // Reading obstacles
+            size++;
+            Obstacles = new List<Obstacle>();
+
+            for (var i = 0; i < O; i++)
+            {
+                var o = int.Parse(lines[size]);
+                var obs = new List<Point>();
+
+                for (var j = 0; j < o; j++)
+                    obs.Add(new Point(lines[size + j + 1]));
+
+                Obstacles.Add(new Obstacle(obs));
+                size += 1 + o;
+            }
+                
+
+
+        }
+
+
+        public Bitmap ShowWorld(int x, int y)
+        {
+            const int width = 3;
+
+            var sx = (float)x / SizeX;
+            var sy = (float)y / SizeY;
+
+            var world = new Bitmap(x, y);
+            var p = new Pen(Color.Green, width);
+            var g = Graphics.FromImage(world);
             
+            g.DrawRectangle(p, sx*(float)Start.X, sy*(float)Start.Y, width, width);
+
+            p.Color = Color.Orange;
+            foreach (var t in Targets)
+                g.DrawRectangle(p, sx*(float)t.X, sy*(float)t.Y, width, width);
+
+            p.Color = Color.Red;
+            foreach (var l in Obstacles.SelectMany(o => o.Edges))
+                g.DrawLine(p, sx*(float) l.P1.X, sy*(float) l.P1.Y, sx*(float) l.P2.X, sy*(float) l.P2.Y);
+
+            g.DrawImage(world, 0, 0, x, y);
+            g.Dispose();
+            return world;
         }
     }
 }
