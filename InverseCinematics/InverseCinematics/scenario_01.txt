@@ -1,26 +1,44 @@
+# Size X
 10
+# Size Y
 5
+# Start point
 5 4
+# Target Points number
 2
+# Targt Points
 1 1
 9 1
+# Number of Arm parts
 1
+# Arm parts: length angleMin angleMax
 3 0 360
+# For number of target Points=Fingers
+# Number of first Finger parts
 2
+# First finger parts: length angleMin angleMax
 3 0 360
 3 0 360
+# Number of second Finger parts
 2
+# Second finger parts: length angleMin angleMax
 3 0 360
 3 0 360
+# Number of obstacles
 4
+# Number of points in 1-st obstacle
 3
+# Points of 1-st obstacle
 1 3
 2 4
 4 4
+# Number of points in 2-nd obstacle
 3
+# Points of 2-nd obstacle
 6 4
 8 4
 9 3
+# itd.
 5
 2 1
 3 2

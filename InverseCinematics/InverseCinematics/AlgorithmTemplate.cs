@@ -74,15 +74,6 @@ namespace InverseCinematics
         }
     }
 
-    class World
-    {
-        public int N;
-        public int SizeX;
-        public int SizeY;
-        public List<KeyValuePair<double, double>> Targets;
-        // Obstacles
-    }
-
     class AlgorithmTemplate
     {
         public static List<Chromosome> GenerateRandomPopulation(Specification spec, int size)

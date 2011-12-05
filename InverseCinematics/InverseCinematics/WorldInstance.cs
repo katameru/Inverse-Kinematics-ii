@@ -231,7 +231,6 @@ namespace InverseCinematics
 
         }
 
-
         public Bitmap ShowWorld(int x, int y)
         {
             const int width = 3;
@@ -257,5 +256,8 @@ namespace InverseCinematics
             g.Dispose();
             return world;
         }
+
+
+
     }
 }
