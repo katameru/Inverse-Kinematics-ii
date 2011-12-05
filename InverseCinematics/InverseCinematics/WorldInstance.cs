@@ -5,7 +5,7 @@ using System.Text;
 
 namespace InverseCinematics
 {
-    class Point
+    class Point : IComparable<Point>
     {
         public double X;
         public double Y;
@@ -50,6 +50,14 @@ namespace InverseCinematics
         public static bool operator !=(Line a, Line b)
         {
             return !(a == b);
+        }
+
+        public int CompareTo(Point other)
+        {
+            if (other == null) return 1;
+            if (this.X < other.X) return -1;
+            if (this.X > other.X) return 1;
+            return this.Y.CompareTo(other.Y);
         }
 
         public double distance(Point p)
@@ -116,7 +124,7 @@ namespace InverseCinematics
 
         public override int GetHashCode()
         {
-            return (int)(P1.GetHashCode() ^ P2.GetHashCode());
+            return (int)( (2*P1.GetHashCode()) ^ P2.GetHashCode());
         }
 
         public static bool operator ==(Line a, Line b)
@@ -150,6 +158,9 @@ namespace InverseCinematics
     class Obstacle
     {
         public List<Line> Edges;
+        protected Hull cachedHull;
+
+        protected Obstacle() { }
 
         public Obstacle(List<Line> edges)
         {
@@ -165,14 +176,67 @@ namespace InverseCinematics
             }
         }
 
-        //Nie wiem czy nie lepiej zrobic osobna klase Hull, zeby trzymac ja jako
-        //element tej klasy i nie liczyc za kazdym razem
-        public Obstacle convexHull()
+        public Hull convexHull()
         {
-            return null;
+            if (cachedHull != null) {
+                return cachedHull;
+            }
+
+            List<Point> points = new List<Point>();
+            foreach(Line e in Edges)
+            {
+                points.Add(e.P1);
+                points.Add(e.P2);
+            }
+            points = points.Distinct().ToList();
+            points.Sort();
+
+            Point pointOnHull = points[0];
+            List<Point> hullPoints = new List<Point>();
+            Point endpoint;
+
+            do
+            {
+                hullPoints.Add(pointOnHull);
+                endpoint = points[0];
+                foreach (Point p in points)
+                {
+                    if ((endpoint == pointOnHull) || 
+                        ((endpoint.X - pointOnHull.X)*(p.Y - pointOnHull.Y) - (p.X - pointOnHull.X)*(endpoint.Y - pointOnHull.Y)) > 0)
+                    {
+                        endpoint = p;
+                    }
+                }
+                pointOnHull = endpoint;
+            }
+            while (endpoint != points[0]);
+            cachedHull = new Hull(points);
+            return cachedHull;
+        }
+    }
+    
+    class Hull : Obstacle
+    {
+        public Hull(List<Line> edges)
+        {
+            Edges = edges;
         }
 
+        public Hull(List<Point> points)
+        {
+            Edges = new List<Line>();
+            for (int i = 1; i < points.Count; i++)
+            {
+                Edges.Add(new Line(points[i-1], points[i]));
+            }
+        }
+
+        public override Hull convexHull()
+        {
+            return this;
+        }
     }
+
 
     class WorldInstance
     {
