@@ -16,16 +16,12 @@ namespace InverseCinematics
             InitializeComponent();
             var h = 2.0f;
             var w = new WorldInstance("scenario_01.txt");
-            var p = AlgorithmTemplate.GenerateRandomPopulation(w, 1);
             var img = new Bitmap(w.ShowWorld(pictureBox1.Width, pictureBox1.Height, h));
-
-
+            var p = AlgorithmTemplate.RunAlgorithm();
+            
             img = AlgorithmTemplate.PrintPopulation(w, p, img, h);
-
             pictureBox1.Image = img;
 
         }
-
-      
     }
 }

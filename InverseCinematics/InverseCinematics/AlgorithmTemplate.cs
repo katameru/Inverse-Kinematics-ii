@@ -113,6 +113,66 @@ namespace InverseCinematics
 
     class AlgorithmTemplate
     {
+        static int N;
+        static double alpha, beta;
+        static int N_inf;
+        static int N_f;
+        public static WorldInstance w;
+
+        public static void InitializeParameters(int n, double a, double b)
+        {
+            N = n;
+            alpha = a;
+            beta = b;
+            N_inf = (int)(((double)N) * alpha);
+            N_f = N - N_inf;
+        }
+
+        public static List<Chromosome> RunAlgorithm()
+        {
+            InitializeParameters(64, 0.05, 0.7);
+            var world = new WorldInstance("scenario_01.txt");
+            var population = AlgorithmTemplate.GenerateRandomPopulation(world, 15);
+            population = population.Select(i => Evaluate(i, world)).ToList();
+            while (!TerminationCondition(population, world))
+            {
+                var C = new List<Chromosome>();
+                for(int i = 0; i<population.Count; i += 2)
+                {
+                    if (i + 1 < population.Count)
+                    {
+                        C = C.Concat(Crossover(population[i], population[i + 1], world)).ToList();
+                    }
+                    else
+                    {
+                        C = C.Concat(Crossover(population[i], population[i], world)).ToList();
+                    }
+
+                }
+                C = C.Select(c => Mutate(c, beta, world)).ToList();
+                C = C.Select(i => Evaluate(i, world)).ToList();
+                var S = Split(C, world);
+                var S_f = S.Key;
+                var S_inf = S.Value;
+                S_f = Selection(S_f, N_f, 5, world);
+                S_inf = Selection(S_inf, N_inf, 5, world);
+                population = S_f.Concat(S_inf).ToList();
+            }
+            return population;
+        }
+
+        public static KeyValuePair<List<Chromosome>, List<Chromosome>> Split(List<Chromosome> population, WorldInstance world)
+        {
+            var good = population.FindAll(c => c.Score == 0);
+            var bad  = population.FindAll(c => c.Score != 0);
+            return new KeyValuePair<List<Chromosome>, List<Chromosome>>(good, bad);
+        }
+
+        public static bool TerminationCondition(List<Chromosome> population, WorldInstance world)
+        {
+            return population.Exists(i => i.Score < 1) || population.Count == 0;
+        }
+
         public static List<Chromosome> GenerateRandomPopulation(WorldInstance world, int size)
         {
             var rand = new Random();
@@ -147,7 +207,8 @@ namespace InverseCinematics
             var p = new Pen(Color.Blue, penwidth);
             var g = Graphics.FromImage(img);
 
-            foreach (var c in population)
+            //foreach (var c in population)
+            var c= population.FindAll(o => o.Score < 6)[0];
                 foreach (var b in c.Bones)
                     g.DrawLine(p, s*(float) b.P1.X, s*(float) b.P1.Y, s*(float) b.P2.X, s*(float) b.P2.Y);
                 
@@ -206,6 +267,7 @@ namespace InverseCinematics
 
         public static List<Chromosome> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world)
         {
+            if (population.Count == 0) return new List<Chromosome>();
             var selected = new List<Chromosome>();
             var rand = new Random();
 
