@@ -6,16 +6,59 @@ using System.Text;
 
 namespace InverseCinematics
 {
-    static class Distances
+    static class Geometry
     {
-        public static double Distance(Point p1, Point p2)
+        public static bool Intersects(Point p, Line l)
+        {
+            return SLDistance(p, l.P1) + SLDistance(p, l.P2) == l.Len;
+        }
+
+        public static bool Intersects(Line l, Point p)
+        {
+            return Intersects(p, l);
+        }
+
+        //TODO
+        public static bool Intersects(Line l1, Line l2)
+        {
+            /*Point E = l1.P2 - l1.P1;
+            Point F = l2.P2 - l2.P1;
+            Point P = new Point ( -E.Y, E.X );
+            var h = ((l1.P1 - l2.P1) * P) / (F * P);
+            return (0 < h) && (h < 1); */
+            return false;
+        }
+
+        public static bool Intersects(Line l, Obstacle o)
+        {
+            return o.Edges.Any(e => Intersects(l, e));
+        }
+
+        public static bool Intersects(Obstacle o, Line l)
+        {
+            return Intersects(l, o);
+        }
+
+        //TODO
+        public static Point IntersectionPoint(Line l1, Line l2)
+        {
+            return null;
+        }
+
+        public static Point IntersectionPoint(Line l, Obstacle o)
+        {
+            Line edge = o.Edges.Find(e => Intersects(l, e));
+            return IntersectionPoint(l, edge);
+        }
+
+        public static double SLDistance(Point p1, Point p2)
         {
             return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
         /* Tutaj liczymy rzut punkto na prosta zeby sprawdzic czy mozemy skorzystac ze wzoru 
          * czy musimy patrzec na odleglosci do koncow odcinka.                              */
-        public static double Distance(Point p, Line l)
+        public static double SLDistance(Point p, Line l)
         {
             double A, B, C, x1, x2, y1, y2, d;
             x1 = l.P1.X; y1 = l.P1.Y;
@@ -42,8 +85,8 @@ namespace InverseCinematics
             //troche mnie martwi czy zamiast (!= 0) nie lepiej dac (> eps) dla malego jakiegos malego epsilon
             Point rzut = new Point(x, y);
             double d1, d2;
-            d1 = Distance(p, l.P1);
-            d2 = Distance(p, l.P2);
+            d1 = SLDistance(p, l.P1);
+            d2 = SLDistance(p, l.P2);
 
             //Patrzymy czy rzut lezy na odinku, i jesli nie to zwracamy odleglosc do najblizszego punktu
             if (d1 + d2 == l.Len)
@@ -56,41 +99,41 @@ namespace InverseCinematics
             }
         }
 
-        public static double Distance(Line l, Point p)
+        public static double SLDistance(Line l, Point p)
         {
-            return Distance(p, l);
+            return SLDistance(p, l);
         }
 
-        public static double Distance(Point p, Obstacle o)
+        public static double SLDistance(Point p, Obstacle o)
         {
-            return o.Edges.Min(edge => Distance(p, edge));
+            return o.Edges.Min(edge => SLDistance(p, edge));
         }
 
-        public static double Distance(Obstacle o, Point p)
+        public static double SLDistance(Obstacle o, Point p)
         {
-            return Distance(p, o);
+            return SLDistance(p, o);
         }
 
-        public static double Distance(Line l1, Line l2)
+        public static double SLDistance(Line l1, Line l2)
         {
             return Math.Min(
-                            Math.Min(Distance(l1.P1, l2), Distance(l1.P2, l2)),
-                            Math.Min(Distance(l1, l2.P1), Distance(l1, l2.P2)));
+                            Math.Min(SLDistance(l1.P1, l2), SLDistance(l1.P2, l2)),
+                            Math.Min(SLDistance(l1, l2.P1), SLDistance(l1, l2.P2)));
         }
 
-        public static double Distance(Line l, Obstacle o)
+        public static double SLDistance(Line l, Obstacle o)
         {
-            return o.Edges.Min(edge => Distance(l, edge));
+            return o.Edges.Min(edge => SLDistance(l, edge));
         }
 
-        public static double Distance(Obstacle o, Line l)
+        public static double SLDistance(Obstacle o, Line l)
         {
-            return Distance(l, o);
+            return SLDistance(l, o);
         }
 
-        public static double Distance(Obstacle o1, Obstacle o2)
+        public static double SLDistance(Obstacle o1, Obstacle o2)
         {
-            return o1.Edges.Min(edge => Distance(edge, o2));
+            return o1.Edges.Min(edge => SLDistance(edge, o2));
         }
     }
 
@@ -147,6 +190,31 @@ namespace InverseCinematics
         public static bool operator !=(Point a, Point b)
         {
             return !(a == b);
+        }
+
+        public static Point operator -(Point a, Point b)
+        {
+            return new Point(a.X - b.X, a.Y - b.Y);
+        }
+
+        public static Point operator +(Point a, Point b)
+        {
+            return new Point(a.X + b.X, a.Y + b.Y);
+        }
+
+        public static double operator *(Point a, Point b)
+        {
+            return a.X * b.X + a.Y * b.Y;
+        }
+
+        public static Point operator *(Point a, double l)
+        {
+            return new Point(a.X * l, a.Y * l);
+        }
+
+        public static Point operator *(double l, Point a)
+        {
+            return new Point(a.X * l, a.Y * l);
         }
 
         public int CompareTo(Point other)
