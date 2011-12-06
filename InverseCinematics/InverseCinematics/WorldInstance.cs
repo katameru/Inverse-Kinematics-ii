@@ -21,12 +21,7 @@ namespace InverseCinematics
         //TODO
         public static bool Intersects(Line l1, Line l2)
         {
-            /*Point E = l1.P2 - l1.P1;
-            Point F = l2.P2 - l2.P1;
-            Point P = new Point ( -E.Y, E.X );
-            var h = ((l1.P1 - l2.P1) * P) / (F * P);
-            return (0 < h) && (h < 1); */
-            return false;
+            return(IntersectionPoint(l1, l2) != null);
         }
 
         public static bool Intersects(Line l, Obstacle o)
@@ -39,10 +34,78 @@ namespace InverseCinematics
             return Intersects(l, o);
         }
 
-        //TODO
+        //Ukradlem z internetu
+        //http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect/563240#563240
+        //Pozniej przerobie na jakas ladniejsza postac
         public static Point IntersectionPoint(Line l1, Line l2)
         {
-            return null;
+            Point p1, p2, p3, p4;
+            p1 = l1.P1; p2 = l1.P2;
+            p3 = l2.P1; p4 = l2.P2;
+
+            Point d1, d2, d3;
+            double xD1, yD1, xD2, yD2, xD3, yD3;
+            double dot, deg, len1, len2;
+            double segmentLen1, segmentLen2;
+            double ua, ub, div;
+
+            // calculate differences  
+            d1 = p2 - p1;
+            d2 = p4 - p3;
+            d3 = p1 - p3;
+            xD1 = d1.X;
+            yD1 = d1.Y;
+            xD2 = d2.X;
+            yD2 = d2.Y;
+            xD3 = d3.X;
+            yD3 = d3.Y;
+
+            // calculate the lengths of the two lines  
+            len1 = l1.Len;
+            len2 = l2.Len;
+
+            // calculate angle between the two lines.  
+            dot = d1 * d2;
+            deg = dot / (len1 * len2);
+
+            // if abs(angle)==1 then the lines are parallell,  
+            // so no intersection is possible  
+            if (Math.Abs(deg) == 1) return null;
+
+            // find intersection Pt between two lines  
+            Point pt = new Point(0, 0);
+            div = yD2 * xD1 - xD2 * yD1;
+            ua = (xD2 * yD3 - yD2 * xD3) / div;
+            ub = (xD1 * yD3 - yD1 * xD3) / div;
+            pt.X = p1.X + ua * xD1;
+            pt.Y = p1.Y + ua * yD1;
+
+            // calculate the combined length of the two segments  
+            // between Pt-p1 and Pt-p2  
+            xD1 = pt.X - p1.X;
+            xD2 = pt.X - p2.X;
+            yD1 = pt.Y - p1.Y;
+            yD2 = pt.Y - p2.Y;
+            segmentLen1 = Math.Sqrt(xD1 * xD1 + yD1 * yD1) + Math.Sqrt(xD2 * xD2 + yD2 * yD2);
+
+            // calculate the combined length of the two segments  
+            // between Pt-p3 and Pt-p4  
+            xD1 = pt.X - p3.X;
+            xD2 = pt.X - p4.X;
+            yD1 = pt.Y - p3.Y;
+            yD2 = pt.Y - p4.Y;
+            segmentLen2 = Math.Sqrt(xD1 * xD1 + yD1 * yD1) + Math.Sqrt(xD2 * xD2 + yD2 * yD2);
+
+            // if the lengths of both sets of segments are the same as  
+            // the lenghts of the two lines the point is actually  
+            // on the line segment.  
+
+            // if the point isn’t on the line, return null  
+            if (Math.Abs(len1 - segmentLen1) > 0.01 || Math.Abs(len2 - segmentLen2) > 0.01)
+                return null;
+
+            // return the valid intersection  
+            return pt;  
         }
 
         public static Point IntersectionPoint(Line l, Obstacle o)
