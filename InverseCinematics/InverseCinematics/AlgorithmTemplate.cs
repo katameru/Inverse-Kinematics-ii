@@ -120,7 +120,7 @@ namespace InverseCinematics
 
             var spec = world.Specification;
 
-            for (var i = 0; i < size; i++)
+            for (var i =0; i < size; i++)
             {
                 var arm = new List<double>();
                 var fingers = new List<List<double>>();
@@ -132,7 +132,7 @@ namespace InverseCinematics
                 {
                     fingers.Add(new List<double>());
                     for (var l = 0; l < spec.FingersArcLen[k].Count; l++)
-                        fingers[k].Add(spec.FingersArcMin[k][l] + rand.NextDouble() * (spec.FingersArcMax[k][l] - spec.FingersArcMin[k][l]));
+                        fingers[k].Add(spec.FingersArcMin[k][l] + rand.NextDouble()*(spec.FingersArcMax[k][l] - spec.FingersArcMin[k][l]));
                 }
                 population.Add(new Chromosome(arm, fingers, world));
             }
@@ -149,13 +149,13 @@ namespace InverseCinematics
 
             foreach (var c in population)
                 foreach (var b in c.Bones)
-                    g.DrawLine(p, s * (float)b.P1.X, s * (float)b.P1.Y, s * (float)b.P2.X, s * (float)b.P2.Y);
-
+                    g.DrawLine(p, s*(float) b.P1.X, s*(float) b.P1.Y, s*(float) b.P2.X, s*(float) b.P2.Y);
+                
             g.DrawImage(img, 0, 0, img.Width, img.Height);
             g.Dispose();
             return img;
         }
-
+            
         public static Chromosome Mutate(Chromosome before, double chance, WorldInstance world)
         {
             var rand = new Random();
@@ -165,13 +165,13 @@ namespace InverseCinematics
 
             for (var i = 0; i < arm.Count; i++)
                 if (rand.NextDouble() < chance)
-                    arm[i] = spec.ArmArcMin[i] + rand.NextDouble() * (spec.ArmArcMax[i] - spec.ArmArcMin[i]);
-
+                    arm[i] = spec.ArmArcMin[i] + rand.NextDouble()*(spec.ArmArcMax[i] - spec.ArmArcMin[i]);
+            
             for (var i = 0; i < fingers.Count; i++)
                 for (var j = 0; j < fingers[i].Count; j++)
                     if (rand.NextDouble() < chance)
-                        fingers[i][j] = spec.FingersArcMin[i][j] + rand.NextDouble() * (spec.FingersArcMax[i][j] - spec.FingersArcMin[i][j]);
-
+                        fingers[i][j] = spec.FingersArcMin[i][j] + rand.NextDouble()*(spec.FingersArcMax[i][j] - spec.FingersArcMin[i][j]);
+                                   
             return new Chromosome(arm, fingers, world);
         }
 
@@ -183,7 +183,7 @@ namespace InverseCinematics
             var c1_fingers = new List<List<double>>();
             var c2_arm = new List<double>();
             var c2_fingers = new List<List<double>>();
-
+            
             for (var i = 0; i < p1.Arm.Count; i++)
             {
                 c1_arm.Add(p1.Arm[i] + p2.Arm[i] + beta * (p1.Arm[i] - p2.Arm[i]));
@@ -201,7 +201,7 @@ namespace InverseCinematics
                 }
             }
 
-            return new List<Chromosome> { new Chromosome(c1_arm, c1_fingers, world), new Chromosome(c2_arm, c2_fingers, world) };
+            return new List<Chromosome>{new Chromosome(c1_arm, c1_fingers, world), new Chromosome(c2_arm, c2_fingers, world)};
         }
 
         public static List<Chromosome> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world)
@@ -209,10 +209,10 @@ namespace InverseCinematics
             var selected = new List<Chromosome>();
             var rand = new Random();
 
-            for (var i = 0; i < selSize; i++)
+            for (var i = 0; i < selSize; i++ )
             {
                 var candidates = new List<Chromosome>();
-                for (var j = 0; j < tournament; j++)
+                for (var j =0; j < tournament; j++)
                     candidates.Add(population[rand.Next(population.Count)]);
                 selected.Add(candidates.OrderBy(p => p.Score).First());
             }
@@ -229,12 +229,12 @@ namespace InverseCinematics
                     dist.Add(new KeyValuePair<Point, Point>(tp, t), Geometry.SLDistance(tp, t));
             var score = 0.0;
 
-            for (var i = 0; i < c.TouchPoints.Count; i++)
+            for (var i = 0; i < c.TouchPoints.Count; i++ )
             {
                 var ordered = dist.OrderBy(p => p.Value);
                 score += ordered.First().Value;
                 var first = ordered.First().Key;
-                dist = dist.Where(p => p.Key.Key != first.Key && p.Key.Value != first.Value).ToDictionary(p => p.Key, p => p.Value);
+                dist = dist.Where(p => p.Key.Key != first.Key && p.Key.Value != first.Value).ToDictionary(p => p.Key, p => p.Value);                
             }
 
             var error = 0.0;
@@ -258,17 +258,17 @@ namespace InverseCinematics
             Func<Chromosome, WorldInstance, Chromosome> evaluateFun)
         {
 
-            var parents = selectionFun(population, population.Count * 2, 4, world);
+            var parents = selectionFun(population, population.Count*2, 4, world);
             var children = new List<Chromosome>();
             for (var i = 0; i < parents.Count; i++)
                 children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
             children = children.Select(c => mutateFun(c, mutationChance, world)).Select(c => evaluateFun(c, world)).ToList();
             children.AddRange(parents);
 
-            var badnum = (int)alpha * population.Count;
+            var badnum = (int)alpha*population.Count;
             var good = selectionFun(children.Where(c => c.Error == 0.0).ToList(), population.Count - badnum, 4, world);
             good.AddRange(selectionFun(children.Where(c => c.Error > 0.0).ToList(), badnum, 4, world));
-
+            
             return good.OrderBy(c => c.Score).ToList();
         }
     }
