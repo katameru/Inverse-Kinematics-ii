@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 
+
 namespace InverseCinematics
 {
     class Chromosome
@@ -12,6 +13,8 @@ namespace InverseCinematics
         public List<List<double>> Fingers;
         public List<Point> TouchPoints;
         public List<Line> Bones;
+        public double Score;
+        public double Error;
 
         public Chromosome(List<double> arm, List<List<double>> fingers, WorldInstance world)
         {
@@ -43,6 +46,11 @@ namespace InverseCinematics
 
         }
 
+        public void SaveEvaluation(double score, double error)
+        {
+            Score = score;
+            Error = error;
+        }
 
     }
 
@@ -147,8 +155,7 @@ namespace InverseCinematics
             g.Dispose();
             return img;
         }
-    
-        
+            
         public static Chromosome Mutate(Chromosome before, double chance, WorldInstance world)
         {
             var rand = new Random();
@@ -197,27 +204,72 @@ namespace InverseCinematics
             return new List<Chromosome>{new Chromosome(c1_arm, c1_fingers, world), new Chromosome(c2_arm, c2_fingers, world)};
         }
 
-        public static List<Chromosome> Selection() //TODO
+        public static List<Chromosome> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world)
         {
-            return new List<Chromosome>();
+            var selected = new List<Chromosome>();
+            var rand = new Random();
+
+            for (var i = 0; i < selSize; i++ )
+            {
+                var candidates = new List<Chromosome>();
+                for (var j =0; j < tournament; j++)
+                    candidates.Add(population[rand.Next(population.Count)]);
+                selected.Add(candidates.OrderBy(p => p.Score).First());
+            }
+
+            return selected;
         }
 
 
-        public static double Evaluate( out double error) // TODO
+        public static Chromosome Evaluate(Chromosome c, WorldInstance world) // TODO
         {
+            var dist = new Dictionary<KeyValuePair<Point, Point>, double>();
+            foreach (var tp in c.TouchPoints)
+                foreach (var t in world.Targets)
+                    dist.Add(new KeyValuePair<Point, Point>(tp, t), Geometry.SLDistance(tp, t));
+            var score = 0.0;
 
-            error = 0.0;
-            return 1.0;
+            for (var i = 0; i < c.TouchPoints.Count; i++ )
+            {
+                var ordered = dist.OrderBy(p => p.Value);
+                score += ordered.First().Value;
+                var first = ordered.First().Key;
+                dist = dist.Where(p => p.Key.Key != first.Key && p.Key.Value != first.Value).ToDictionary(p => p.Key, p => p.Value);                
+            }
+
+            var error = 0.0;
+            foreach (var b in c.Bones)
+                foreach (var o in world.Obstacles)
+                    if (Geometry.Intersects(b, o))
+                        error++;
+            c.SaveEvaluation(score, error);
+            return c;
         }
 
         public static void GeneticAlgorithmTemplate(WorldInstance world, int populationSize, int generations, Func<Chromosome, double, WorldInstance, Chromosome> mutateFun)
         {
-            
-
-
-
+            // TODO ???
         }
 
-        //TODO Genetic Algorithm Step (Zwraca populację, którą można później wyświetlić)
+        public static List<Chromosome> GeneticAlgorithmTemplate(WorldInstance world, List<Chromosome> population, double alpha,
+            Func<Chromosome, double, WorldInstance, Chromosome> mutateFun, double mutationChance,
+            Func<List<Chromosome>, int, int, WorldInstance, List<Chromosome>> selectionFun,
+            Func<Chromosome, Chromosome, WorldInstance, List<Chromosome>> crossoverFun,
+            Func<Chromosome, WorldInstance, Chromosome> evaluateFun)
+        {
+
+            var parents = selectionFun(population, population.Count*2, 4, world);
+            var children = new List<Chromosome>();
+            for (var i = 0; i < parents.Count; i++)
+                children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
+            children = children.Select(c => mutateFun(c, mutationChance, world)).Select(c => evaluateFun(c, world)).ToList();
+            children.AddRange(parents);
+
+            var badnum = (int)alpha*population.Count;
+            var good = selectionFun(children.Where(c => c.Error == 0.0).ToList(), population.Count - badnum, 4, world);
+            good.AddRange(selectionFun(children.Where(c => c.Error > 0.0).ToList(), badnum, 4, world));
+            
+            return good.OrderBy(c => c.Score).ToList();
+        }
     }
 }
