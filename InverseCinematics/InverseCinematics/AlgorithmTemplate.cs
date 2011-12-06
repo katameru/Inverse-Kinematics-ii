@@ -132,7 +132,6 @@ namespace InverseCinematics
             return population;
         }
 
-
         public static Bitmap PrintPopulation(WorldInstance world, List<Chromosome> population, Bitmap img, float penwidth)
         {
             var s = Math.Min((float)img.Width / world.SizeX, (float)img.Height / world.SizeY);
@@ -148,5 +147,77 @@ namespace InverseCinematics
             g.Dispose();
             return img;
         }
+    
+        
+        public static Chromosome Mutate(Chromosome before, double chance, WorldInstance world)
+        {
+            var rand = new Random();
+            var spec = world.Specification;
+            var arm = before.Arm;
+            var fingers = before.Fingers;
+
+            for (var i = 0; i < arm.Count; i++)
+                if (rand.NextDouble() < chance)
+                    arm[i] = spec.ArmArcMin[i] + rand.NextDouble()*(spec.ArmArcMax[i] - spec.ArmArcMin[i]);
+            
+            for (var i = 0; i < fingers.Count; i++)
+                for (var j = 0; j < fingers[i].Count; j++)
+                    if (rand.NextDouble() < chance)
+                        fingers[i][j] = spec.FingersArcMin[i][j] + rand.NextDouble()*(spec.FingersArcMax[i][j] - spec.FingersArcMin[i][j]);
+                                   
+            return new Chromosome(arm, fingers, world);
+        }
+
+
+        public static List<Chromosome> Crossover(Chromosome p1, Chromosome p2, WorldInstance world)
+        {
+            var beta = new Random().NextDouble();
+            var c1_arm = new List<double>();
+            var c1_fingers = new List<List<double>>();
+            var c2_arm = new List<double>();
+            var c2_fingers = new List<List<double>>();
+            
+            for (var i = 0; i < p1.Arm.Count; i++)
+            {
+                c1_arm.Add(p1.Arm[i] + p2.Arm[i] + beta * (p1.Arm[i] - p2.Arm[i]));
+                c2_arm.Add(p1.Arm[i] + p2.Arm[i] + beta * (p2.Arm[i] - p1.Arm[i]));
+            }
+
+            for (var i = 0; i < p1.Fingers.Count; i++)
+            {
+                c1_fingers.Add(new List<double>());
+                c2_fingers.Add(new List<double>());
+                for (var j = 0; j < p1.Fingers[i].Count; j++)
+                {
+                    c1_fingers[i].Add(p1.Fingers[i][j] + p2.Fingers[i][j] + beta * (p1.Fingers[i][j] - p2.Fingers[i][j]));
+                    c2_fingers[i].Add(p1.Fingers[i][j] + p2.Fingers[i][j] + beta * (p2.Fingers[i][j] - p1.Fingers[i][j]));
+                }
+            }
+
+            return new List<Chromosome>{new Chromosome(c1_arm, c1_fingers, world), new Chromosome(c2_arm, c2_fingers, world)};
+        }
+
+        public static List<Chromosome> Selection() //TODO
+        {
+            return new List<Chromosome>();
+        }
+
+
+        public static double Evaluate( out double error) // TODO
+        {
+
+            error = 0.0;
+            return 1.0;
+        }
+
+        public static void GeneticAlgorithmTemplate(WorldInstance world, int populationSize, int generations, Func<Chromosome, double, WorldInstance, Chromosome> mutateFun)
+        {
+            
+
+
+
+        }
+
+        //TODO Genetic Algorithm Step (Zwraca populację, którą można później wyświetlić)
     }
 }
