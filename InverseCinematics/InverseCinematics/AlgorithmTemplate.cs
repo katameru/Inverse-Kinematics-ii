@@ -197,17 +197,44 @@ namespace InverseCinematics
             return new List<Chromosome>{new Chromosome(c1_arm, c1_fingers, world), new Chromosome(c2_arm, c2_fingers, world)};
         }
 
-        public static List<Chromosome> Selection() //TODO
+        public static List<Chromosome> Selection(List<Chromosome> population, WorldInstance world)
         {
-            return new List<Chromosome>();
+            List<Chromosome> valid = population.FindAll(indiv => isValid(indiv, world));
+            List<Chromosome> invalid = population.FindAll(indiv => !isValid(indiv, world));
+            valid = valid.OrderByDescending(x => Evaluate(x, world)).ToList();
+            invalid = invalid.OrderByDescending(x => Evaluate(x, world)).ToList();
+            int valid_size = 10;
+            int invalid_size = 2; //To musi byc pewnie parametrem klasy AlgorithmTemplate. Chyba
+            valid.RemoveRange(valid_size + 1, valid.Count);
+            invalid.RemoveRange(invalid_size + 1, valid.Count);
+            return valid.Concat(invalid).ToList();
         }
 
-
-        public static double Evaluate( out double error) // TODO
+        public static bool isValid(Chromosome specimen, WorldInstance world)
         {
+            foreach (var b in specimen.Bones)
+            {
+                foreach (var o in world.Obstacles)
+                {
+                    if (Geometry.Intersects(b, o))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
 
-            error = 0.0;
-            return 1.0;
+        }
+
+        public static double Evaluate(Chromosome specimen, WorldInstance world) //, out double error) // TODO
+        {
+            double distance = 0;
+            foreach (double x in specimen.TouchPoints.Zip(world.Targets, (x, y) => Geometry.SLDistance(x, y) ))
+            {
+                distance += x;
+            }
+            //error = 0.0;
+            return distance;
         }
 
         public static void GeneticAlgorithmTemplate(WorldInstance world, int populationSize, int generations, Func<Chromosome, double, WorldInstance, Chromosome> mutateFun)
