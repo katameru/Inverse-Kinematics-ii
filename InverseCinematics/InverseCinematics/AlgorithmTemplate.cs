@@ -101,7 +101,7 @@ namespace InverseCinematics
                 var len = int.Parse(spec[size]);
                 for (var j = 0; j < len; j++)
                 {
-                    var part = spec[size + 1 + i].Split();
+                    var part = spec[size + 1 + j].Split();
                     FingersArcLen[i].Add(double.Parse(part[0]));
                     FingersArcMin[i].Add(double.Parse(part[1]));
                     FingersArcMax[i].Add(double.Parse(part[2]));
@@ -246,12 +246,13 @@ namespace InverseCinematics
             return c;
         }
 
-        public static void GeneticAlgorithmTemplate(WorldInstance world, int populationSize, int generations, Func<Chromosome, double, WorldInstance, Chromosome> mutateFun)
+        public static List<Chromosome> GeneticAlgorithmStart(WorldInstance world, int populationSize, 
+            Func<WorldInstance, int, List<Chromosome>> makepopFun)
         {
-            // TODO ???
+            return makepopFun(world, populationSize);
         }
 
-        public static List<Chromosome> GeneticAlgorithmTemplate(WorldInstance world, List<Chromosome> population, double alpha,
+        public static List<Chromosome> GeneticAlgorithmStep(WorldInstance world, List<Chromosome> population, double alpha,
             Func<Chromosome, double, WorldInstance, Chromosome> mutateFun, double mutationChance,
             Func<List<Chromosome>, int, int, WorldInstance, List<Chromosome>> selectionFun,
             Func<Chromosome, Chromosome, WorldInstance, List<Chromosome>> crossoverFun,

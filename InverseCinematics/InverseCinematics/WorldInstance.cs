@@ -498,9 +498,11 @@ namespace InverseCinematics
                 Obstacles.Add(new Obstacle(obs));
                 size += 1 + o;
             }
-                
 
-
+            Obstacles.Add(new Obstacle(new List<Point> { new Point(0, 0), new Point(SizeX, 0)}));
+            Obstacles.Add(new Obstacle(new List<Point> { new Point(0, 0), new Point(0, SizeY) }));
+            Obstacles.Add(new Obstacle(new List<Point> { new Point(SizeX, SizeY), new Point(SizeX, 0) }));
+            Obstacles.Add(new Obstacle(new List<Point> { new Point(SizeX, SizeY), new Point(0, SizeY) }));
         }
 
         public Bitmap ShowWorld(int x, int y, float penwidth)
