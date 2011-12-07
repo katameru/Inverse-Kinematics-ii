@@ -113,6 +113,8 @@ namespace InverseCinematics
 
     class AlgorithmTemplate
     {
+        #region Current algorithm template
+
         static int N;
         static double alpha, beta;
         static int N_inf;
@@ -128,14 +130,20 @@ namespace InverseCinematics
             N_f = N - N_inf;
         }
 
-        public static List<Chromosome> RunAlgorithm()
+        public static List<Chromosome> RunAlgorithmStart(int size, double alpha, double beta, WorldInstance world)
         {
-            InitializeParameters(64, 0.05, 0.7);
-            var world = new WorldInstance("scenario_01.txt");
-            var population = AlgorithmTemplate.GenerateRandomPopulation(world, 15);
+            InitializeParameters(size, alpha, beta);
+            //var world = new WorldInstance(scenario);
+            var population = AlgorithmTemplate.GenerateRandomPopulation(world, size);
             population = population.Select(i => Evaluate(i, world)).ToList();
-            while (!TerminationCondition(population, world))
+            return population;
+        }
+
+        public static List<Chromosome> RunAlgorithmStep(int size, double a, double b, WorldInstance world, List<Chromosome> population)
+        {
+            if (!TerminationCondition(population, world))
             {
+                InitializeParameters(size, alpha, beta);
                 var C = new List<Chromosome>();
                 for(int i = 0; i<population.Count; i += 2)
                 {
@@ -160,6 +168,8 @@ namespace InverseCinematics
             }
             return population;
         }
+
+        # endregion Current algorithm template
 
         public static KeyValuePair<List<Chromosome>, List<Chromosome>> Split(List<Chromosome> population, WorldInstance world)
         {
@@ -200,15 +210,15 @@ namespace InverseCinematics
             return population;
         }
 
-        public static Bitmap PrintPopulation(WorldInstance world, List<Chromosome> population, Bitmap img, float penwidth)
+        public static Bitmap PrintPopulation(WorldInstance world, List<Chromosome> population, Bitmap img, float penwidth, Color pencolor)
         {
             var s = Math.Min((float)img.Width / world.SizeX, (float)img.Height / world.SizeY);
 
-            var p = new Pen(Color.Blue, penwidth);
+            var p = new Pen(pencolor, penwidth);
             var g = Graphics.FromImage(img);
 
-            //foreach (var c in population)
-            var c= population.FindAll(o => o.Score < 6)[0];
+            foreach (var c in population)
+            //var c= population.FindAll(o => o.Score < 6)[0];
                 foreach (var b in c.Bones)
                     g.DrawLine(p, s*(float) b.P1.X, s*(float) b.P1.Y, s*(float) b.P2.X, s*(float) b.P2.Y);
                 
@@ -235,7 +245,6 @@ namespace InverseCinematics
                                    
             return new Chromosome(arm, fingers, world);
         }
-
 
         public static List<Chromosome> Crossover(Chromosome p1, Chromosome p2, WorldInstance world)
         {
@@ -276,12 +285,12 @@ namespace InverseCinematics
                 var candidates = new List<Chromosome>();
                 for (var j =0; j < tournament; j++)
                     candidates.Add(population[rand.Next(population.Count)]);
-                selected.Add(candidates.OrderBy(p => p.Score).First());
+                // TODO Helper function fo order, now score + error
+                selected.Add(candidates.OrderBy(p => p.Score + p.Error).First());
             }
 
             return selected;
         }
-
 
         public static Chromosome Evaluate(Chromosome c, WorldInstance world) // TODO
         {
@@ -309,9 +318,11 @@ namespace InverseCinematics
         }
 
         public static List<Chromosome> GeneticAlgorithmStart(WorldInstance world, int populationSize, 
-            Func<WorldInstance, int, List<Chromosome>> makepopFun)
+            Func<WorldInstance, int, List<Chromosome>> makepopFun,
+            Func<Chromosome, WorldInstance, Chromosome> evaluateFun)
         {
-            return makepopFun(world, populationSize);
+            var p = makepopFun(world, populationSize);
+            return p.Select(i => evaluateFun(i, world)).ToList();
         }
 
         public static List<Chromosome> GeneticAlgorithmStep(WorldInstance world, List<Chromosome> population, double alpha,
@@ -321,16 +332,18 @@ namespace InverseCinematics
             Func<Chromosome, WorldInstance, Chromosome> evaluateFun)
         {
 
-            var parents = selectionFun(population, population.Count*2, 4, world);
+            var parents = selectionFun(population, population.Count, 4, world);
             var children = new List<Chromosome>();
             for (var i = 0; i < parents.Count; i++)
                 children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
             children = children.Select(c => mutateFun(c, mutationChance, world)).Select(c => evaluateFun(c, world)).ToList();
             children.AddRange(parents);
 
-            var badnum = (int)alpha*population.Count;
-            var good = selectionFun(children.Where(c => c.Error == 0.0).ToList(), population.Count - badnum, 4, world);
-            good.AddRange(selectionFun(children.Where(c => c.Error > 0.0).ToList(), badnum, 4, world));
+            //var badnum = (int)(alpha*population.Count);
+            var good = children.Where(c => c.Error == 0.0).ToList();
+            var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
+            good = selectionFun(children.Where(c => c.Error == 0.0).ToList(), goodnum, 4, world);
+            good.AddRange(selectionFun(children.Where(c => c.Error > 0.0).ToList(), population.Count-good.Count, 4, world));
             
             return good.OrderBy(c => c.Score).ToList();
         }

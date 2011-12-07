@@ -12,7 +12,7 @@ namespace InverseCinematics
     public partial class Form1 : Form
     {
         private bool _started = false;
-        private const int _showbest = 2;
+        private const int _showbest = 1;
 
         private WorldInstance _world;
         private int _populationSize;
@@ -97,9 +97,10 @@ namespace InverseCinematics
                 button3_Click(sender, e);
             }
 
-            _started = false;
+            //_started = false;
             button1.Enabled = true;
-            button2.Enabled = false;
+            _generations += (int)numericUpDown2.Value;
+            //button2.Enabled = false;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -111,8 +112,13 @@ namespace InverseCinematics
                 // TODO Insert proper algorithm
                 _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize, AlgorithmTemplate.GenerateRandomPopulation, AlgorithmTemplate.Evaluate);
                 //_population = AlgorithmTemplate.RunAlgorithmStart(_populationSize, _badguys, _mutation, _world);
-                
-                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f);
+
+                var img = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
+                var p = _population.Where(x => x.Error == 0);
+                if (p.Count() > 0)
+                    pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p.Take(_showbest).ToList(), img, 1.0f, Color.Green);
+                else
+                    pictureBox1.Image = img;
                 
                 _started = true;
                 button2.Enabled = true;
@@ -126,8 +132,13 @@ namespace InverseCinematics
                 AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
                 AlgorithmTemplate.Evaluate);
             //_population = AlgorithmTemplate.RunAlgorithmStep(_populationSize, _badguys, _mutation, _world, _population);
-            
-            pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f);
+
+            var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
+            var p2 = _population.Where(x => x.Error == 0);
+            if (p2.Count() > 0)
+                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
+            else
+                pictureBox1.Image = img2;
 
             _generation++;
             UpdateStats();
