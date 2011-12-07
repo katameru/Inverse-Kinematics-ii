@@ -12,13 +12,14 @@ namespace InverseCinematics
     public partial class Form1 : Form
     {
         private bool _started = false;
-        private int _showbest = 1;
+        private const int _showbest = 2;
 
         private WorldInstance _world;
         private int _populationSize;
         private int _generation;
         private int _generations;
         private double _badguys;
+        private double _mutation;
         private Bitmap _baseImage;
         private List<Chromosome> _population;
               
@@ -40,6 +41,7 @@ namespace InverseCinematics
                 _populationSize = (int) numericUpDown1.Value;
                 _generations = (int) numericUpDown2.Value;
                 _badguys = (double) numericUpDown3.Value/100;
+                _mutation = (double)numericUpDown4.Value / 100;
             }
             catch (Exception e)
             {
@@ -57,8 +59,11 @@ namespace InverseCinematics
             var c =_population.First();
             UpdateLabel(label13, c.Score);
             UpdateLabel(label14, c.Error);
-            c = _population.Where(x => x.Error == 0).First();
-            UpdateLabel(label15, c.Score);
+            var p = _population.Where(x => x.Error == 0);
+            if (p.Count() > 0)
+                UpdateLabel(label15, p.First().Score);
+            else
+                label15.Text = "";
             UpdateLabel(label17, _population.Average(x => x.Score));
             UpdateLabel(label18, _population.Average(x => x.Error));
         }
@@ -79,33 +84,6 @@ namespace InverseCinematics
             InitializeComponent();
             label5.ForeColor = Color.Red;
             button2.Enabled = false;
-
-            /*
-            var g = 100; // generations
-
-            var p = AlgorithmTemplate.GeneticAlgorithmStart(w, 50, AlgorithmTemplate.GenerateRandomPopulation);
-            pictureBox1.Image = AlgorithmTemplate.PrintPopulation(w, p.Take(1).ToList(), img, 1.0f);
-            for (var i = 0; i < g; i++)
-            {
-                
-
-                AlgorithmTemplate.GeneticAlgorithmStep(w, p, 0.10, AlgorithmTemplate.Mutate, 0.05,
-                                                           AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                                                           AlgorithmTemplate.Evaluate);
-
-                //pictureBox1.Image = AlgorithmTemplate.PrintPopulation(w, p.Take(3).ToList(), img, h);
-
-            }
-
-            AlgorithmTemplate.Evaluate(p[0], w);
-
-            pictureBox1.Image = img;
-            */
-
-
-
-
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -131,7 +109,9 @@ namespace InverseCinematics
                 if (!LoadData())
                     return;
                 // TODO Insert proper algorithm
-                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize, AlgorithmTemplate.GenerateRandomPopulation);
+                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize, AlgorithmTemplate.GenerateRandomPopulation, AlgorithmTemplate.Evaluate);
+                //_population = AlgorithmTemplate.RunAlgorithmStart(_populationSize, _badguys, _mutation, _world);
+                
                 pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f);
                 
                 _started = true;
@@ -145,7 +125,8 @@ namespace InverseCinematics
                 AlgorithmTemplate.Mutate, 0.05,
                 AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
                 AlgorithmTemplate.Evaluate);
-                        
+            //_population = AlgorithmTemplate.RunAlgorithmStep(_populationSize, _badguys, _mutation, _world, _population);
+            
             pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f);
 
             _generation++;
@@ -158,7 +139,5 @@ namespace InverseCinematics
             button2.Enabled = false;
             button1.Enabled = true;
         }
-
-
     }
 }
