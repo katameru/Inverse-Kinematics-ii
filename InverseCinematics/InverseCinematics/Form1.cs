@@ -42,6 +42,11 @@ namespace InverseCinematics
                 _generations = (int) numericUpDown2.Value;
                 _badguys = (double) numericUpDown3.Value/100;
                 _mutation = (double)numericUpDown4.Value / 100;
+
+                //TODO
+                // TESTING CODE
+                var h = new Heuristics(_world, 100);
+
             }
             catch (Exception e)
             {

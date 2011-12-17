@@ -8,6 +8,11 @@ namespace InverseCinematics
 {
     static class Geometry
     {
+        public static double RelateAngle(double oldAngle, double newAngle)
+        {
+            return (oldAngle + newAngle)%360;
+        }
+
         public static bool Intersects(Point p, Line l)
         {
             return SLDistance(p, l.P1) + SLDistance(p, l.P2) == l.Len;

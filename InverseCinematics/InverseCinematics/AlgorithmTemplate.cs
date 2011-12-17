@@ -29,16 +29,20 @@ namespace InverseCinematics
 
             for (var i = 0; i < arm.Count; i++)
             {
-                Bones.Add(new Line(point, world.Specification.ArmArcLen[i], Arm[i]));
+                angle = Geometry.RelateAngle(angle, Arm[i]);
+                Bones.Add(new Line(point, world.Specification.ArmArcLen[i], angle));
                 point = Bones[i].P2;
             }
 
             for (var i = 0; i < Fingers.Count; i++)
             {
+                var angle2 = angle; // remember last angle;
+
                 var point2 = point;
                 for (var j = 0; j < fingers[i].Count; j++)
                 {
-                    Bones.Add(new Line(point2, world.Specification.FingersArcLen[i][j], Fingers[i][j]));
+                    angle2 = Geometry.RelateAngle(angle2, Fingers[i][j]);
+                    Bones.Add(new Line(point2, world.Specification.FingersArcLen[i][j], angle2));
                     point2 = Bones.Last().P2;
                 }
                 TouchPoints.Add(point2);
