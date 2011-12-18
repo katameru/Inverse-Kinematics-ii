@@ -524,7 +524,7 @@ namespace InverseCinematics
         public List<Obstacle> Obstacles;
         public Specification Specification;
         public string DebugSTR = "";
-        public Heuristics heur;
+        public Heuristics heuristic;
 
         /// <summary>
         /// Wczytuje scenariusz
@@ -577,10 +577,9 @@ namespace InverseCinematics
         /// <param name="penwidth">Grubość pióra</param>
         /// <param name="heuristic">Heurystyka do zwizualizowania</param>
         /// <returns>Obraz świata</returns>
-        public Bitmap ShowWorld(int x, int y, float penwidth, Heuristics heuristic)
+        public Bitmap ShowWorld(int x, int y, float penwidth)
         {
             var s = Math.Min((float)x / SizeX, (float)y / SizeY);
-
             var world = new Bitmap(x, y);
             var p = new Pen(Color.Green, penwidth);
             var g = Graphics.FromImage(world);

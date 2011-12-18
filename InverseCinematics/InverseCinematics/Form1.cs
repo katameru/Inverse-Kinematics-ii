@@ -16,8 +16,9 @@ namespace InverseCinematics
 
         private WorldInstance _world;
         private int _populationSize;
-        private int _generation;
-        private int _generations;
+        private int _generationsArm;
+        private int _generationsFingers;
+        private int _generationsAll;
         private double _badguys;
         private double _mutation;
         private Bitmap _baseImage;
@@ -25,46 +26,44 @@ namespace InverseCinematics
               
         private bool LoadData()
         {
-            _generation = 0;
+            _generationsArm = 0;
+            _generationsFingers = 0;
+            _generationsAll = 0;
             label13.Text = "";
             label14.Text = "";
             label15.Text = "";
             label16.Text = "";
             label17.Text = "";
             label18.Text = "";
-            label19.Text = _generation.ToString();
+            labelGAll.Text = @"0";
+            labelGFingers.Text = @"0";
+            labelGArms.Text = @"0";
 
-            //try
-            //{
-                //_world = new WorldInstance(textBox1.Text);
+            try
+            {
                 _world = new WorldInstance(comboBox1.Text);
-                var h = new Heuristics(_world, 50);
-                _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f, h));
+                _world.heuristic = new Heuristics(_world, (int)numericUpDown2.Value);
+                _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f));
                 _populationSize = (int) numericUpDown1.Value;
-                _generations = (int) numericUpDown2.Value;
                 _badguys = (double) numericUpDown3.Value/100;
                 _mutation = (double)numericUpDown4.Value / 100;
-
-                //var x = h.GetHeuristic(new Point(18, 9.99));
-                //var y = h.GetHeuristic(new Point(2, 9.99));
-                //var z = 0;
-                //TODO
-                // TESTING CODE
-                //var h = new Heuristics(_world, 100);
-
-            //}
-            //catch (Exception e)
-            //{
-            //    label5.Text = e.Message;
-            //    return false;
-            //}
-            label5.Text = "";
+            }
+            catch (Exception e)
+            {
+                label5.ForeColor = Color.Red;
+                label5.Text = e.Message;
+                return false;
+            }
+            label5.ForeColor = Color.Green;
+            label5.Text = @"Scenariusz wczytany poprawnie.";
             return true;
         }
 
         private void UpdateStats()
         {
-            label19.Text = _generation.ToString();
+            labelGAll.Text = _generationsAll.ToString();
+            labelGFingers.Text = _generationsFingers.ToString();
+            labelGArms.Text = _generationsArm.ToString();
 
             var c =_population.First();
             UpdateLabel(label13, c.Score);
@@ -98,92 +97,68 @@ namespace InverseCinematics
 
         private void button1_Click(object sender, EventArgs e)
         {
-            button1.Enabled = false;
-            button3_Click(sender, e);
-
-            button3_Click(sender, e);
-            button4_Click(sender, e);
-            while (_started && _generation < _generations)
+            var b = LoadData();
+            button2.Enabled = b;
+            button3.Enabled = b;
+            if (b)
             {
-                //TODO timer?
-                button3_Click(sender, e);
-            }
-            /*
-            for (int i = 0; i < _generations; i++)
-            {
-                button4_Click(sender, e);
-            }
-            */
-                //_started = false;
-                button1.Enabled = true;
-            _generations += (int)numericUpDown2.Value;
-            //button2.Enabled = false;
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if (!_started)
-            {
-                if (!LoadData())
-                    return;
-                // TODO Insert proper algorithm
-                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize, AlgorithmTemplate.GenerateRandomPopulation, AlgorithmTemplate.Evaluate, EvolveChoices.All);
-                //_population = AlgorithmTemplate.RunAlgorithmStart(_populationSize, _badguys, _mutation, _world);
-
-                var img = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-                var p = _population.Where(x => x.Error == 0);
-                if (p.Count() > 0)
-                    pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p.Take(_showbest).ToList(), img, 1.0f, Color.Green);
-                else
-                    pictureBox1.Image = img;
-                
-                _started = true;
-                button2.Enabled = true;
-                _generation++;
+                pictureBox1.Image = _baseImage;
+                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize,
+                                                                      AlgorithmTemplate.GenerateRandomPopulation,
+                                                                      AlgorithmTemplate.Evaluate, EvolveChoices.All);
                 UpdateStats();
-                return;
             }
-            // TODO Insert proper algorithm
-            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, 
-                AlgorithmTemplate.Mutate, 0.05,
-                AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                AlgorithmTemplate.Evaluate, EvolveChoices.All);
-            //_population = AlgorithmTemplate.RunAlgorithmStep(_populationSize, _badguys, _mutation, _world, _population);
-
-            var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            var p2 = _population.Where(x => x.Error == 0);
-            if (p2.Count() > 0)
-                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
-            else
-                pictureBox1.Image = img2;
-
-            _generation++;
-            UpdateStats();
-        }
-
-        //Next finger generation
-        private void button4_Click(object sender, EventArgs e)
-        {
-            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
-                AlgorithmTemplate.Mutate, 0.05,
-                AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                AlgorithmTemplate.Evaluate, EvolveChoices.Fingers);
-
-            var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            var p2 = _population.Where(x => x.Error == 0);
-            if (p2.Count() > 0)
-                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
-            else
-                pictureBox1.Image = img2;
-
-            UpdateStats();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            _started = false;
-            button2.Enabled = false;
-            button1.Enabled = true;
+            var ga = (int)numericGArm.Value;
+            var gf = (int) numericGFingers.Value;
+
+            for (var i = 0; i < ga; i++ )
+                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
+                    AlgorithmTemplate.Mutate, _mutation,
+                    AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
+                    AlgorithmTemplate.Evaluate, EvolveChoices.Arm);
+            for (var i = 0; i < gf; i++)
+                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
+                    AlgorithmTemplate.Mutate, _mutation,
+                    AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
+                    AlgorithmTemplate.Evaluate, EvolveChoices.Fingers);
+
+            var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
+            var p2 = _population.Where(x => x.Error == 0);
+            if (p2.Count() > 0)
+                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
+            else
+                pictureBox1.Image = img2;
+
+            _generationsArm += ga;
+            _generationsFingers += gf;
+            _generationsAll += ga + gf;
+            UpdateStats();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
+                AlgorithmTemplate.Mutate, _mutation,
+                AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
+                AlgorithmTemplate.Evaluate, EvolveChoices.All);
+
+            var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
+            var p2 = _population.Where(x => x.Error == 0);
+            if (p2.Count() > 0)
+                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
+            else
+                pictureBox1.Image = img2;
+
+            _generationsArm ++;
+            _generationsFingers ++;
+            _generationsAll++;
+
+            UpdateStats();
+
         }
     }
 }
