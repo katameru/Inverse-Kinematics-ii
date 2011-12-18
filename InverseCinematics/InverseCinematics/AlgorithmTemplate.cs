@@ -403,9 +403,9 @@ namespace InverseCinematics
             for (var i = 0; i < parents.Count; i++)
                 children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world, evolveWhat));
             children = children.Select(c => mutateFun(c, mutationChance, world, evolveWhat)).Select(c => evaluateFun(c, world, evolveWhat)).ToList();
-            parents = parents.Select(c => mutateFun(c, mutationChance, world, evolveWhat)).Select(c => evaluateFun(c, world, evolveWhat)).ToList();
+            parents = parents.Select(c => evaluateFun(c, world, evolveWhat)).ToList();
             children.AddRange(parents);
-
+            children = children.Distinct().ToList();
             //var badnum = (int)(alpha*population.Count);
             var good = children.Where(c => c.Error == 0.0).ToList();
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
