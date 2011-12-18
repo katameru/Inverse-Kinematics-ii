@@ -6,8 +6,16 @@ using System.Text;
 
 namespace InverseCinematics
 {
+    /// <summary>
+    /// Zawiera definicje funkcji geometrycznych i nnych przydatnych metod.
+    /// </summary>
     static class Geometry
     {
+        /// <summary>
+        /// Zwraca wszystki możliwe permutacje listy 0..n
+        /// </summary>
+        /// <param name="n">Liczba elementów list</param>
+        /// <returns>Możliwe permutacje list n-elementowych</returns>
         public static List<List<int>> Permutations(int n)
         {
             var l = new List<int>();
@@ -38,6 +46,12 @@ namespace InverseCinematics
             return r;
         }
 
+        /// <summary>
+        /// Tworzy wartość bezwzględną kąta z wartości kata względem poprzedniego segmentu
+        /// </summary>
+        /// <param name="oldAngle">bezwzględna wartość kąta poprzedniego segmentu</param>
+        /// <param name="newAngle">aktualna względna wartość kąta</param>
+        /// <returns>Bezwzględna wartość kąta dla nowego segmentu</returns>
         public static double RelateAngle(double oldAngle, double newAngle)
         {
             return (oldAngle + newAngle)%360;
@@ -406,6 +420,9 @@ namespace InverseCinematics
         }
     }
 
+    /// <summary>
+    /// Zbiór linii tworzących (raczej spójną) przeszkodę
+    /// </summary>
     class Obstacle
     {
         public List<Line> Edges;
@@ -489,7 +506,9 @@ namespace InverseCinematics
         }
     }
 
-
+    /// <summary>
+    /// Opisuje świat w którym toczy się ewolucja
+    /// </summary>
     class WorldInstance
     {
         //public int N;
@@ -501,6 +520,10 @@ namespace InverseCinematics
         public Specification Specification;
         public string DebugSTR = "";
 
+        /// <summary>
+        /// Wczytuje scenariusz
+        /// </summary>
+        /// <param name="filename">ścieżka do pliku tekstowego z opisem świata</param>
         public WorldInstance(string filename)
         {
             var lines = System.IO.File.ReadAllLines(filename).Where(l => l.Length != 0 && l[0] != '#').ToList();
@@ -540,6 +563,14 @@ namespace InverseCinematics
             Obstacles.Add(new Obstacle(new List<Point> { new Point(SizeX, SizeY), new Point(0, SizeY) }));
         }
 
+        /// <summary>
+        /// Tworzy rysunek z przedstawionym światem
+        /// </summary>
+        /// <param name="x">Wielkość obrazu w poziomie</param>
+        /// <param name="y">Wielkość obrazu w pionie</param>
+        /// <param name="penwidth">Grubość pióra</param>
+        /// <param name="heuristic">Heurystyka do zwizualizowania</param>
+        /// <returns>Obraz świata</returns>
         public Bitmap ShowWorld(int x, int y, float penwidth, Heuristics heuristic)
         {
             var s = Math.Min((float)x / SizeX, (float)y / SizeY);
@@ -569,8 +600,6 @@ namespace InverseCinematics
             g.Dispose();
             return world;
         }
-
-
 
     }
 }

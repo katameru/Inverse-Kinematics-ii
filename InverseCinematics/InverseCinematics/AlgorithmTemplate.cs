@@ -7,6 +7,9 @@ using System.Text;
 
 namespace InverseCinematics
 {
+    /// <summary>
+    /// Podstawowe informacje o chromosomie, zawierające głównie wartości kątów.
+    /// </summary>
     class Chromosome
     {
         public List<double> Arm;
@@ -16,6 +19,12 @@ namespace InverseCinematics
         public double Score;
         public double Error;
 
+        /// <summary>
+        /// Tworzy nowy chromosom
+        /// </summary>
+        /// <param name="arm">Lista kątów ramienia</param>
+        /// <param name="fingers">Lista kątów palców</param>
+        /// <param name="world">świat</param>
         public Chromosome(List<double> arm, List<List<double>> fingers, WorldInstance world)
         {
             Arm = arm;
@@ -50,6 +59,11 @@ namespace InverseCinematics
 
         }
 
+        /// <summary>
+        /// Zapisuje w chromosomie rezultat jego ewaluacji
+        /// </summary>
+        /// <param name="score">Wynik chromosomu</param>
+        /// <param name="error">Liczba błędów</param>
         public void SaveEvaluation(double score, double error)
         {
             Score = score;
@@ -58,6 +72,10 @@ namespace InverseCinematics
 
     }
 
+    /// <summary>
+    /// Specyfikacja chromosomów.
+    /// Zawiera informacje o długościach poszczególnych kości oraz możliwych kątach rozwarć stawów
+    /// </summary>
     class Specification
     {
         public List<double> ArmArcLen;
@@ -67,6 +85,9 @@ namespace InverseCinematics
         public List<List<double>> FingersArcMin;
         public List<List<double>> FingersArcMax;
 
+        /// <summary>
+        /// Tworzy specyfikację na podstawie konkretnych danych.
+        /// </summary>
         public Specification(List<double> armArcLen, List<double> armArcMin, List<double> armArcMax, List<List<double>> fingersArcLen, List<List<double>> fingersArcMin, List<List<double>> fingersArcMax)
         {
             ArmArcLen = armArcLen;
@@ -77,6 +98,11 @@ namespace InverseCinematics
             FingersArcMax = fingersArcMax;
         }
 
+        /// <summary>
+        /// Wczytuje specyfikację z danych pobranych z pliku.
+        /// </summary>
+        /// <param name="targets">Liczba punktów docelowych</param>
+        /// <param name="spec">Kolejne linie pliku wejściowego</param>
         public Specification(int targets, List<string> spec)
         {
             ArmArcLen = new List<double>();
@@ -115,8 +141,10 @@ namespace InverseCinematics
         }
     }
 
+
     class AlgorithmTemplate
     {
+        /*
         #region Current algorithm template
 
         static int N;
@@ -174,6 +202,7 @@ namespace InverseCinematics
         }
 
         # endregion Current algorithm template
+        */
 
         public static KeyValuePair<List<Chromosome>, List<Chromosome>> Split(List<Chromosome> population, WorldInstance world)
         {
@@ -187,6 +216,12 @@ namespace InverseCinematics
             return population.Exists(i => i.Score < 1) || population.Count == 0;
         }
 
+        /// <summary>
+        /// Tworzy losową populację chromosomów
+        /// </summary>
+        /// <param name="world">Świat</param>
+        /// <param name="size">Wielkośc populacji</param>
+        /// <returns>Losowa populacja wielkości size</returns>
         public static List<Chromosome> GenerateRandomPopulation(WorldInstance world, int size)
         {
             var rand = new Random();
@@ -214,6 +249,15 @@ namespace InverseCinematics
             return population;
         }
 
+        /// <summary>
+        /// Drukuje populację
+        /// </summary>
+        /// <param name="world">świat</param>
+        /// <param name="population">populacja</param>
+        /// <param name="img">tło do rysowania</param>
+        /// <param name="penwidth">szerokość pióra</param>
+        /// <param name="pencolor">kolor pióra</param>
+        /// <returns></returns>
         public static Bitmap PrintPopulation(WorldInstance world, List<Chromosome> population, Bitmap img, float penwidth, Color pencolor)
         {
             var s = Math.Min((float)img.Width / world.SizeX, (float)img.Height / world.SizeY);
