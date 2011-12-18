@@ -36,7 +36,8 @@ namespace InverseCinematics
 
             //try
             //{
-                _world = new WorldInstance(textBox1.Text);
+                //_world = new WorldInstance(textBox1.Text);
+                _world = new WorldInstance(comboBox1.Text);
                 var h = new Heuristics(_world, 100);
                 _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f, h));
                 _populationSize = (int) numericUpDown1.Value;
@@ -44,6 +45,9 @@ namespace InverseCinematics
                 _badguys = (double) numericUpDown3.Value/100;
                 _mutation = (double)numericUpDown4.Value / 100;
 
+                //var x = h.GetHeuristic(new Point(18, 9.99));
+                //var y = h.GetHeuristic(new Point(2, 9.99));
+                //var z = 0;
                 //TODO
                 // TESTING CODE
                 //var h = new Heuristics(_world, 100);
