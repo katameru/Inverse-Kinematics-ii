@@ -343,6 +343,7 @@ namespace InverseCinematics
                     if (p.PossibleWrist)
                     {
                         var d = Geometry.Distance(wristEnd, p.Center, world);
+                        //var d = Geometry.SLDistance(wristEnd, p.Center);
                         if (d < min) min = d;
                     }
                 }
