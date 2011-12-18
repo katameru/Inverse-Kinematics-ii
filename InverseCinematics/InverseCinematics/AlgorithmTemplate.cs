@@ -348,8 +348,8 @@ namespace InverseCinematics
                 {
                     if (p.PossibleWrist)
                     {
-                        var d = Geometry.Distance(wristEnd, p.Center, world);
-                        //var d = Geometry.SLDistance(wristEnd, p.Center);
+                        //var d = Geometry.Distance(wristEnd, p.Center, world);
+                        var d = Geometry.SLDistance(wristEnd, p.Center);
                         if (d < min) min = d;
                     }
                 }
@@ -357,10 +357,28 @@ namespace InverseCinematics
             }
 
             var error = 0.0;
-            foreach (var b in c.Bones)
-                foreach (var o in world.Obstacles)
-                    if (Geometry.Intersects(b, o))
-                        error++;
+            if (whichDistance == EvolveChoices.All)
+            {
+                foreach (var b in c.Bones)
+                    foreach (var o in world.Obstacles)
+                        if (Geometry.Intersects(b, o))
+                            error++;
+            }
+            if (whichDistance == EvolveChoices.Arm)
+            {
+                foreach (var b in c.BonesArm)
+                    foreach (var o in world.Obstacles)
+                        if (Geometry.Intersects(b, o))
+                            error++;
+            }
+            if (whichDistance == EvolveChoices.Fingers)
+            {
+                foreach (var b in c.BonesFingers)
+                    foreach (var o in world.Obstacles)
+                        if (Geometry.Intersects(b, o))
+                            error++;
+            }
+            
             c.SaveEvaluation(score, error);
             return c;
         }
