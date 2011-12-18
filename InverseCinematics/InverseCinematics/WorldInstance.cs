@@ -59,7 +59,7 @@ namespace InverseCinematics
 
         public static bool Intersects(Point p, Line l)
         {
-            return SLDistance(p, l.P1) + SLDistance(p, l.P2) == l.Len;
+            return SLDistance(p, l.P1) + SLDistance(p, l.P2) <= l.Len + 0.1;
         }
 
         public static bool Intersects(Line l, Point p)
@@ -70,7 +70,7 @@ namespace InverseCinematics
         //TODO
         public static bool Intersects(Line l1, Line l2)
         {
-            return(IntersectionPoint(l1, l2) != null);
+            return(IntersectionPoint(l1, l2) != null && IntersectionPoint(l1, l2).Count != 0);
         }
 
         public static bool Intersects(Line l, Obstacle o)
@@ -166,13 +166,7 @@ namespace InverseCinematics
 
         public static List<Point> IntersectionPoint(Line l, Obstacle o)
         {
-            var x = o.Edges.FindAll(e => Intersects(l, e)).Select(e => IntersectionPoint(e, l)).ToList();
-            var nl = new List<Point>();
-            foreach (var i in x)
-            {
-                nl.Concat(i);
-            }
-            return nl;
+            return o.Edges.FindAll(e => Intersects(l, e)).SelectMany(e => IntersectionPoint(e, l)).ToList();
         }
 
         public static double SLDistance(Point p1, Point p2)
@@ -271,31 +265,25 @@ namespace InverseCinematics
             int i = i1 + 1;
             while(true)
             {
-                distance1 += o.Edges[i].Len;
-                if (o.Edges.Count == i + 1)
+                if (o.Edges.Count == i)
                 {
                     i = 0;
                 }
-                else
-                {
-                    i++;
-                }
                 if (o.Edges[i] == e2) break;
+                distance1 += o.Edges[i].Len;
+                i++;
             }
 
             i = i2 + 1;
             while (true)
             {
-                distance2 += o.Edges[i].Len;
-                if (o.Edges.Count == i + 1)
+                if (o.Edges.Count == i)
                 {
                     i = 0;
                 }
-                else
-                {
-                    i++;
-                }
                 if (o.Edges[i] == e1) break;
+                distance2 += o.Edges[i].Len;
+                i++;
             }
 
             return Math.Min(distance1, distance2);
@@ -305,19 +293,24 @@ namespace InverseCinematics
         {
             Line l = new Line(p1, p2);
             double distance = 0;
-            var iobs = world.Obstacles.FindAll(o => Intersects(o, l)).OrderBy(o => SLDistance(o, l)).ToList();
+            var iobs = world.Obstacles.FindAll(o => Intersects(o, l)).OrderBy(o => SLDistance(o, p1)).ToList();
             var ipoints = new List<List<Point>>();
-            foreach (var iobstacle in iobs)
+
+            for(int i = 0; i< iobs.Count; i++)
             {
-                var ipoint = iobstacle.Edges.SelectMany(e => IntersectionPoint(e, l)).OrderBy(p => SLDistance(p1, p)).ToList();
+                var iobstacle = iobs[i];
+                var a = iobstacle.Edges.Select(e => IntersectionPoint(e, l)).ToList().FindAll(e => e != null).SelectMany(x => x).ToList();
+                var b = a.OrderBy(p => SLDistance(p1, p)).ToList();
+                var ipoint = b;
                 if (ipoint.Count == 1)
                 {
-                    iobs = iobs.Skip(1).ToList();
+                    iobs.RemoveAt(i);
+                    i--;
                     continue;
                 }
                 ipoints.Add(ipoint);
             }
-
+            if (iobs.Count == 0) return SLDistance(p1, p2);
             for (int i = 0; i < iobs.Count; i++)
             {
                 if (i == 0)

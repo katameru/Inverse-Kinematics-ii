@@ -318,7 +318,7 @@ namespace InverseCinematics
             var dist = new Dictionary<KeyValuePair<Point, Point>, double>();
             foreach (var tp in c.TouchPoints)
                 foreach (var t in world.Targets)
-                    dist.Add(new KeyValuePair<Point, Point>(tp, t), Geometry.SLDistance(tp, t));
+                    dist.Add(new KeyValuePair<Point, Point>(tp, t), Geometry.Distance(tp, t, world));
             var score = 0.0;
 
             var h = world.heur;
@@ -342,7 +342,7 @@ namespace InverseCinematics
                 {
                     if (p.PossibleWrist)
                     {
-                        var d = Geometry.SLDistance(wristEnd, p.Center);
+                        var d = Geometry.Distance(wristEnd, p.Center, world);
                         if (d < min) min = d;
                     }
                 }
