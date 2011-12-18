@@ -73,8 +73,15 @@ namespace InverseCinematics
                 UpdateLabel(label15, p.First().Score);
             else
                 label15.Text = "";
-            UpdateLabel(label17, _population.Average(x => x.Score));
-            UpdateLabel(label18, _population.Average(x => x.Error));
+            
+            var avgScore = _population.Average(x => x.Score);
+            var avgScore2 = _population.Average(x => x.Score*x.Score);
+            var avgError = _population.Average(x => x.Error);
+            var avgError2 = _population.Average(x => x.Error * x.Error);
+            UpdateLabel(label17, avgScore);
+            UpdateLabel(label18, avgError);
+            UpdateLabel(label24, avgScore2 - avgScore * avgScore);
+            UpdateLabel(label23, avgError2 - avgError * avgError);
         }
 
         private void UpdateLabel(Label l, double v)
