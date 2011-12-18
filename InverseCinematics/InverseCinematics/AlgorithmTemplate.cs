@@ -16,6 +16,8 @@ namespace InverseCinematics
         public List<List<double>> Fingers;
         public List<Point> TouchPoints;
         public List<Line> Bones;
+        public List<Line> BonesFingers;
+        public List<Line> BonesArm;
         public double Score;
         public double Error;
         //TODO
@@ -40,13 +42,16 @@ namespace InverseCinematics
             var angle = 0.0; // Initial angle is north
             var point = world.Start;
             Bones = new List<Line>();
+            BonesArm = new List<Line>();
+            BonesFingers = new List<Line>();
+
             TouchPoints = new List<Point>();
 
             for (var i = 0; i < arm.Count; i++)
             {
                 angle = Geometry.RelateAngle(angle, Arm[i]);
-                Bones.Add(new Line(point, world.Specification.ArmArcLen[i], angle));
-                point = Bones[i].P2;
+                BonesArm.Add(new Line(point, world.Specification.ArmArcLen[i], angle));
+                point = BonesArm.Last().P2;
             }
 
             for (var i = 0; i < Fingers.Count; i++)
@@ -57,12 +62,13 @@ namespace InverseCinematics
                 for (var j = 0; j < fingers[i].Count; j++)
                 {
                     angle2 = Geometry.RelateAngle(angle2, Fingers[i][j]);
-                    Bones.Add(new Line(point2, world.Specification.FingersArcLen[i][j], angle2));
-                    point2 = Bones.Last().P2;
+                    BonesFingers.Add(new Line(point2, world.Specification.FingersArcLen[i][j], angle2));
+                    point2 = BonesFingers.Last().P2;
                 }
                 TouchPoints.Add(point2);
             }
 
+            Bones = BonesArm.Concat(BonesFingers).ToList();
         }
 
         /// <summary>
