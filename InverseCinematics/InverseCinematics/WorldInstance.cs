@@ -83,6 +83,11 @@ namespace InverseCinematics
             return Intersects(l, o);
         }
 
+        public static bool Intersects(List<Obstacle> ol, Line l)
+        {
+            return ol.Any(o => Intersects(o, l));
+        }
+
         //Ukradlem z internetu
         //http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect/563240#563240
         //Pozniej przerobie na jakas ladniejsza postac
@@ -579,7 +584,14 @@ namespace InverseCinematics
             var p = new Pen(Color.Green, penwidth);
             var g = Graphics.FromImage(world);
 
-            var b = new SolidBrush(Color.PowderBlue);
+            var b = new SolidBrush(Color.Snow);
+            for (var i = 0; i < heuristic.PartitionX; i++)
+                for (var j = 0; j < heuristic.PartitionY; j++)
+                    if (heuristic.Partitionning[i, j].Accessibility)
+                        g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
+                                        s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
+
+            b = new SolidBrush(Color.PowderBlue);
             for (var i = 0; i < heuristic.PartitionX; i++)
                 for (var j = 0; j < heuristic.PartitionY; j++)
                     if (heuristic.Partitionning[i, j].PossibleWrist)

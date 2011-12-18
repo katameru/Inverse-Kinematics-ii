@@ -38,7 +38,7 @@ namespace InverseCinematics
             //{
                 //_world = new WorldInstance(textBox1.Text);
                 _world = new WorldInstance(comboBox1.Text);
-                var h = new Heuristics(_world, 10);
+                var h = new Heuristics(_world, 50);
                 _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f, h));
                 _populationSize = (int) numericUpDown1.Value;
                 _generations = (int) numericUpDown2.Value;

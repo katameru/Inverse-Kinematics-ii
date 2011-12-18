@@ -24,11 +24,12 @@ namespace InverseCinematics
         public double Radius;
         public double RealDistanceStart;
         public List<double> RealDistanceTargets = new List<double>();
-        public bool Accessibility = true;
+        public bool Accessibility = false;
 
         public PartitionHeuristic(Point center, double radius, WorldInstance world, double maxArmLen, double minArmLen, List<double> maxFingersLen, List<double> minFingersLen)
         {
             SLDistanceStart = Geometry.SLDistance(center, world.Start);
+            Center = center;
             Radius = radius;
 
             foreach (var t in world.Targets)
@@ -115,7 +116,8 @@ namespace InverseCinematics
 
             CalculateLenghts();
             CalculatePartitionning();
-            CalculateRealDistances();
+            CalculateAccessibility();
+            //CalculateRealDistances();
         }
 
         /// <summary>
@@ -201,6 +203,40 @@ namespace InverseCinematics
         private void CalculateRealDistances()
         {
             
+        }
+
+        private void CalculateAccessibility()
+        {
+            var delta = new List<Point>
+                            {
+                                new Point(-PartitionRadius, 0),
+                                new Point(PartitionRadius, 0),
+                                new Point(0, -PartitionRadius),
+                                new Point(0, PartitionRadius)
+                            };
+            var q = new Queue<Point>();
+            var v = new List<Point>();
+            Point p = GetHeuristic(_world.Start).Center;
+            q.Enqueue(p);
+            v.Add(p);
+
+            while (q.Count > 0)
+            {
+                p = q.Dequeue();
+                var h = GetHeuristic(p);
+                h.Accessibility = true;
+
+                foreach (var d in delta)
+                {
+                    var p2 = p+d;
+
+                    if (!v.Contains(p2) && !Geometry.Intersects(_world.Obstacles, new Line(p, p2) ))
+                    {
+                        q.Enqueue(p2);
+                        v.Add(p2);
+                    }
+                }
+            }
         }
 
         /// <summary>
