@@ -34,10 +34,11 @@ namespace InverseCinematics
             label18.Text = "";
             label19.Text = _generation.ToString();
 
-            try
-            {
+            //try
+            //{
                 _world = new WorldInstance(textBox1.Text);
-                _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f));
+                var h = new Heuristics(_world, 100);
+                _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f, h));
                 _populationSize = (int) numericUpDown1.Value;
                 _generations = (int) numericUpDown2.Value;
                 _badguys = (double) numericUpDown3.Value/100;
@@ -45,14 +46,14 @@ namespace InverseCinematics
 
                 //TODO
                 // TESTING CODE
-                var h = new Heuristics(_world, 100);
+                //var h = new Heuristics(_world, 100);
 
-            }
-            catch (Exception e)
-            {
-                label5.Text = e.Message;
-                return false;
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    label5.Text = e.Message;
+            //    return false;
+            //}
             label5.Text = "";
             return true;
         }

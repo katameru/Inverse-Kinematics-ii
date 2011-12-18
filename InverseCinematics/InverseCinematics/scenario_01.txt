@@ -10,9 +10,10 @@
 1 1
 9 1
 # Number of Arm parts
-1
+2
 # Arm parts: length angleMin angleMax
 3 0 360
+1 0 360
 # For number of target Points=Fingers
 # Number of first Finger parts
 2

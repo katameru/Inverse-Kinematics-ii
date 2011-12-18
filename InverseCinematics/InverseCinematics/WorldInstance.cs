@@ -8,6 +8,36 @@ namespace InverseCinematics
 {
     static class Geometry
     {
+        public static List<List<int>> Permutations(int n)
+        {
+            var l = new List<int>();
+            for(var i =0; i < n; i++)
+                l.Add(i);
+            return Permutations(l);
+        }
+
+        public static List<List<int>> Permutations(List<int> baseList)
+        {
+            if (baseList.Count == 1)
+                return new List<List<int>>{baseList};
+
+            var r = new List<List<int>>();
+
+            foreach (var f in baseList)
+            {
+                var b = new List<int>(baseList);
+                b.Remove(f);
+                var t = Permutations(b);
+                foreach (var tl in t)
+                {
+                    r.Add(tl);
+                    r.Last().Add(f);
+                }
+            }
+
+            return r;
+        }
+
         public static double RelateAngle(double oldAngle, double newAngle)
         {
             return (oldAngle + newAngle)%360;
@@ -510,14 +540,21 @@ namespace InverseCinematics
             Obstacles.Add(new Obstacle(new List<Point> { new Point(SizeX, SizeY), new Point(0, SizeY) }));
         }
 
-        public Bitmap ShowWorld(int x, int y, float penwidth)
+        public Bitmap ShowWorld(int x, int y, float penwidth, Heuristics heuristic)
         {
             var s = Math.Min((float)x / SizeX, (float)y / SizeY);
 
             var world = new Bitmap(x, y);
             var p = new Pen(Color.Green, penwidth);
             var g = Graphics.FromImage(world);
-            
+
+            var b = new SolidBrush(Color.PowderBlue);
+            for (var i = 0; i < heuristic.PartitionX; i++)
+                for (var j = 0; j < heuristic.PartitionY; j++)
+                    if (heuristic.Partitionning[i, j].PossibleWrist)
+                        g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
+                                        s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
+
             g.DrawRectangle(p, s*(float)Start.X-penwidth/2, s*(float)Start.Y-penwidth/2, penwidth, penwidth);
 
             p.Color = Color.Orange;
