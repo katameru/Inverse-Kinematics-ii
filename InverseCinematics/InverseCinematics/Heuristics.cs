@@ -22,7 +22,9 @@ namespace InverseCinematics
         public bool PossibleWrist;
         public Point Center;
         public double Radius;
-        //TODO Real distance
+        public double RealDistanceStart;
+        public List<double> RealDistanceTargets = new List<double>();
+        public bool Accessibility = true;
 
         public PartitionHeuristic(Point center, double radius, WorldInstance world, double maxArmLen, double minArmLen, List<double> maxFingersLen, List<double> minFingersLen)
         {
@@ -52,9 +54,21 @@ namespace InverseCinematics
                     PossibleFingering.Add(p);
             }
 
-            PossibleWrist = PossibleFingering.Count > 0 && ReachableStart;
-            
+            PossibleWrist = PossibleFingering.Count > 0 && ReachableStart && Accessibility;
         }
+
+        /// <summary>
+        /// Dla zadanego punktu sprawdza czy da się z niego dojść do startu i celów
+        /// </summary>
+        /// <param name="p">punkt</param>
+        /// <returns></returns>
+        public bool PointAccessibility(Point p)
+        {
+
+            return true;
+        }
+
+        //public double
 
     }
 
@@ -101,6 +115,7 @@ namespace InverseCinematics
 
             CalculateLenghts();
             CalculatePartitionning();
+            CalculateRealDistances();
         }
 
         /// <summary>
@@ -183,6 +198,16 @@ namespace InverseCinematics
             }
         }
 
+        private void CalculateRealDistances()
+        {
+            
+        }
+
+        /// <summary>
+        /// Return partition heuristics with given point
+        /// </summary>
+        /// <param name="p">Point coordinates</param>
+        /// <returns>partition heuristic</returns>
         public PartitionHeuristic GetHeuristic(Point p)
         {
             return Partitionning[(int) (p.X/PartitionSize), (int) (p.Y/PartitionSize)];

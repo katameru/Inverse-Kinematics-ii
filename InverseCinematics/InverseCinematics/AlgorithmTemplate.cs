@@ -18,6 +18,12 @@ namespace InverseCinematics
         public List<Line> Bones;
         public double Score;
         public double Error;
+        //TODO
+        public double ArmScore;
+        public double ArmError;
+        public List<double> BestFingeringScore;
+        public List<double> BestFingeringError;
+        public List<int> BestFingering;
 
         /// <summary>
         /// Tworzy nowy chromosom
