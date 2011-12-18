@@ -59,7 +59,7 @@ namespace InverseCinematics
 
         public static bool Intersects(Point p, Line l)
         {
-            return SLDistance(p, l.P1) + SLDistance(p, l.P2) == l.Len;
+            return SLDistance(p, l.P1) + SLDistance(p, l.P2) <= l.Len + 0.1;
         }
 
         public static bool Intersects(Line l, Point p)
@@ -70,7 +70,7 @@ namespace InverseCinematics
         //TODO
         public static bool Intersects(Line l1, Line l2)
         {
-            return(IntersectionPoint(l1, l2) != null);
+            return(IntersectionPoint(l1, l2) != null && IntersectionPoint(l1, l2).Count != 0);
         }
 
         public static bool Intersects(Line l, Obstacle o)
@@ -91,7 +91,7 @@ namespace InverseCinematics
         //Ukradlem z internetu
         //http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect/563240#563240
         //Pozniej przerobie na jakas ladniejsza postac
-        public static Point IntersectionPoint(Line l1, Line l2)
+        public static List<Point> IntersectionPoint(Line l1, Line l2)
         {
             Point p1, p2, p3, p4;
             p1 = l1.P1; p2 = l1.P2;
@@ -158,14 +158,15 @@ namespace InverseCinematics
             if (Math.Abs(len1 - segmentLen1) > 0.01 || Math.Abs(len2 - segmentLen2) > 0.01)
                 return null;
 
-            // return the valid intersection  
-            return pt;  
+            // return the valid intersection
+            var l = new List<Point>();
+            l.Add(pt);
+            return l;  
         }
 
-        public static Point IntersectionPoint(Line l, Obstacle o)
+        public static List<Point> IntersectionPoint(Line l, Obstacle o)
         {
-            Line edge = o.Edges.Find(e => Intersects(l, e));
-            return IntersectionPoint(l, edge);
+            return o.Edges.FindAll(e => Intersects(l, e)).SelectMany(e => IntersectionPoint(e, l)).ToList();
         }
 
         public static double SLDistance(Point p1, Point p2)
@@ -252,6 +253,83 @@ namespace InverseCinematics
         {
             return o1.Edges.Min(edge => SLDistance(edge, o2));
         }
+
+        public static double SurfDistance(Point p1, Point p2, Obstacle o)
+        {
+            var e1 = o.Edges.Find(e => Intersects(e, p1));
+            var i1 = o.Edges.FindIndex(e => e == e1);
+            var e2 = o.Edges.Find(e => Intersects(e, p2));
+            var i2 = o.Edges.FindIndex(e => e == e2);
+            double distance1 = SLDistance(p1, e1.P2) + SLDistance(p2, e2.P2);
+            double distance2 = SLDistance(p2, e2.P1) + SLDistance(p1, e1.P2);
+            int i = i1 + 1;
+            while(true)
+            {
+                if (o.Edges.Count == i)
+                {
+                    i = 0;
+                }
+                if (o.Edges[i] == e2) break;
+                distance1 += o.Edges[i].Len;
+                i++;
+            }
+
+            i = i2 + 1;
+            while (true)
+            {
+                if (o.Edges.Count == i)
+                {
+                    i = 0;
+                }
+                if (o.Edges[i] == e1) break;
+                distance2 += o.Edges[i].Len;
+                i++;
+            }
+
+            return Math.Min(distance1, distance2);
+        }
+
+        public static double Distance(Point p1, Point p2, WorldInstance world)
+        {
+            Line l = new Line(p1, p2);
+            double distance = 0;
+            var iobs = world.Obstacles.FindAll(o => Intersects(o, l)).OrderBy(o => SLDistance(o, p1)).ToList();
+            var ipoints = new List<List<Point>>();
+
+            for(int i = 0; i< iobs.Count; i++)
+            {
+                var iobstacle = iobs[i];
+                var a = iobstacle.Edges.Select(e => IntersectionPoint(e, l)).ToList().FindAll(e => e != null).SelectMany(x => x).ToList();
+                var b = a.OrderBy(p => SLDistance(p1, p)).ToList();
+                var ipoint = b;
+                if (ipoint.Count == 1)
+                {
+                    iobs.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+                ipoints.Add(ipoint);
+            }
+            if (iobs.Count == 0) return SLDistance(p1, p2);
+            for (int i = 0; i < iobs.Count; i++)
+            {
+                if (i == 0)
+                {
+                    distance += SLDistance(p1, ipoints[0][0]);
+                }
+                else
+                {
+                    distance += SLDistance(ipoints[i - 1][1], ipoints[i][0]);
+                }
+
+                distance += SurfDistance(ipoints[i][0], ipoints[i][1], iobs[i]);
+            }
+
+            distance += SLDistance(ipoints.Last(p => true)[1], p2);
+
+            return distance;
+        }
+
     }
 
     class Point : IComparable<Point>
