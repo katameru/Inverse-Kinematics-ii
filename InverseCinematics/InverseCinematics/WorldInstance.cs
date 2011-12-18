@@ -500,7 +500,7 @@ namespace InverseCinematics
             }
         }
 
-        public Hull convexHull()
+        new public Hull convexHull()
         {
             return this;
         }
@@ -519,6 +519,7 @@ namespace InverseCinematics
         public List<Obstacle> Obstacles;
         public Specification Specification;
         public string DebugSTR = "";
+        public Heuristics heur;
 
         /// <summary>
         /// Wczytuje scenariusz

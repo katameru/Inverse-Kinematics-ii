@@ -101,14 +101,21 @@ namespace InverseCinematics
             button1.Enabled = false;
             button3_Click(sender, e);
 
+            button3_Click(sender, e);
+            button4_Click(sender, e);
             while (_started && _generation < _generations)
             {
                 //TODO timer?
                 button3_Click(sender, e);
             }
-
-            //_started = false;
-            button1.Enabled = true;
+            /*
+            for (int i = 0; i < _generations; i++)
+            {
+                button4_Click(sender, e);
+            }
+            */
+                //_started = false;
+                button1.Enabled = true;
             _generations += (int)numericUpDown2.Value;
             //button2.Enabled = false;
         }
@@ -120,7 +127,7 @@ namespace InverseCinematics
                 if (!LoadData())
                     return;
                 // TODO Insert proper algorithm
-                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize, AlgorithmTemplate.GenerateRandomPopulation, AlgorithmTemplate.Evaluate);
+                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize, AlgorithmTemplate.GenerateRandomPopulation, AlgorithmTemplate.Evaluate, EvolveChoices.All);
                 //_population = AlgorithmTemplate.RunAlgorithmStart(_populationSize, _badguys, _mutation, _world);
 
                 var img = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
@@ -140,7 +147,7 @@ namespace InverseCinematics
             _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, 
                 AlgorithmTemplate.Mutate, 0.05,
                 AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                AlgorithmTemplate.Evaluate);
+                AlgorithmTemplate.Evaluate, EvolveChoices.All);
             //_population = AlgorithmTemplate.RunAlgorithmStep(_populationSize, _badguys, _mutation, _world, _population);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
@@ -151,6 +158,24 @@ namespace InverseCinematics
                 pictureBox1.Image = img2;
 
             _generation++;
+            UpdateStats();
+        }
+
+        //Next finger generation
+        private void button4_Click(object sender, EventArgs e)
+        {
+            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
+                AlgorithmTemplate.Mutate, 0.05,
+                AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
+                AlgorithmTemplate.Evaluate, EvolveChoices.Fingers);
+
+            var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
+            var p2 = _population.Where(x => x.Error == 0);
+            if (p2.Count() > 0)
+                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
+            else
+                pictureBox1.Image = img2;
+
             UpdateStats();
         }
 

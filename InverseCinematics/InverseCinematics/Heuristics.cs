@@ -28,6 +28,7 @@ namespace InverseCinematics
 
         public PartitionHeuristic(Point center, double radius, WorldInstance world, double maxArmLen, double minArmLen, List<double> maxFingersLen, List<double> minFingersLen)
         {
+            Center = center;
             SLDistanceStart = Geometry.SLDistance(center, world.Start);
             Radius = radius;
 
@@ -116,6 +117,7 @@ namespace InverseCinematics
             CalculateLenghts();
             CalculatePartitionning();
             CalculateRealDistances();
+            world.heur = this;
         }
 
         /// <summary>
