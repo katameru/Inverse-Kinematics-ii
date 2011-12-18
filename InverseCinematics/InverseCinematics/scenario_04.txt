@@ -1,0 +1,64 @@
+# Size X
+20
+# Size Y
+20
+# Start point
+10 10
+# Target Points number
+1
+# Targt Points
+#1 1
+10 1
+#19 1
+# Number of Arm parts
+2
+# Arm parts: length angleMin angleMax
+7,22 0 360
+4,5 0 360
+# First Finger
+#1
+#9 0 360
+# Second Finger
+#2
+#9 0 360
+#4 0 360
+# Third Finger
+#2
+#13 0 360
+#9 0 360
+2
+10 0 360
+18 0 360
+# Number of obstacles
+4
+
+# Number of points in 1-st obstacle
+5
+# Points of 1-st obstacle
+10 3
+12 5
+10 8
+8 5
+10 3
+
+5
+10 17
+12 15
+10 12
+8 15
+10 17
+
+5
+3 10
+5 12
+8 10
+5 8
+3 10
+
+5
+17 10
+15 12
+12 10
+15 8
+17 10
+

@@ -321,7 +321,7 @@ namespace InverseCinematics
                     dist.Add(new KeyValuePair<Point, Point>(tp, t), Geometry.Distance(tp, t, world));
             var score = 0.0;
 
-            var h = world.heur;
+            var h = world.heuristic;
 
             if (whichDistance == EvolveChoices.Fingers || whichDistance == EvolveChoices.All)
             {

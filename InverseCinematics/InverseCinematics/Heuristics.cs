@@ -127,7 +127,7 @@ namespace InverseCinematics
             CalculatePartitionning();
             CalculateAccessibility();
             //CalculateRealDistances();
-            world.heur = this;
+            world.heuristic = this;
         }
 
         /// <summary>
