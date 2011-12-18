@@ -50,6 +50,12 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label29 = new System.Windows.Forms.Label();
+            this.label28 = new System.Windows.Forms.Label();
+            this.label26 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.label24 = new System.Windows.Forms.Label();
+            this.label25 = new System.Windows.Forms.Label();
             this.labelGAll = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
@@ -67,9 +73,6 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.label23 = new System.Windows.Forms.Label();
-            this.label24 = new System.Windows.Forms.Label();
-            this.label25 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -346,6 +349,9 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.label29);
+            this.groupBox3.Controls.Add(this.label28);
+            this.groupBox3.Controls.Add(this.label26);
             this.groupBox3.Controls.Add(this.label23);
             this.groupBox3.Controls.Add(this.label24);
             this.groupBox3.Controls.Add(this.label25);
@@ -368,9 +374,63 @@
             this.groupBox3.Controls.Add(this.label6);
             this.groupBox3.Location = new System.Drawing.Point(560, 410);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(200, 130);
+            this.groupBox3.Size = new System.Drawing.Size(200, 146);
             this.groupBox3.TabIndex = 4;
             this.groupBox3.TabStop = false;
+            // 
+            // label29
+            // 
+            this.label29.Location = new System.Drawing.Point(118, 130);
+            this.label29.MaximumSize = new System.Drawing.Size(20, 13);
+            this.label29.MinimumSize = new System.Drawing.Size(40, 13);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(40, 13);
+            this.label29.TabIndex = 22;
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(4, 130);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(71, 13);
+            this.label28.TabIndex = 21;
+            this.label28.Text = "Oryginalność:";
+            // 
+            // label26
+            // 
+            this.label26.Location = new System.Drawing.Point(106, 59);
+            this.label26.MaximumSize = new System.Drawing.Size(20, 13);
+            this.label26.MinimumSize = new System.Drawing.Size(40, 13);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(40, 13);
+            this.label26.TabIndex = 22;
+            // 
+            // label23
+            // 
+            this.label23.Location = new System.Drawing.Point(159, 110);
+            this.label23.MaximumSize = new System.Drawing.Size(30, 13);
+            this.label23.MinimumSize = new System.Drawing.Size(30, 13);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(30, 13);
+            this.label23.TabIndex = 20;
+            // 
+            // label24
+            // 
+            this.label24.Location = new System.Drawing.Point(118, 110);
+            this.label24.MaximumSize = new System.Drawing.Size(30, 13);
+            this.label24.MinimumSize = new System.Drawing.Size(30, 13);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(30, 13);
+            this.label24.TabIndex = 19;
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(4, 110);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(55, 13);
+            this.label25.TabIndex = 18;
+            this.label25.Text = "Wariancja";
             // 
             // labelGAll
             // 
@@ -525,33 +585,6 @@
             this.label6.TabIndex = 0;
             this.label6.Text = "Iteracja:";
             // 
-            // label23
-            // 
-            this.label23.Location = new System.Drawing.Point(159, 110);
-            this.label23.MaximumSize = new System.Drawing.Size(30, 13);
-            this.label23.MinimumSize = new System.Drawing.Size(30, 13);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(30, 13);
-            this.label23.TabIndex = 20;
-            // 
-            // label24
-            // 
-            this.label24.Location = new System.Drawing.Point(118, 110);
-            this.label24.MaximumSize = new System.Drawing.Size(30, 13);
-            this.label24.MinimumSize = new System.Drawing.Size(30, 13);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(30, 13);
-            this.label24.TabIndex = 19;
-            // 
-            // label25
-            // 
-            this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(4, 110);
-            this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(55, 13);
-            this.label25.TabIndex = 18;
-            this.label25.Text = "Wariancja";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -622,6 +655,9 @@
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label label26;
     }
 }
 
