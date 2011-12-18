@@ -24,7 +24,7 @@ namespace InverseCinematics
         public double Radius;
         public double RealDistanceStart;
         public List<double> RealDistanceTargets = new List<double>();
-        public bool Accessibility = false;
+        public bool Accessibility;
 
         public PartitionHeuristic(Point center, double radius, WorldInstance world, double maxArmLen, double minArmLen, List<double> maxFingersLen, List<double> minFingersLen)
         {
@@ -55,6 +55,15 @@ namespace InverseCinematics
                     PossibleFingering.Add(p);
             }
 
+            
+        }
+
+        /// <summary>
+        /// Oblicza możliwości dojścia/ustawienia nadgarstka.
+        /// </summary>
+        public void SetAccessibility()
+        {
+            Accessibility = true;
             PossibleWrist = PossibleFingering.Count > 0 && ReachableStart && Accessibility;
         }
 
@@ -224,7 +233,7 @@ namespace InverseCinematics
             {
                 p = q.Dequeue();
                 var h = GetHeuristic(p);
-                h.Accessibility = true;
+                h.SetAccessibility();
 
                 foreach (var d in delta)
                 {

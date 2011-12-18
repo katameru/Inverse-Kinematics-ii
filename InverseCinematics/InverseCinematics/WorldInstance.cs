@@ -584,7 +584,10 @@ namespace InverseCinematics
             var p = new Pen(Color.Green, penwidth);
             var g = Graphics.FromImage(world);
 
-            var b = new SolidBrush(Color.Snow);
+            var b = new SolidBrush(Color.Black);
+            g.FillRectangle(b, 0, 0, x, y);
+
+            b = new SolidBrush(Color.Snow);
             for (var i = 0; i < heuristic.PartitionX; i++)
                 for (var j = 0; j < heuristic.PartitionY; j++)
                     if (heuristic.Partitionning[i, j].Accessibility)
