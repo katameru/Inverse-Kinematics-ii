@@ -31,6 +31,10 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.numericGFingers = new System.Windows.Forms.NumericUpDown();
+            this.numericGArm = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
@@ -46,6 +50,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.labelGAll = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.labelGArms = new System.Windows.Forms.Label();
             this.labelGFingers = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
@@ -59,24 +67,16 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.labelGArms = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label22 = new System.Windows.Forms.Label();
-            this.labelGAll = new System.Windows.Forms.Label();
-            this.numericGArm = new System.Windows.Forms.NumericUpDown();
-            this.numericGFingers = new System.Windows.Forms.NumericUpDown();
-            this.label19 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericGFingers)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericGArm)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericGArm)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericGFingers)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -121,6 +121,68 @@
             this.groupBox2.Size = new System.Drawing.Size(200, 390);
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(9, 331);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(37, 13);
+            this.label20.TabIndex = 18;
+            this.label20.Text = "Palce:";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(9, 310);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(52, 13);
+            this.label19.TabIndex = 18;
+            this.label19.Text = "Ramiona:";
+            // 
+            // numericGFingers
+            // 
+            this.numericGFingers.Location = new System.Drawing.Point(67, 329);
+            this.numericGFingers.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericGFingers.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericGFingers.Name = "numericGFingers";
+            this.numericGFingers.Size = new System.Drawing.Size(55, 20);
+            this.numericGFingers.TabIndex = 19;
+            this.numericGFingers.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            // 
+            // numericGArm
+            // 
+            this.numericGArm.Location = new System.Drawing.Point(67, 308);
+            this.numericGArm.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericGArm.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericGArm.Name = "numericGArm";
+            this.numericGArm.Size = new System.Drawing.Size(56, 20);
+            this.numericGArm.TabIndex = 18;
+            this.numericGArm.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             // 
             // numericUpDown2
             // 
@@ -314,6 +376,42 @@
             this.groupBox3.TabIndex = 4;
             this.groupBox3.TabStop = false;
             // 
+            // labelGAll
+            // 
+            this.labelGAll.Location = new System.Drawing.Point(54, 7);
+            this.labelGAll.MaximumSize = new System.Drawing.Size(20, 13);
+            this.labelGAll.MinimumSize = new System.Drawing.Size(40, 13);
+            this.labelGAll.Name = "labelGAll";
+            this.labelGAll.Size = new System.Drawing.Size(40, 13);
+            this.labelGAll.TabIndex = 17;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(110, 23);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(34, 13);
+            this.label22.TabIndex = 16;
+            this.label22.Text = "Palce";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(9, 23);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(49, 13);
+            this.label21.TabIndex = 15;
+            this.label21.Text = "Ramiona";
+            // 
+            // labelGArms
+            // 
+            this.labelGArms.Location = new System.Drawing.Point(64, 23);
+            this.labelGArms.MaximumSize = new System.Drawing.Size(20, 13);
+            this.labelGArms.MinimumSize = new System.Drawing.Size(40, 13);
+            this.labelGArms.Name = "labelGArms";
+            this.labelGArms.Size = new System.Drawing.Size(40, 13);
+            this.labelGArms.TabIndex = 14;
+            // 
             // labelGFingers
             // 
             this.labelGFingers.Location = new System.Drawing.Point(146, 23);
@@ -431,104 +529,6 @@
             this.label6.TabIndex = 0;
             this.label6.Text = "Iteracja:";
             // 
-            // labelGArms
-            // 
-            this.labelGArms.Location = new System.Drawing.Point(64, 23);
-            this.labelGArms.MaximumSize = new System.Drawing.Size(20, 13);
-            this.labelGArms.MinimumSize = new System.Drawing.Size(40, 13);
-            this.labelGArms.Name = "labelGArms";
-            this.labelGArms.Size = new System.Drawing.Size(40, 13);
-            this.labelGArms.TabIndex = 14;
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(9, 23);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(49, 13);
-            this.label21.TabIndex = 15;
-            this.label21.Text = "Ramiona";
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(110, 23);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(34, 13);
-            this.label22.TabIndex = 16;
-            this.label22.Text = "Palce";
-            // 
-            // labelGAll
-            // 
-            this.labelGAll.Location = new System.Drawing.Point(54, 7);
-            this.labelGAll.MaximumSize = new System.Drawing.Size(20, 13);
-            this.labelGAll.MinimumSize = new System.Drawing.Size(40, 13);
-            this.labelGAll.Name = "labelGAll";
-            this.labelGAll.Size = new System.Drawing.Size(40, 13);
-            this.labelGAll.TabIndex = 17;
-            // 
-            // numericGArm
-            // 
-            this.numericGArm.Location = new System.Drawing.Point(67, 308);
-            this.numericGArm.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numericGArm.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericGArm.Name = "numericGArm";
-            this.numericGArm.Size = new System.Drawing.Size(56, 20);
-            this.numericGArm.TabIndex = 18;
-            this.numericGArm.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            // 
-            // numericGFingers
-            // 
-            this.numericGFingers.Location = new System.Drawing.Point(67, 329);
-            this.numericGFingers.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numericGFingers.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericGFingers.Name = "numericGFingers";
-            this.numericGFingers.Size = new System.Drawing.Size(55, 20);
-            this.numericGFingers.TabIndex = 19;
-            this.numericGFingers.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(9, 310);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(52, 13);
-            this.label19.TabIndex = 18;
-            this.label19.Text = "Ramiona:";
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(9, 331);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(37, 13);
-            this.label20.TabIndex = 18;
-            this.label20.Text = "Palce:";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -538,19 +538,19 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Inverse Kinematics for Arm + Fingers Genetic Algorithm";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericGFingers)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericGArm)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericGArm)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericGFingers)).EndInit();
             this.ResumeLayout(false);
 
         }
