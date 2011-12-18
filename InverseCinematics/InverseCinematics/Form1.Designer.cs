@@ -52,7 +52,6 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label29 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
-            this.label26 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
             this.label25 = new System.Windows.Forms.Label();
@@ -351,7 +350,6 @@
             // 
             this.groupBox3.Controls.Add(this.label29);
             this.groupBox3.Controls.Add(this.label28);
-            this.groupBox3.Controls.Add(this.label26);
             this.groupBox3.Controls.Add(this.label23);
             this.groupBox3.Controls.Add(this.label24);
             this.groupBox3.Controls.Add(this.label25);
@@ -395,15 +393,6 @@
             this.label28.Size = new System.Drawing.Size(71, 13);
             this.label28.TabIndex = 21;
             this.label28.Text = "Oryginalność:";
-            // 
-            // label26
-            // 
-            this.label26.Location = new System.Drawing.Point(106, 59);
-            this.label26.MaximumSize = new System.Drawing.Size(20, 13);
-            this.label26.MinimumSize = new System.Drawing.Size(40, 13);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(40, 13);
-            this.label26.TabIndex = 22;
             // 
             // label23
             // 
@@ -657,7 +646,6 @@
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label28;
-        private System.Windows.Forms.Label label26;
     }
 }
 
