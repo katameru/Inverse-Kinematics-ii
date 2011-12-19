@@ -4,4 +4,5 @@ autorzy: Jakub Kowalski, Marcin Januszkiewicz
 Program rozwi¹zuje problem inverse kinematics za pomoc¹ algorytmu IDEA.
 Wersja wykonywalna programu znajduje siê w folderze "Program " w nadrzêdnym katalogu archiwum.
 Wszystkie pliki Ÿród³owe s¹ w postaci projektu Microsoft Visual Studio, w 
-jêzyku C# i znajduj¹ siê w folderze InverseCinematics. 
+jêzyku C# i znajduj¹ siê w folderze InverseCinematics.
+Dokumentacja znajduje siê w folderze "Documaentation"
