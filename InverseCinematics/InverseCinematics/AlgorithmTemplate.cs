@@ -335,10 +335,10 @@ namespace InverseCinematics
         /// </summary>
         public static Chromosome Evaluate(Chromosome c, WorldInstance world, EvolveChoices whichDistance)
         {
-            var dist = new Dictionary<KeyValuePair<Point, Point>, double>();
+            var dist = new List<KeyValuePair<KeyValuePair<Point, Point>, double>> ();
             foreach (var tp in c.TouchPoints)
                 foreach (var t in world.Targets)
-                    dist.Add(new KeyValuePair<Point, Point>(tp, t), Geometry.Distance(tp, t, world));
+                    dist.Add(new KeyValuePair<KeyValuePair<Point, Point>, double>(new KeyValuePair<Point, Point>(tp, t), Geometry.Distance(tp, t, world)));
             var score = 0.0;
 
             var h = world.heuristic;
@@ -348,9 +348,12 @@ namespace InverseCinematics
                 for (var i = 0; i < c.TouchPoints.Count; i++)
                 {
                     var ordered = dist.OrderBy(p => p.Value);
-                    score += ordered.First().Value;
-                    var first = ordered.First().Key;
-                    dist = dist.Where(p => p.Key.Key != first.Key && p.Key.Value != first.Value).ToDictionary(p => p.Key, p => p.Value);
+                    if (ordered.Count() > 0)
+                    {
+                        score += ordered.First().Value;
+                        var first = ordered.First().Key;
+                        dist = dist.Where(p => p.Key.Key != first.Key && p.Key.Value != first.Value).ToList();
+                    }
                 }
             }
 
