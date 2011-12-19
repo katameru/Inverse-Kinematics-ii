@@ -153,17 +153,14 @@ namespace InverseCinematics
         }
     }
 
+    /// <summary>
+    /// Typ wyliczeniowy wskazujacy ktory element ramienia bedziemy chcieli zmieniac.
+    /// </summary>
     enum EvolveChoices { Arm, Fingers, All};
 
 
     class AlgorithmTemplate
     {
-
-        public static bool TerminationCondition(List<Chromosome> population, WorldInstance world)
-        {
-            return population.Exists(i => i.Score < 1) || population.Count == 0;
-        }
-
         /// <summary>
         /// Tworzy losową populację chromosomów
         /// </summary>
@@ -222,7 +219,16 @@ namespace InverseCinematics
             g.Dispose();
             return img;
         }
-            
+        
+    
+        /// <summary>
+        /// Mutacja chromosomu
+        /// </summary>
+        /// <param name="before">chromosom do mutacji</param>
+        /// <param name="chance">szansa na mutacje</param>
+        /// <param name="world">swiat</param>
+        /// <param name="evolveWhat">ktore elementy zmieniac</param>
+        /// <returns></returns>
         public static Chromosome Mutate(Chromosome before, double chance, WorldInstance world, EvolveChoices evolveWhat)
         {
             var rand = new Random();
@@ -244,6 +250,9 @@ namespace InverseCinematics
             return new Chromosome(arm, fingers, world);
         }
 
+        /// <summary>
+        /// Krzyzowanie dwoch chromosomow. Jezeli jakiegos fragmentu nie chcemy zmieniac, to jest on dziedziczony od rodzicow wprost.
+        /// </summary>
         public static List<Chromosome> Crossover(Chromosome p1, Chromosome p2, WorldInstance world, EvolveChoices evolveWhat)
         {
             var beta = new Random().NextDouble();
@@ -301,6 +310,9 @@ namespace InverseCinematics
             return new List<Chromosome>{new Chromosome(c1_arm, c1_fingers, world), new Chromosome(c2_arm, c2_fingers, world)};
         }
 
+        /// <summary>
+        /// Operator selekcji metoda turniejowa.
+        /// </summary>
         public static List<Chromosome> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world)
         {
             if (population.Count == 0) return new List<Chromosome>();
@@ -312,14 +324,16 @@ namespace InverseCinematics
                 var candidates = new List<Chromosome>();
                 for (var j =0; j < tournament; j++)
                     candidates.Add(population[rand.Next(population.Count)]);
-                // TODO Helper function fo order, now score + error
                 selected.Add(candidates.OrderBy(p => p.Score + p.Error).First());
             }
 
             return selected;
         }
 
-        public static Chromosome Evaluate(Chromosome c, WorldInstance world, EvolveChoices whichDistance) // TODO
+        /// <summary>
+        /// Funkcja celu dla chromosomu, moze liczyc odleglosc nadgarstka od pola wskazanego przez heurystyke oraz palcow od celu.
+        /// </summary>
+        public static Chromosome Evaluate(Chromosome c, WorldInstance world, EvolveChoices whichDistance)
         {
             var dist = new Dictionary<KeyValuePair<Point, Point>, double>();
             foreach (var tp in c.TouchPoints)
@@ -348,7 +362,6 @@ namespace InverseCinematics
                 {
                     if (p.PossibleWrist)
                     {
-                        //var d = Geometry.Distance(wristEnd, p.Center, world);
                         var d = Geometry.SLDistance(wristEnd, p.Center);
                         if (d < min) min = d;
                     }
@@ -391,6 +404,9 @@ namespace InverseCinematics
             return p.Select(i => evaluateFun(i, world, evolveWhat)).ToList();
         }
 
+        /// <summary>
+        /// Pojedynczy krok algorytmu.
+        /// </summary>
         public static List<Chromosome> GeneticAlgorithmStep(WorldInstance world, List<Chromosome> population, double alpha,
             Func<Chromosome, double, WorldInstance, EvolveChoices, Chromosome> mutateFun, double mutationChance,
             Func<List<Chromosome>, int, int, WorldInstance, List<Chromosome>> selectionFun,
@@ -403,10 +419,9 @@ namespace InverseCinematics
             for (var i = 0; i < parents.Count; i++)
                 children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world, evolveWhat));
             children = children.Select(c => mutateFun(c, mutationChance, world, evolveWhat)).Select(c => evaluateFun(c, world, evolveWhat)).ToList();
-            parents = parents.Select(c => mutateFun(c, mutationChance, world, evolveWhat)).Select(c => evaluateFun(c, world, evolveWhat)).ToList();
+            parents = parents.Select(c => evaluateFun(c, world, evolveWhat)).ToList();
             children.AddRange(parents);
-
-            //var badnum = (int)(alpha*population.Count);
+            children = children.Distinct().ToList();
             var good = children.Where(c => c.Error == 0.0).ToList();
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
             good = selectionFun(children.Where(c => c.Error == 0.0).ToList(), goodnum, 4, world);

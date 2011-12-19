@@ -57,6 +57,9 @@ namespace InverseCinematics
             return (oldAngle + newAngle)%360;
         }
 
+        /// <summary>
+        /// Sprawdza czy dwie figury przecinają się.
+        /// </summary>
         public static bool Intersects(Point p, Line l)
         {
             return SLDistance(p, l.P1) + SLDistance(p, l.P2) <= l.Len + 0.1;
@@ -67,7 +70,6 @@ namespace InverseCinematics
             return Intersects(p, l);
         }
 
-        //TODO
         public static bool Intersects(Line l1, Line l2)
         {
             return(IntersectionPoint(l1, l2) != null && IntersectionPoint(l1, l2).Count != 0);
@@ -88,9 +90,6 @@ namespace InverseCinematics
             return ol.Any(o => Intersects(o, l));
         }
 
-        //Ukradlem z internetu
-        //http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect/563240#563240
-        //Pozniej przerobie na jakas ladniejsza postac
         public static List<Point> IntersectionPoint(Line l1, Line l2)
         {
             Point p1, p2, p3, p4;
@@ -103,7 +102,6 @@ namespace InverseCinematics
             double segmentLen1, segmentLen2;
             double ua, ub, div;
 
-            // calculate differences  
             d1 = p2 - p1;
             d2 = p4 - p3;
             d3 = p1 - p3;
@@ -114,51 +112,29 @@ namespace InverseCinematics
             xD3 = d3.X;
             yD3 = d3.Y;
 
-            // calculate the lengths of the two lines  
             len1 = l1.Len;
             len2 = l2.Len;
-
-            // calculate angle between the two lines.  
             dot = d1 * d2;
             deg = dot / (len1 * len2);
-
-            // if abs(angle)==1 then the lines are parallell,  
-            // so no intersection is possible  
             if (Math.Abs(deg) == 1) return null;
-
-            // find intersection Pt between two lines  
             Point pt = new Point(0, 0);
             div = yD2 * xD1 - xD2 * yD1;
             ua = (xD2 * yD3 - yD2 * xD3) / div;
             ub = (xD1 * yD3 - yD1 * xD3) / div;
             pt.X = p1.X + ua * xD1;
             pt.Y = p1.Y + ua * yD1;
-
-            // calculate the combined length of the two segments  
-            // between Pt-p1 and Pt-p2  
             xD1 = pt.X - p1.X;
             xD2 = pt.X - p2.X;
             yD1 = pt.Y - p1.Y;
             yD2 = pt.Y - p2.Y;
             segmentLen1 = Math.Sqrt(xD1 * xD1 + yD1 * yD1) + Math.Sqrt(xD2 * xD2 + yD2 * yD2);
-
-            // calculate the combined length of the two segments  
-            // between Pt-p3 and Pt-p4  
             xD1 = pt.X - p3.X;
             xD2 = pt.X - p4.X;
             yD1 = pt.Y - p3.Y;
             yD2 = pt.Y - p4.Y;
             segmentLen2 = Math.Sqrt(xD1 * xD1 + yD1 * yD1) + Math.Sqrt(xD2 * xD2 + yD2 * yD2);
-
-            // if the lengths of both sets of segments are the same as  
-            // the lenghts of the two lines the point is actually  
-            // on the line segment.  
-
-            // if the point isn’t on the line, return null  
             if (Math.Abs(len1 - segmentLen1) > 0.01 || Math.Abs(len2 - segmentLen2) > 0.01)
                 return null;
-
-            // return the valid intersection
             var l = new List<Point>();
             l.Add(pt);
             return l;  
@@ -169,12 +145,19 @@ namespace InverseCinematics
             return o.Edges.FindAll(e => Intersects(l, e)).SelectMany(e => IntersectionPoint(e, l)).ToList();
         }
 
+
+        /// <summary>
+        /// Odleglosc pomiedzy punktami na plaszczyznie bez przeszkod.
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
         public static double SLDistance(Point p1, Point p2)
         {
             return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
-        /* Tutaj liczymy rzut punkto na prosta zeby sprawdzic czy mozemy skorzystac ze wzoru 
+        /* Tutaj liczymy rzut punktow na prosta zeby sprawdzic czy mozemy skorzystac ze wzoru 
          * czy musimy patrzec na odleglosci do koncow odcinka.                              */
         public static double SLDistance(Point p, Line l)
         {
@@ -254,6 +237,9 @@ namespace InverseCinematics
             return o1.Edges.Min(edge => SLDistance(edge, o2));
         }
 
+        /// <summary>
+        /// Odleglosc pomiedzy punktami na powierzchni wieloboku.
+        /// </summary>        
         public static double SurfDistance(Point p1, Point p2, Obstacle o)
         {
             var e1 = o.Edges.Find(e => Intersects(e, p1));
@@ -289,6 +275,9 @@ namespace InverseCinematics
             return Math.Min(distance1, distance2);
         }
 
+        /// <summary>
+        /// Odleglosc pomiedzy punktami na danej planszy z przeszkodami.
+        /// </summary>
         public static double Distance(Point p1, Point p2, WorldInstance world)
         {
             Line l = new Line(p1, p2);
