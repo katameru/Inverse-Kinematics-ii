@@ -425,7 +425,7 @@ namespace InverseCinematics
             var good = children.Where(c => c.Error == 0.0).ToList();
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
             good = selectionFun(children.Where(c => c.Error == 0.0).ToList(), goodnum, 4, world);
-            good.AddRange(selectionFun(good, goodnum, 4, world));
+            good.AddRange(selectionFun(children.Where(c => c.Error > 0.0).ToList(), population.Count-good.Count, 4, world));
             
             return good.OrderBy(c => c.Score).ToList();
         }
