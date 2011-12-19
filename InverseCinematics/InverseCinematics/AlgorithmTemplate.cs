@@ -339,6 +339,7 @@ namespace InverseCinematics
             foreach (var tp in c.TouchPoints)
                 foreach (var t in world.Targets)
                     dist.Add(new KeyValuePair<Point, Point>(tp, t), Geometry.Distance(tp, t, world));
+
             var score = 0.0;
 
             var h = world.heuristic;
@@ -366,7 +367,7 @@ namespace InverseCinematics
                         if (d < min) min = d;
                     }
                 }
-                score += min;
+                score = min;
             }
 
             var error = 0.0;
@@ -424,7 +425,7 @@ namespace InverseCinematics
             children = children.Distinct().ToList();
             var good = children.Where(c => c.Error == 0.0).ToList();
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
-            good = selectionFun(children.Where(c => c.Error == 0.0).ToList(), goodnum, 4, world);
+            //good = selectionFun(good, goodnum, 4, world);
             good.AddRange(selectionFun(children.Where(c => c.Error > 0.0).ToList(), population.Count-good.Count, 4, world));
             
             return good.OrderBy(c => c.Score).ToList();
