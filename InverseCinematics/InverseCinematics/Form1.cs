@@ -79,14 +79,16 @@ namespace InverseCinematics
             var avgError = _population.Average(x => x.Error);
             var avgError2 = _population.Average(x => x.Error * x.Error);
             UpdateLabel(label17, avgScore);
-            UpdateLabel(label18, avgError);
+            UpdateLabel(label18, avgError, true);
             UpdateLabel(label24, avgScore2 - avgScore * avgScore);
             UpdateLabel(label23, avgError2 - avgError * avgError);
+
+            UpdateLabel(label29, _population.Distinct().Count() / (double)_populationSize, true);
         }
 
-        private void UpdateLabel(Label l, double v)
+        private void UpdateLabel(Label l, double v, bool inverse=false)
         {
-            if (l.Text == "" || v < double.Parse(l.Text))
+            if (l.Text == "" || (v < double.Parse(l.Text) && !inverse) || (inverse && v > double.Parse(l.Text)))
                 l.ForeColor = Color.Green;
             else if (v == double.Parse(l.Text))
                 l.ForeColor = Color.Orange;
@@ -167,5 +169,6 @@ namespace InverseCinematics
             UpdateStats();
 
         }
+
     }
 }
