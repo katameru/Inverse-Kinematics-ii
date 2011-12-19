@@ -113,7 +113,7 @@ Program pozwala wybrać jeden z przygotowanych plików scenariusza oraz określi
 
 Statystyki aktualnej populacji pozwalają ocenić osobników (pokazywane są wartości błędu i minimalizowanej funkcji celu dla osobnika najlepszego w calej populacji, najlepszego bezbłędnego oraz wartości średnie), a także ocenić różnorodność i zbieżność populacji poprzez zmieniające się wartości wariancji (dla błędu oraz funkcji oceny) i oryginalności populacji (liczonej jako stosunek osobników bez duplikatów do liczebności populacji).
 
-Wizualizacja przedstawia planszę zakodowaną w scenariuszu. Czerwone linie oznaczają przeszkody, zielony punkt jest punktem startowym, natomiast pomarańczowe punkty są punktami docelowymi. Czarne obszary są to miejsca nieosiągalne z punktu startowego, błękitne -- takie w których może znajdować się nadgarstek poprawnej kończyny. Na wizualizacji zaznaczeni są również najlepsi osobnicy. Niebieskie linie pokazują przebieg najlepszego osobnika w całej populacji, natomiast zielone najlepszego bezbłędnego (jeśli istnieje).
+Wizualizacja przedstawia planszę zakodowaną w scenariuszu. Czerwone linie oznaczają przeszkody, zielony punkt jest punktem startowym, natomiast pomarańczowe punkty są punktami docelowymi. Czarne obszary są to miejsca nieosiągalne z punktu startowego, błękitne -- takie w których może znajdować się nadgarstek poprawnej kończyny. Na wizualizacji zaznaczeni są również najlepsi osobnicy. Niebieskie linie pokazują przebieg najlepszego osobnika w~całej populacji, natomiast zielone najlepszego bezbłędnego (jeśli istnieje).
 
 \section{Ewolucja}
 Zastosowany algorytm ewolucyjny częściowo bazuje na algorytmie IDEA \cite{PFI}, jednak ze względu na specyfikę problemu zastosowane zostały rozwiązania dedykowane. W szczególności za najistotniejszy punkt kończyny uznaliśmy nadgarstek, w którym kończy się ramię a zaczynają palce. Rozpatrywanie umiejscowień nadgarstka pozwala rozbić problem dla całej ręki na podproblemy bardziej podobne do postawionych przez kinematykę odwrotną w standardowym jej sformułowaniu. 
@@ -138,7 +138,7 @@ W celu wyznaczenia możliwych umiejscowień nadgarstka wykonywane są pewne heur
 	\end{itemize}
 \end{itemize}
 
-\subsubsection{Funkcja celu}
+\subsection{Funkcja celu}
 Podstawą wartości funkcji jest dystans od punktu ramienia do celu, wyznaczany za pomocą dwóch metod: zwracania dystansu w linii prostej oraz obliczania drogi potrzebnej na obejście przeszkód z wyznaczonymi otoczkami wypukłymi. W obecnej wersji algorytmu, ze względu na szybkość obliczeń, wykorzystywana jest prostsza z napisanych funkcji.
 
 Oprócz odległości do celu wyznaczana jest również miara niepoprawności osobnika, liczona jako liczba przecięć segmentów chromosomu z przeszkodami. Docelowo algorytm dąży do trzymania jedynie niewielkiej liczby osobników niepoprawnych, rokujących na uzyskanie dobrych potomków.
@@ -184,18 +184,16 @@ Stworzone zostały cztery scenariusze testowe, przedstawione na rysunkach \ref{f
 
 
 \subsection{Wyniki}
-Osiągane wyniki nie są zadawalające ponieważ algorytm, pomimo sprawnego umiejscowienia nadgarstka i wyewoluowania osobników znajdujących się blisko celu, ma problem z osiągnięciem optymalnego rozwiązania. Dla nawet małej populacji (50 osobników) w scenariuszach testowych nadgarstek był obiecująco umieszczany w przeciągu pierwszych 10 -- 20 iteracji. Problem ze zbieżnością całego chromosomu wynika zapewne ze specyfiki zadania, które w szczególności nie określa odgórnie jaki palec ma zmierzać do jakiego celu. Powoduje to, że krzyżowanie osobników obierających różne dopasowania oddala populację od osiagnięcia rozwiązania.
+Osiągane wyniki nie są zadawalające ponieważ algorytm, pomimo sprawnego umiejscowienia nadgarstka i wyewoluowania osobników znajdujących się blisko celu, ma problem z osiągnięciem optymalnego rozwiązania. Dla nawet małej populacji (50 osobników) w scenariuszach testowych nadgarstek był obiecująco umieszczany w przeciągu pierwszych 10 -- 20 iteracji. Problem ze zbieżnością całego chromosomu wynika zapewne ze specyfiki zadania, które w~szczególności nie określa odgórnie jaki palec ma zmierzać do jakiego celu. Powoduje to, że krzyżowanie osobników obierających różne dopasowania oddala populację od osiagnięcia rozwiązania.
 
 \section{Podsumowanie}
 Podsumowując, rozszerzenie dziedziny zadania poskutkowało znacznym jego utrudnieniem. Różnicę tę widać na przykładzie szybkości osiagania połowicznego celu jakim jest umiejscowienie nadgarstka. Aby podobne rezultaty osiągać dla całego osobnika, należałoby rozbudować chromosom przechowując w nim informację o najbardziej obiecującym przypasowaniu palców do punktów docelowych. Wiązałoby się to również z modyfikacją operacji krzyżowania tak aby przekazywała również informację o dopasowaniu palców.
 
-Warto zwrócić także uwagę na aspekty obliczeniowe związane z problemami geometrycznymi. Zarówno wyznaczenie początkowych heurystyk, jak i obliczanie funkcji dystansu oraz błędu wymagają sprawdzania dużej liczby warunków, co przenosi ciężar obliczeń z ewolucji właściwej na aspekty dodatkowe i pozwala na wyewoluowanie w sensownym czasie mniejszej liczby generacji na mniejszych populacjach osobników.
+Ponadto, w rozwiązaniach zauważone zostały również pewne artefakty (znikanie osobników dopuszczalnych, pogarszanie najlepszych rozwiązań), które mogą wskazywać na błąd w~implementacji.
 
-Ponadto, w rozwiązaniach zauważone zostały również pewne artefakty (znikanie osobników dopuszczalnych, pogarszanie najlepszych rozwiązań), które mogą wskazywać na błąd w implementacji.
+Warto zwrócić także uwagę na aspekty obliczeniowe związane z problemami geometrycznymi. Zarówno wyznaczenie początkowych heurystyk, jak i obliczanie funkcji dystansu oraz błędu wymagają sprawdzania dużej liczby warunków, co przenosi ciężar obliczeń z ewolucji właściwej na aspekty dodatkowe i pozwala na wyewoluowanie w sensownym czasie mniejszej liczby generacji na mniejszych populacjach osobników. 
 
-Warto zwrócić uwagę, że inne metody liczenia odległości (chodzenie po figurze lub jej otoczce wypukłej) powodowały bardzo duże spowolnienie nawet dla niewiekich domyślnych parametrów programu.  
-
-Bez rozwiązania kwestii optymalizacji tych metod korzystanie z nich na większych planszach lub dla większego rozmiaru populacji byłoby niepraktyczne.
+W szczególności inne metody liczenia odległości (chodzenie po figurze lub jej otoczce wypukłej) powodowały bardzo duże spowolnienie nawet dla niewiekich domyślnych parametrów programu. Bez rozwiązania kwestii optymalizacji tych metod korzystanie z nich na większych planszach lub dla większego rozmiaru populacji byłoby niepraktyczne.
 
 \begin{thebibliography}{1}
 	\bibitem{PFI} Patryk Filipiak, {\it Optymalizacja ewolucyjna z predykcją w dynamicznym problemie kinematyki odwrotnej}. Wrocław, Seminarium ZMN IIUWr 2011.
