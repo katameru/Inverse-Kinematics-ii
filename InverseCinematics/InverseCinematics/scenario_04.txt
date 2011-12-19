@@ -5,30 +5,30 @@
 # Start point
 10 10
 # Target Points number
-1
+4
 # Targt Points
-#1 1
-10 1
-#19 1
+2 2
+2 18
+18 2
+18 18
 # Number of Arm parts
 2
 # Arm parts: length angleMin angleMax
-7,22 0 360
-4,5 0 360
+6 0 360
+6 0 360
 # First Finger
-#1
-#9 0 360
-# Second Finger
-#2
-#9 0 360
-#4 0 360
-# Third Finger
-#2
-#13 0 360
-#9 0 360
 2
-10 0 360
-18 0 360
+6 0 360
+6 0 360
+2
+6 0 360
+6 0 360
+2
+6 0 360
+6 0 360
+2
+6 0 360
+6 0 360
 # Number of obstacles
 4
 
