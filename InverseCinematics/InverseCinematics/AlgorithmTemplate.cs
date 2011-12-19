@@ -354,7 +354,7 @@ namespace InverseCinematics
                 }
             }
 
-            if (whichDistance == EvolveChoices.Arm || whichDistance == EvolveChoices.All)
+            if (whichDistance == EvolveChoices.Arm)
             {
                 var wristEnd = c.Bones.Last(x => true).P2;
                 double min = Double.MaxValue;
