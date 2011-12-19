@@ -356,7 +356,7 @@ namespace InverseCinematics
 
             if (whichDistance == EvolveChoices.Arm)
             {
-                var wristEnd = c.Bones.Last(x => true).P2;
+                var wristEnd = c.BonesArm.Last().P2;
                 double min = Double.MaxValue;
                 foreach( var p in h.Partitionning)
                 {
