@@ -148,7 +148,7 @@ Sposób wyznaczania wartości funkcji celu zależy od nakierowania aktualnego kr
 
 \section{Testy}
 
-\textbf{TODO}
+Algorytm był testowany na kilku przygotowanych scenariuszy i dla różnych wartości parametrów.
 
 \subsection{Scenariusze testowe}
 Stworzone zostały cztery scenariusze testowe, przedstawione na rysunkach \ref{fig:sc1}, \ref{fig:sc2}, \ref{fig:sc3}, \ref{fig:sc4} (scenariusz 1 różni się od scenariusza 2 dodatkową kością ramienia, co w widoczny sposób zwiększa manewrowość kończyny zmniejszając skuteczność heurystyki wyznaczającej możliwe pozycje nadgarstka).
@@ -184,13 +184,12 @@ Stworzone zostały cztery scenariusze testowe, przedstawione na rysunkach \ref{f
 
 
 \subsection{Wyniki}
-
-\textbf{TODO}
+Osiągane wyniki nie są zadawalające ponieważ algorytm, pomimo sprawnego umiejscowienia nadgarstka i wyewoluowania osobników znajdujących się blisko celu, ma problem z osiągnięciem optymalnego rozwiązania. Dla nawet małej populacji (50 osobników) w scenariuszach testowych nadgarstek był obiecująco umieszczany w przeciągu pierwszych 10 -- 20 iteracji. Problem ze zbieżnością całego chromosomu wynika zapewne ze specyfiki zadania, które w szczególności nie określa odgórnie jaki palec ma zmierzać do jakiego celu. Powoduje to, że krzyżowanie osobników obierających różne dopasowania oddala populację od osiagnięcia rozwiązania.
 
 \section{Podsumowanie}
+Podsumowując, rozszerzenie dziedziny zadania poskutkowało znacznym jego utrudnieniem. Różnicę tę widać na przykładzie szybkości osiagania połowicznego celu jakim jest umiejscowienie nadgarstka. Aby podobne rezultaty osiągać dla całego osobnika, należałoby rozbudować chromosom przechowując w nim informację o najbardziej obiecującym przypasowaniu palców do punktów docelowych. Wiązałoby się to również z modyfikacją operacji krzyżowania tak aby przekazywała również informację o dopasowaniu palców.
 
-\textbf{TODO}
-
+Warto zwrócić także uwagę na aspekty obliczeniowe związane z problemami geometrycznymi. Zarówno wyznaczenie początkowych heurystyk, jak i obliczanie funkcji dystansu oraz błędu wymagają sprawdzania dużej liczby warunków, co przenosi ciężar obliczeń z ewolucji właściwej na aspekty dodatkowe i pozwala na wyewoluowanie w sensownym czasie mniejszej liczby generacji na mniejszych populacjach osobników.
 
 \begin{thebibliography}{1}
 	\bibitem{PFI} Patryk Filipiak, {\it Optymalizacja ewolucyjna z predykcją w dynamicznym problemie kinematyki odwrotnej}. Wrocław, Seminarium ZMN IIUWr 2011.
