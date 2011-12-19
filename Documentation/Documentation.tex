@@ -185,11 +185,15 @@ Stworzone zostały cztery scenariusze testowe, przedstawione na rysunkach \ref{f
 
 \subsection{Wyniki}
 
-\textbf{TODO}
+Dla każdego ze scenariuszy przeprowadzona została seria testów dla różnych wartości liczby populacji, liczby iteracji i pozostałych parametrów. Chociaż program znajdował często dość sensowne przybliżenia, to podanie przez niego akceptowalnych rozwiązań zdawało się być raczej przypadkiem niż skutkiem dobrania odpowiednich parametrów.
+
+Ponadto, w rozwiązaniach zauważyliśmy artefakty (znikanie osobników dopuszczalnych, pogarszanie najlepszych rozwiązań), które mogą wskazywać na błąd w implementacji.
+
+Warto zwrócić uwagę, że inne metody liczenia odległości (chodzenie po figurze lub jej otoczce wypukłej) powodowały bardzo duże spowolnienie nawet dla niewiekich domyślnych parametrów programu.  Bez rozwiązania kwestii optymalizacji tych metod korzystanie z nich na większych planszach lub dla większego rozmiaru populacji byłoby niepraktyczne.
 
 \section{Podsumowanie}
 
-\textbf{TODO}
+Choć w chwili obecnej program może podawać jedynie pewne przybliżenia rozwiązań, to wierzymy, że
 
 
 \begin{thebibliography}{1}
