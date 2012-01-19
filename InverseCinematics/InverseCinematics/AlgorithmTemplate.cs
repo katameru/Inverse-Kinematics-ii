@@ -7,9 +7,84 @@ using System.Text;
 
 namespace InverseCinematics
 {
+    class Tree<T>
+    {
+        public T Node;
+        public Tree<T> Subtree1;
+        public Tree<T> Subtree2;
+        public List<T> Leafs;
+
+        public Tree(T node)
+        {
+            Node = node;
+            Subtree1 = null;
+            Subtree2 = null;
+            Leafs = new List<T>{node};
+        }
+
+        public Tree(T node, Tree<T> tree1, Tree<T> tree2)
+        {
+            Node = node;
+            Subtree1 = tree1;
+            Subtree2 = tree2;
+            Leafs = tree1.Leafs.Concat(tree2.Leafs).ToList();
+        }
+
+        public Tree(int depth)
+        {
+            Node = default(T);
+            if (depth == 0)
+                return;
+            Subtree1 = new Tree<T>(depth - 1);
+            Subtree2 = new Tree<T>(depth - 1);
+            RestoreLeafs();
+        }
+
+        public List<T> RestoreLeafs()
+        {
+            var l = new List<T>();
+            if (Subtree1 != null)
+                l.AddRange(Subtree1.RestoreLeafs());
+            if (Subtree2 != null)
+                l.AddRange(Subtree2.RestoreLeafs());
+            return l;
+        }
+
+        public void Add(string path, T node)
+        {
+            if (path == "")
+            {
+                Node = node;
+                return;
+            }
+
+            if (path[0]=='L')
+                Subtree1.Add(path.Remove(0, 1), node);
+            else
+                Subtree2.Add(path.Remove(0, 1), node);
+        }
+
+        public override string ToString()
+        {
+            var n = Node == null ? "%" : Node.ToString();
+            var s1 = Subtree1 == null ? "%" : Subtree1.ToString();
+            var s2 = Subtree2 == null ? "%" : Subtree2.ToString();
+            return "<" + s1 + "|" + n + "|" + s2 + ">";
+        }
+    }
+
+ 
+
+
     /// <summary>
     /// Podstawowe informacje o chromosomie, zawierające głównie wartości kątów.
     /// </summary>
+    //class Chromosome
+    //{
+
+        
+    //}
+
     class Chromosome
     {
         public List<double> Arm;
@@ -50,7 +125,7 @@ namespace InverseCinematics
             for (var i = 0; i < arm.Count; i++)
             {
                 angle = Geometry.RelateAngle(angle, Arm[i]);
-                BonesArm.Add(new Line(point, world.Specification.ArmArcLen[i], angle));
+                //TODO BonesArm.Add(new Line(point, world.Specification.ArmArcLen[i], angle));
                 point = BonesArm.Last().P2;
             }
 
@@ -62,7 +137,7 @@ namespace InverseCinematics
                 for (var j = 0; j < fingers[i].Count; j++)
                 {
                     angle2 = Geometry.RelateAngle(angle2, Fingers[i][j]);
-                    BonesFingers.Add(new Line(point2, world.Specification.FingersArcLen[i][j], angle2));
+                    //TODO BonesFingers.Add(new Line(point2, world.Specification.FingersArcLen[i][j], angle2));
                     point2 = BonesFingers.Last().P2;
                 }
                 TouchPoints.Add(point2);
@@ -84,71 +159,85 @@ namespace InverseCinematics
 
     }
 
+    class NodeSpec
+    {
+        public double Length;
+        public double ArcMin;
+        public double ArcMax;
+
+        public NodeSpec(double length, double arcmin, double arcmax)
+        {
+            Length = length;
+            ArcMin = arcmin;
+            ArcMax = arcmax;
+        }
+
+        public NodeSpec(IList<string> spec)
+        {
+            Length = int.Parse(spec[0]);
+            ArcMin = int.Parse(spec[1]);
+            ArcMax = int.Parse(spec[2]);
+        }
+
+        public override string ToString()
+        {
+            return Length + ":" + ArcMin + "/" + ArcMax;
+        }
+    }
+
     /// <summary>
     /// Specyfikacja chromosomów.
     /// Zawiera informacje o długościach poszczególnych kości oraz możliwych kątach rozwarć stawów
     /// </summary>
     class Specification
     {
-        public List<double> ArmArcLen;
-        public List<double> ArmArcMin;
-        public List<double> ArmArcMax;
-        public List<List<double>> FingersArcLen;
-        public List<List<double>> FingersArcMin;
-        public List<List<double>> FingersArcMax;
+        public Tree<NodeSpec> Spec = new Tree<NodeSpec>(null);
 
         /// <summary>
         /// Tworzy specyfikację na podstawie konkretnych danych.
         /// </summary>
-        public Specification(List<double> armArcLen, List<double> armArcMin, List<double> armArcMax, List<List<double>> fingersArcLen, List<List<double>> fingersArcMin, List<List<double>> fingersArcMax)
+        public Specification(Tree<NodeSpec> spec)
         {
-            ArmArcLen = armArcLen;
-            ArmArcMin = armArcMin;
-            ArmArcMax = armArcMax;
-            FingersArcLen = fingersArcLen;
-            FingersArcMin = fingersArcMin;
-            FingersArcMax = fingersArcMax;
+            Spec = spec;
         }
 
         /// <summary>
         /// Wczytuje specyfikację z danych pobranych z pliku.
         /// </summary>
-        /// <param name="targets">Liczba punktów docelowych</param>
         /// <param name="spec">Kolejne linie pliku wejściowego</param>
-        public Specification(int targets, List<string> spec)
+        public Specification(int depth, List<string> spec)
         {
-            ArmArcLen = new List<double>();
-            ArmArcMin = new List<double>();
-            ArmArcMax = new List<double>();
-            FingersArcLen = new List<List<double>>();
-            FingersArcMin = new List<List<double>>();
-            FingersArcMax = new List<List<double>>();
-
-            var armSize = int.Parse(spec[0]);
-
-            for (var i = 0; i < armSize; i++)
+            Spec = new Tree<NodeSpec>(depth);
+            foreach (var sp in spec)
             {
-                var part = spec[1 + i].Split();
-                ArmArcLen.Add(double.Parse(part[0]));
-                ArmArcMin.Add(double.Parse(part[1]));
-                ArmArcMax.Add(double.Parse(part[2]));
+                var s = sp.Split();
+                Spec.Add(s[0], new NodeSpec(s.Skip(1).ToList()));
             }
+            return;
+            Tree<NodeSpec> tup = null;
+            var tdown = new Tree<NodeSpec>(null);
+            Spec = tdown;
+            var lvl = 0;
 
-            var size = 1 + armSize;
-            for (var i = 0; i < targets; i++)
+            foreach (var sp in spec)
             {
-                FingersArcLen.Add(new List<double>());
-                FingersArcMin.Add(new List<double>());
-                FingersArcMax.Add(new List<double>());
-                var len = int.Parse(spec[size]);
-                for (var j = 0; j < len; j++)
-                {
-                    var part = spec[size + 1 + j].Split();
-                    FingersArcLen[i].Add(double.Parse(part[0]));
-                    FingersArcMin[i].Add(double.Parse(part[1]));
-                    FingersArcMax[i].Add(double.Parse(part[2]));
+                var s = sp.Split();
+                var l = s[0].Count();
+                var t = new Tree<NodeSpec>(new NodeSpec(s.Skip(1).ToList()));
+
+                if (l > lvl)
+                {    
+                    tdown.Subtree1 = t;
+                    tup = tdown;
+                    tdown = tdown.Subtree1;
                 }
-                size += 1 + len;
+                else
+                {
+                    tup.Subtree2 = t;
+                    tdown = tup.Subtree2;
+                }
+
+                lvl = l;
             }
         }
     }
@@ -179,15 +268,15 @@ namespace InverseCinematics
                 var arm = new List<double>();
                 var fingers = new List<List<double>>();
 
-                for (var k = 0; k < spec.ArmArcLen.Count; k++)
-                    arm.Add(spec.ArmArcMin[k] + rand.NextDouble() * (spec.ArmArcMax[k] - spec.ArmArcMin[k]));
+                //TODO for (var k = 0; k < spec.ArmArcLen.Count; k++)
+                //TODO        arm.Add(spec.ArmArcMin[k] + rand.NextDouble() * (spec.ArmArcMax[k] - spec.ArmArcMin[k]));
 
-                for (var k = 0; k < spec.FingersArcLen.Count; k++)
-                {
-                    fingers.Add(new List<double>());
-                    for (var l = 0; l < spec.FingersArcLen[k].Count; l++)
-                        fingers[k].Add(spec.FingersArcMin[k][l] + rand.NextDouble()*(spec.FingersArcMax[k][l] - spec.FingersArcMin[k][l]));
-                }
+                //TODO for (var k = 0; k < spec.FingersArcLen.Count; k++)
+                //{
+                //    fingers.Add(new List<double>());
+                    //TODO for (var l = 0; l < spec.FingersArcLen[k].Count; l++)
+                    //TODO    fingers[k].Add(spec.FingersArcMin[k][l] + rand.NextDouble()*(spec.FingersArcMax[k][l] - spec.FingersArcMin[k][l]));
+                //}
                 population.Add(new Chromosome(arm, fingers, world));
             }
 
@@ -236,16 +325,16 @@ namespace InverseCinematics
             var arm = before.Arm;
             var fingers = before.Fingers;
 
-            if(evolveWhat == EvolveChoices.Arm || evolveWhat == EvolveChoices.All)
+            if (evolveWhat == EvolveChoices.Arm || evolveWhat == EvolveChoices.All)
                 for (var i = 0; i < arm.Count; i++)
                     if (rand.NextDouble() < chance)
-                        arm[i] = spec.ArmArcMin[i] + rand.NextDouble()*(spec.ArmArcMax[i] - spec.ArmArcMin[i]);
+                        {} //TODO arm[i] = spec.ArmArcMin[i] + rand.NextDouble()*(spec.ArmArcMax[i] - spec.ArmArcMin[i]);
 
             if (evolveWhat == EvolveChoices.Fingers || evolveWhat == EvolveChoices.All)
                 for (var i = 0; i < fingers.Count; i++)
                     for (var j = 0; j < fingers[i].Count; j++)
                         if (rand.NextDouble() < chance)
-                            fingers[i][j] = spec.FingersArcMin[i][j] + rand.NextDouble()*(spec.FingersArcMax[i][j] - spec.FingersArcMin[i][j]);
+                            {} //TODO fingers[i][j] = spec.FingersArcMin[i][j] + rand.NextDouble()*(spec.FingersArcMax[i][j] - spec.FingersArcMin[i][j]);
 
             return new Chromosome(arm, fingers, world);
         }
