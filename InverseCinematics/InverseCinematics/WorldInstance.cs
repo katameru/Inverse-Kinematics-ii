@@ -189,7 +189,7 @@ namespace InverseCinematics
             d1 = SLDistance(p, l.P1);
             d2 = SLDistance(p, l.P2);
 
-            //Patrzymy czy rzut lezy na odinku, i jesli nie to zwracamy odleglosc do najblizszego punktu
+            //Patrzymy czy rzut lezy na odcinku, i jesli nie to zwracamy odleglosc do najblizszego punktu
             if (d1 + d2 == l.Len)
             {
                 return d;

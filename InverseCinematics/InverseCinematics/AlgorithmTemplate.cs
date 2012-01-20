@@ -12,14 +12,12 @@ namespace InverseCinematics
         public T Node;
         public Tree<T> Subtree1;
         public Tree<T> Subtree2;
-        //public List<T> Leafs;
 
         public Tree(T node)
         {
             Node = node;
             Subtree1 = null;
             Subtree2 = null;
-            //Leafs = new List<T>{node};
         }
 
         public Tree(T node, Tree<T> tree1, Tree<T> tree2)
@@ -27,14 +25,6 @@ namespace InverseCinematics
             Node = node;
             Subtree1 = tree1;
             Subtree2 = tree2;
-            //var leafs = new List<T>();
-            //if (tree1 == null && tree2 == null)
-            //    leafs.Add(Node);
-            //if (tree1 != null)
-            //    leafs.AddRange(tree1.Leafs);
-            //if (tree2 != null)
-            //    leafs.AddRange(tree2.Leafs);
-            //Leafs = leafs;
         }
 
         public Tree(int depth)
@@ -44,18 +34,7 @@ namespace InverseCinematics
                 return;
             Subtree1 = new Tree<T>(depth - 1);
             Subtree2 = new Tree<T>(depth - 1);
-            //RestoreLeafs();
         }
-
-        //public List<T> RestoreLeafs()
-        //{
-        //    var l = new List<T>();
-        //    if (Subtree1 != null)
-        //        l.AddRange(Subtree1.RestoreLeafs());
-        //    if (Subtree2 != null)
-        //        l.AddRange(Subtree2.RestoreLeafs());
-        //    return l;
-        //}
 
         public void Add(string path, T node)
         {
@@ -380,7 +359,6 @@ namespace InverseCinematics
              */
             return null;
         }
-
 
         public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles)
         {
