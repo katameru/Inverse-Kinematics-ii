@@ -314,6 +314,7 @@ namespace InverseCinematics
         /// </summary>
         public static List<Chromosome> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world)
         {
+            var ranked = population.OrderBy(c => Evaluate(c, world));
             /*
             if (population.Count == 0) return new List<Chromosome>();
             var selected = new List<Chromosome>();
@@ -329,7 +330,7 @@ namespace InverseCinematics
 
             return selected;
              */
-            return null;
+            return ranked.Take(selSize).ToList();
         }
 
         public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles)
