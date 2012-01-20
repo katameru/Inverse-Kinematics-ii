@@ -138,15 +138,15 @@ namespace InverseCinematics
             double min;
             double max;
             var spec = _world.Specification;
-            CalculateMinMaxLenghts(spec.ArmArcLen, spec.ArmArcMin, spec.ArmArcMax, out minArmLen, out maxArmLen);
+            //TODO CalculateMinMaxLenghts(spec.ArmArcLen, spec.ArmArcMin, spec.ArmArcMax, out minArmLen, out maxArmLen);
 
-            for (var i = 0; i < spec.FingersArcLen.Count; i++)
-            {
-                CalculateMinMaxLenghts(spec.FingersArcLen[i], spec.FingersArcMin[i], spec.FingersArcMax[i],
-                                       out min, out max);
-                minFingersLen.Add(min);
-                maxFingersLen.Add(max);
-            }
+            //for (var i = 0; i < spec.FingersArcLen.Count; i++)
+            //{
+            //    CalculateMinMaxLenghts(spec.FingersArcLen[i], spec.FingersArcMin[i], spec.FingersArcMax[i],
+            //                           out min, out max);
+            //    minFingersLen.Add(min);
+            //    maxFingersLen.Add(max);
+            //}
         }
 
         /// <summary>
@@ -240,11 +240,11 @@ namespace InverseCinematics
                 {
                     var p2 = p+d;
 
-                    if (!v.Contains(p2) && !Geometry.Intersects(_world.Obstacles, new Line(p, p2) ))
-                    {
-                        q.Enqueue(p2);
-                        v.Add(p2);
-                    }
+                    //TODO if (!v.Contains(p2) && !Geometry.Intersects(_world.Obstacles, new Line(p, p2) ))
+                    //{
+                    //    q.Enqueue(p2);
+                    //    v.Add(p2);
+                    //}
                 }
             }
         }

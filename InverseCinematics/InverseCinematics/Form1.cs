@@ -42,7 +42,8 @@ namespace InverseCinematics
             try
             {
                 _world = new WorldInstance(comboBox1.Text);
-                _world.heuristic = new Heuristics(_world, (int)numericUpDown2.Value);
+                var x = _world.Specification.Spec.Map(s => s.Length);// Func<NodeSpec, double>{s => s})
+                //TODO _world.heuristic = new Heuristics(_world, (int)numericUpDown2.Value);
                 _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f));
                 _populationSize = (int) numericUpDown1.Value;
                 _badguys = (double) numericUpDown3.Value/100;
@@ -66,18 +67,18 @@ namespace InverseCinematics
             labelGArms.Text = _generationsArm.ToString();
 
             var c =_population.First();
-            UpdateLabel(label13, c.Score);
-            UpdateLabel(label14, c.Error);
-            var p = _population.Where(x => x.Error == 0);
+            UpdateLabel(label13, c.Tree.Node.Score);
+            UpdateLabel(label14, c.Tree.Node.Error);
+            var p = _population.Where(x => x.Tree.Node.Error == 0);
             if (p.Count() > 0)
-                UpdateLabel(label15, p.First().Score);
+                UpdateLabel(label15, p.First().Tree.Node.Score);
             else
                 label15.Text = "";
-            
-            var avgScore = _population.Average(x => x.Score);
-            var avgScore2 = _population.Average(x => x.Score*x.Score);
-            var avgError = _population.Average(x => x.Error);
-            var avgError2 = _population.Average(x => x.Error * x.Error);
+
+            var avgScore = _population.Average(x => x.Tree.Node.Score);
+            var avgScore2 = _population.Average(x => x.Tree.Node.Score * x.Tree.Node.Score);
+            var avgError = _population.Average(x => x.Tree.Node.Error);
+            var avgError2 = _population.Average(x => x.Tree.Node.Error * x.Tree.Node.Error);
             UpdateLabel(label17, avgScore);
             UpdateLabel(label18, avgError, true);
             UpdateLabel(label24, avgScore2 - avgScore * avgScore);
@@ -109,18 +110,20 @@ namespace InverseCinematics
             var b = LoadData();
             button2.Enabled = b;
             button3.Enabled = b;
+
             if (b)
             {
                 pictureBox1.Image = _baseImage;
                 _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize,
                                                                       AlgorithmTemplate.GenerateRandomPopulation,
-                                                                      AlgorithmTemplate.Evaluate, EvolveChoices.All);
+                                                                      AlgorithmTemplate.Evaluate);
                 UpdateStats();
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            /*
             var ga = (int)numericGArm.Value;
             var gf = (int) numericGFingers.Value;
 
@@ -136,7 +139,7 @@ namespace InverseCinematics
                     AlgorithmTemplate.Evaluate, EvolveChoices.Fingers);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            var p2 = _population.Where(x => x.Error == 0);
+            var p2 = _population;//TODO.Where(x => x.Error == 0);
             if (p2.Count() > 0)
                 pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
             else
@@ -146,20 +149,22 @@ namespace InverseCinematics
             _generationsFingers += gf;
             _generationsAll += ga + gf;
             UpdateStats();
+             */
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
+            
             _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
                 AlgorithmTemplate.Mutate, _mutation,
                 AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                AlgorithmTemplate.Evaluate, EvolveChoices.All);
+                AlgorithmTemplate.Evaluate);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            var p2 = _population.Where(x => x.Error == 0);
-            if (p2.Count() > 0)
-                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
-            else
+            //var p2 = _population;//TODO.Where(x => x.Error == 0);
+            //if (p2.Count() > 0)
+            //    pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
+            //else
                 pictureBox1.Image = img2;
 
             _generationsArm ++;

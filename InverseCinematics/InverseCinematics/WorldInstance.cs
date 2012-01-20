@@ -189,7 +189,7 @@ namespace InverseCinematics
             d1 = SLDistance(p, l.P1);
             d2 = SLDistance(p, l.P2);
 
-            //Patrzymy czy rzut lezy na odinku, i jesli nie to zwracamy odleglosc do najblizszego punktu
+            //Patrzymy czy rzut lezy na odcinku, i jesli nie to zwracamy odleglosc do najblizszego punktu
             if (d1 + d2 == l.Len)
             {
                 return d;
@@ -287,18 +287,21 @@ namespace InverseCinematics
 
             for(int i = 0; i< iobs.Count; i++)
             {
+                /*
                 var iobstacle = iobs[i];
-                var a = iobstacle.Edges.Select(e => IntersectionPoint(e, l)).ToList().FindAll(e => e != null).SelectMany(x => x).ToList();
-                var b = a.OrderBy(p => SLDistance(p1, p)).ToList();
-                var ipoint = b;
-                if (ipoint.Count == 1)
-                {
-                    iobs.RemoveAt(i);
+                //var a = iobstacle.Edges.Select(e => IntersectionPoint(e, l)).ToList().FindAll(e => e != null).SelectMany(x => x).ToList();
+                //var b = a.OrderBy(p => SLDistance(p1, p)).ToList();
+                //var ipoint = b;
+                //if (ipoint.Count == 1)
+                //{
+                //   iobs.RemoveAt(i);
                     i--;
                     continue;
                 }
                 ipoints.Add(ipoint);
+                 */
             }
+            
             if (iobs.Count == 0) return SLDistance(p1, p2);
             for (int i = 0; i < iobs.Count; i++)
             {
@@ -311,11 +314,10 @@ namespace InverseCinematics
                     distance += SLDistance(ipoints[i - 1][1], ipoints[i][0]);
                 }
 
-                distance += SurfDistance(ipoints[i][0], ipoints[i][1], iobs[i]);
+                //TODO distance += SurfDistance(ipoints[i][0], ipoints[i][1], iobs[i]);
             }
-
             distance += SLDistance(ipoints.Last(p => true)[1], p2);
-
+                
             return distance;
         }
 
@@ -421,10 +423,15 @@ namespace InverseCinematics
         public Line (double x1, double y1, double x2, double y2)
         {
             P1 = new Point(x1, y1);
-            P2 = new Point(x1, y1);
+            P2 = new Point(x2, y2);
             Len = Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
             A = (y2 - y1)/(x2-x1);
             B = y1 - A*x1;
+        }
+
+        public Line (string line) : this 
+            (double.Parse(line.Split()[0]), double.Parse(line.Split()[1]), double.Parse(line.Split()[2]), double.Parse(line.Split()[3]))
+        {
         }
 
         public Line(Point p1, Point p2)
@@ -588,7 +595,7 @@ namespace InverseCinematics
         public int SizeY;
         public List<Point> Targets = new List<Point>();
         public Point Start;
-        public List<Obstacle> Obstacles;
+        public List<Line> Obstacles;
         public Specification Specification;
         public string DebugSTR = "";
         public Heuristics heuristic;
@@ -604,36 +611,30 @@ namespace InverseCinematics
             SizeX = int.Parse(lines[0]);
             SizeY = int.Parse(lines[1]);
             Start = new Point(lines[2]);
-            var T = int.Parse(lines[3]);
-            for (var i = 0; i < T; i++) // Reading targets points
-                Targets.Add(new Point(lines[4+i]));
-
-            var size = 1 + int.Parse(lines[4+T]); // Reading arm specification
-            for (var i = 0; i < T; i++)
-                size += 1 + int.Parse(lines[4+T+size]);
-            Specification = new Specification(T, lines.GetRange(4 + T, size));
-
-            size = 4 + T + size;
-            var O = int.Parse(lines[size]); // Reading obstacles
-            size++;
-            Obstacles = new List<Obstacle>();
-
-            for (var i = 0; i < O; i++)
+            var line = 3;
+            while (! (lines[line].StartsWith("L") || lines[line].StartsWith("R")))
             {
-                var o = int.Parse(lines[size]);
-                var obs = new List<Point>();
-
-                for (var j = 0; j < o; j++)
-                    obs.Add(new Point(lines[size + j + 1]));
-
-                Obstacles.Add(new Obstacle(obs));
-                size += 1 + o;
+                Targets.Add(new Point(lines[line]));
+                line++;
             }
 
-            Obstacles.Add(new Obstacle(new List<Point> { new Point(0, 0), new Point(SizeX, 0)}));
-            Obstacles.Add(new Obstacle(new List<Point> { new Point(0, 0), new Point(0, SizeY) }));
-            Obstacles.Add(new Obstacle(new List<Point> { new Point(SizeX, SizeY), new Point(SizeX, 0) }));
-            Obstacles.Add(new Obstacle(new List<Point> { new Point(SizeX, SizeY), new Point(0, SizeY) }));
+            var spec = new List<string>();
+            while (lines[line].StartsWith("L") || lines[line].StartsWith("R"))
+            {
+                spec.Add(lines[line]);
+                line++;
+            }
+
+            Specification = new Specification((int)Math.Log(Targets.Count, 2), spec);
+
+            Obstacles = new List<Line>();
+            for (var l = line; l < lines.Count; l++)
+                Obstacles.Add(new Line(lines[l]));
+
+            Obstacles.Add(new Line(new Point(0, 0), new Point(SizeX, 0)));
+            Obstacles.Add(new Line(new Point(0, 0), new Point(0, SizeY)));
+            Obstacles.Add(new Line(new Point(SizeX, SizeY), new Point(SizeX, 0)));
+            Obstacles.Add(new Line(new Point(SizeX, SizeY), new Point(0, SizeY)));
         }
 
         /// <summary>
@@ -654,19 +655,19 @@ namespace InverseCinematics
             var b = new SolidBrush(Color.Black);
             g.FillRectangle(b, 0, 0, x, y);
 
-            b = new SolidBrush(Color.Snow);
-            for (var i = 0; i < heuristic.PartitionX; i++)
-                for (var j = 0; j < heuristic.PartitionY; j++)
-                    if (heuristic.Partitionning[i, j].Accessibility)
-                        g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
-                                        s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
+            //b = new SolidBrush(Color.Snow);
+            //for (var i = 0; i < heuristic.PartitionX; i++)
+            //    for (var j = 0; j < heuristic.PartitionY; j++)
+            //        if (heuristic.Partitionning[i, j].Accessibility)
+            //            g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
+            //                            s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
 
-            b = new SolidBrush(Color.PowderBlue);
-            for (var i = 0; i < heuristic.PartitionX; i++)
-                for (var j = 0; j < heuristic.PartitionY; j++)
-                    if (heuristic.Partitionning[i, j].PossibleWrist)
-                        g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
-                                        s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
+            //b = new SolidBrush(Color.PowderBlue);
+            //for (var i = 0; i < heuristic.PartitionX; i++)
+            //    for (var j = 0; j < heuristic.PartitionY; j++)
+            //        if (heuristic.Partitionning[i, j].PossibleWrist)
+            //            g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
+            //                            s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
 
             g.DrawRectangle(p, s*(float)Start.X-penwidth/2, s*(float)Start.Y-penwidth/2, penwidth, penwidth);
 
@@ -675,7 +676,7 @@ namespace InverseCinematics
                 g.DrawRectangle(p, s*(float)t.X - penwidth/2, s*(float)t.Y-penwidth/2, penwidth, penwidth);
 
             p.Color = Color.Red;
-            foreach (var l in Obstacles.SelectMany(o => o.Edges))
+            foreach (var l in Obstacles)
                 g.DrawLine(p, s*(float) l.P1.X, s*(float) l.P1.Y, s*(float) l.P2.X, s*(float) l.P2.Y);
 
             g.DrawImage(world, 0, 0, x, y);
