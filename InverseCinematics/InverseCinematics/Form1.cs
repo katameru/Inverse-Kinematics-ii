@@ -36,8 +36,6 @@ namespace InverseCinematics
             label17.Text = "";
             label18.Text = "";
             labelGAll.Text = @"0";
-            labelGFingers.Text = @"0";
-            labelGArms.Text = @"0";
 
             try
             {
@@ -63,8 +61,6 @@ namespace InverseCinematics
         private void UpdateStats()
         {
             labelGAll.Text = _generationsAll.ToString();
-            labelGFingers.Text = _generationsFingers.ToString();
-            labelGArms.Text = _generationsArm.ToString();
 
             var c =_population.First();
             UpdateLabel(label13, c.Tree.Node.Score);

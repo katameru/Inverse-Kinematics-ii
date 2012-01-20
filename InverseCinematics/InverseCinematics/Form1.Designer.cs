@@ -31,9 +31,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label20 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
-            this.numericGFingers = new System.Windows.Forms.NumericUpDown();
             this.numericGArm = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
@@ -56,10 +54,6 @@
             this.label24 = new System.Windows.Forms.Label();
             this.label25 = new System.Windows.Forms.Label();
             this.labelGAll = new System.Windows.Forms.Label();
-            this.label22 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.labelGArms = new System.Windows.Forms.Label();
-            this.labelGFingers = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
@@ -75,7 +69,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericGFingers)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericGArm)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
@@ -103,9 +96,7 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.label20);
             this.groupBox2.Controls.Add(this.label19);
-            this.groupBox2.Controls.Add(this.numericGFingers);
             this.groupBox2.Controls.Add(this.numericGArm);
             this.groupBox2.Controls.Add(this.numericUpDown2);
             this.groupBox2.Controls.Add(this.label3);
@@ -127,40 +118,14 @@
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(9, 331);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(37, 13);
-            this.label20.TabIndex = 18;
-            this.label20.Text = "Palce:";
-            // 
             // label19
             // 
             this.label19.AutoSize = true;
             this.label19.Location = new System.Drawing.Point(9, 310);
             this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(52, 13);
+            this.label19.Size = new System.Drawing.Size(41, 13);
             this.label19.TabIndex = 18;
-            this.label19.Text = "Ramiona:";
-            // 
-            // numericGFingers
-            // 
-            this.numericGFingers.Location = new System.Drawing.Point(67, 329);
-            this.numericGFingers.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numericGFingers.Name = "numericGFingers";
-            this.numericGFingers.Size = new System.Drawing.Size(55, 20);
-            this.numericGFingers.TabIndex = 19;
-            this.numericGFingers.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
+            this.label19.Text = "Iteracji:";
             // 
             // numericGArm
             // 
@@ -354,10 +319,6 @@
             this.groupBox3.Controls.Add(this.label24);
             this.groupBox3.Controls.Add(this.label25);
             this.groupBox3.Controls.Add(this.labelGAll);
-            this.groupBox3.Controls.Add(this.label22);
-            this.groupBox3.Controls.Add(this.label21);
-            this.groupBox3.Controls.Add(this.labelGArms);
-            this.groupBox3.Controls.Add(this.labelGFingers);
             this.groupBox3.Controls.Add(this.label18);
             this.groupBox3.Controls.Add(this.label17);
             this.groupBox3.Controls.Add(this.label16);
@@ -429,42 +390,6 @@
             this.labelGAll.Name = "labelGAll";
             this.labelGAll.Size = new System.Drawing.Size(40, 13);
             this.labelGAll.TabIndex = 17;
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(110, 23);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(34, 13);
-            this.label22.TabIndex = 16;
-            this.label22.Text = "Palce";
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(9, 23);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(49, 13);
-            this.label21.TabIndex = 15;
-            this.label21.Text = "Ramiona";
-            // 
-            // labelGArms
-            // 
-            this.labelGArms.Location = new System.Drawing.Point(64, 23);
-            this.labelGArms.MaximumSize = new System.Drawing.Size(20, 13);
-            this.labelGArms.MinimumSize = new System.Drawing.Size(40, 13);
-            this.labelGArms.Name = "labelGArms";
-            this.labelGArms.Size = new System.Drawing.Size(40, 13);
-            this.labelGArms.TabIndex = 14;
-            // 
-            // labelGFingers
-            // 
-            this.labelGFingers.Location = new System.Drawing.Point(146, 23);
-            this.labelGFingers.MaximumSize = new System.Drawing.Size(20, 13);
-            this.labelGFingers.MinimumSize = new System.Drawing.Size(40, 13);
-            this.labelGFingers.Name = "labelGFingers";
-            this.labelGFingers.Size = new System.Drawing.Size(40, 13);
-            this.labelGFingers.TabIndex = 13;
             // 
             // label18
             // 
@@ -588,7 +513,6 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericGFingers)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericGArm)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
@@ -618,7 +542,6 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label labelGFingers;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label16;
@@ -634,12 +557,7 @@
         private System.Windows.Forms.NumericUpDown numericUpDown2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label labelGAll;
-        private System.Windows.Forms.Label label22;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.Label labelGArms;
-        private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.NumericUpDown numericGFingers;
         private System.Windows.Forms.NumericUpDown numericGArm;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label24;
