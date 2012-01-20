@@ -314,7 +314,8 @@ namespace InverseCinematics
         /// </summary>
         public static List<Chromosome> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world)
         {
-            var ranked = population.OrderBy(c => Evaluate(c, world));
+            population.Select(c => Evaluate(c, world));
+            var ranked = population.OrderBy(c => c.Tree.Node.Score);
             /*
             if (population.Count == 0) return new List<Chromosome>();
             var selected = new List<Chromosome>();
@@ -381,28 +382,27 @@ namespace InverseCinematics
             Func<Chromosome, Chromosome, WorldInstance, List<Chromosome>> crossoverFun,
             Func<Chromosome, WorldInstance, Chromosome> evaluateFun)
         {
-            /*
+            
             var parents = selectionFun(population, population.Count, 4, world);
             var children = new List<Chromosome>();
             for (var i = 0; i < parents.Count; i++)
-                children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world, evolveWhat));
-             */
-            var children = population;
+                children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
+            
             var rand = new Random();
             children = children.Select(c => mutateFun(c, mutationChance, world, rand)).Select(c => evaluateFun(c, world)).ToList();
-            /*
-            parents = parents.Select(c => evaluateFun(c, world, evolveWhat)).ToList();
+            parents = parents.Select(c => evaluateFun(c, world)).ToList();
             children.AddRange(parents);
             children = children.Distinct().ToList();
-            var good = children.Where(c => c.Error == 0.0).ToList();
-            var bad = children.Where(c => c.Error > 0.0).ToList();
+            
+            var good = children.Where(c => c.Tree.Node.Error == 0.0).ToList();
+            var bad = children.Where(c => c.Tree.Node.Error > 0.0).ToList();
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
             good = selectionFun(good, goodnum, 4, world);
             bad = selectionFun(bad, population.Count - goodnum, 4, world);
             var res = good.Concat(bad);
-            return res.OrderBy(c => c.Score).ToList();
-             */
-            return children.OrderBy(c => c.Tree.Node.Score).ToList(); ;
+            return res.OrderBy(c => c.Tree.Node.Score).ToList();
+            
+            //return children.OrderBy(c => c.Tree.Node.Score).ToList(); ;
         }
     }
 }
