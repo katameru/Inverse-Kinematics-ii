@@ -423,7 +423,7 @@ namespace InverseCinematics
         public Line (double x1, double y1, double x2, double y2)
         {
             P1 = new Point(x1, y1);
-            P2 = new Point(x1, y1);
+            P2 = new Point(x2, y2);
             Len = Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
             A = (y2 - y1)/(x2-x1);
             B = y1 - A*x1;

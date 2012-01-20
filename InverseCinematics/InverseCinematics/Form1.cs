@@ -125,6 +125,7 @@ namespace InverseCinematics
 
         private void button2_Click(object sender, EventArgs e)
         {
+            /*
             var ga = (int)numericGArm.Value;
             var gf = (int) numericGFingers.Value;
 
@@ -150,20 +151,22 @@ namespace InverseCinematics
             _generationsFingers += gf;
             _generationsAll += ga + gf;
             UpdateStats();
+             */
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
+            /*
             _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
                 AlgorithmTemplate.Mutate, _mutation,
                 AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
                 AlgorithmTemplate.Evaluate, EvolveChoices.All);
-
+            */
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            var p2 = _population;//TODO.Where(x => x.Error == 0);
-            if (p2.Count() > 0)
-                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
-            else
+            //var p2 = _population;//TODO.Where(x => x.Error == 0);
+            //if (p2.Count() > 0)
+            //    pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
+            //else
                 pictureBox1.Image = img2;
 
             _generationsArm ++;
