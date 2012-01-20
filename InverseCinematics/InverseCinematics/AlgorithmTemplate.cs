@@ -50,6 +50,28 @@ namespace InverseCinematics
                 Subtree2.Add(path.Remove(0, 1), node);
         }
 
+        public T Get(string path)
+        {
+            if (path == "")
+                return Node;
+            if (path[0] == 'L' && Subtree1 != null)
+                return Subtree1.Get(path.Remove(0, 1));
+            if (path[0] == 'R' && Subtree2 != null)
+                return Subtree2.Get(path.Remove(0, 1));
+            return Node;
+        }
+
+        public Tree<T> GetSubtree(string path)
+        {
+            if (path == "")
+                return this;
+            if (path[0] == 'L' && Subtree1 != null)
+                return Subtree1.GetSubtree(path.Remove(0, 1));
+            if (path[0] == 'R' && Subtree2 != null)
+                return Subtree2.GetSubtree(path.Remove(0, 1));
+            return this;
+        }
+
         public Tree<S> Map<S>(Func<T, S> map)
         {
             var s1 = Subtree1 == null ? null : Subtree1.Map(map);
