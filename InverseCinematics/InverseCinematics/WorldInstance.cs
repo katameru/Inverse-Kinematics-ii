@@ -655,19 +655,19 @@ namespace InverseCinematics
             var b = new SolidBrush(Color.Black);
             g.FillRectangle(b, 0, 0, x, y);
 
-            b = new SolidBrush(Color.Snow);
-            for (var i = 0; i < heuristic.PartitionX; i++)
-                for (var j = 0; j < heuristic.PartitionY; j++)
-                    if (heuristic.Partitionning[i, j].Accessibility)
-                        g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
-                                        s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
+            //b = new SolidBrush(Color.Snow);
+            //for (var i = 0; i < heuristic.PartitionX; i++)
+            //    for (var j = 0; j < heuristic.PartitionY; j++)
+            //        if (heuristic.Partitionning[i, j].Accessibility)
+            //            g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
+            //                            s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
 
-            b = new SolidBrush(Color.PowderBlue);
-            for (var i = 0; i < heuristic.PartitionX; i++)
-                for (var j = 0; j < heuristic.PartitionY; j++)
-                    if (heuristic.Partitionning[i, j].PossibleWrist)
-                        g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
-                                        s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
+            //b = new SolidBrush(Color.PowderBlue);
+            //for (var i = 0; i < heuristic.PartitionX; i++)
+            //    for (var j = 0; j < heuristic.PartitionY; j++)
+            //        if (heuristic.Partitionning[i, j].PossibleWrist)
+            //            g.FillRectangle(b, s * i * (float)heuristic.PartitionSize, s * j * (float)heuristic.PartitionSize,
+            //                            s * (float)heuristic.PartitionSize, s * (float)heuristic.PartitionSize);
 
             g.DrawRectangle(p, s*(float)Start.X-penwidth/2, s*(float)Start.Y-penwidth/2, penwidth, penwidth);
 
@@ -676,8 +676,8 @@ namespace InverseCinematics
                 g.DrawRectangle(p, s*(float)t.X - penwidth/2, s*(float)t.Y-penwidth/2, penwidth, penwidth);
 
             p.Color = Color.Red;
-            //TODO foreach (var l in Obstacles.SelectMany(o => o.Edges))
-            //    g.DrawLine(p, s*(float) l.P1.X, s*(float) l.P1.Y, s*(float) l.P2.X, s*(float) l.P2.Y);
+            foreach (var l in Obstacles)
+                g.DrawLine(p, s*(float) l.P1.X, s*(float) l.P1.Y, s*(float) l.P2.X, s*(float) l.P2.Y);
 
             g.DrawImage(world, 0, 0, x, y);
             g.Dispose();

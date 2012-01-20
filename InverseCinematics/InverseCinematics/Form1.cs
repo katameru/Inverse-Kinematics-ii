@@ -42,7 +42,8 @@ namespace InverseCinematics
             try
             {
                 _world = new WorldInstance(comboBox1.Text);
-                _world.heuristic = new Heuristics(_world, (int)numericUpDown2.Value);
+                var x = _world.Specification.Spec.Map(s => s.Length);// Func<NodeSpec, double>{s => s})
+                //TODO _world.heuristic = new Heuristics(_world, (int)numericUpDown2.Value);
                 _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f));
                 _populationSize = (int) numericUpDown1.Value;
                 _badguys = (double) numericUpDown3.Value/100;
@@ -61,6 +62,7 @@ namespace InverseCinematics
 
         private void UpdateStats()
         {
+            /*
             labelGAll.Text = _generationsAll.ToString();
             labelGFingers.Text = _generationsFingers.ToString();
             labelGArms.Text = _generationsArm.ToString();
@@ -84,6 +86,7 @@ namespace InverseCinematics
             UpdateLabel(label23, avgError2 - avgError * avgError);
 
             UpdateLabel(label29, _population.Distinct().Count() / (double)_populationSize, true);
+             * */
         }
 
         private void UpdateLabel(Label l, double v, bool inverse=false)
@@ -109,6 +112,7 @@ namespace InverseCinematics
             var b = LoadData();
             button2.Enabled = b;
             button3.Enabled = b;
+
             if (b)
             {
                 pictureBox1.Image = _baseImage;
@@ -136,7 +140,7 @@ namespace InverseCinematics
                     AlgorithmTemplate.Evaluate, EvolveChoices.Fingers);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            var p2 = _population.Where(x => x.Error == 0);
+            var p2 = _population;//TODO.Where(x => x.Error == 0);
             if (p2.Count() > 0)
                 pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
             else
@@ -156,7 +160,7 @@ namespace InverseCinematics
                 AlgorithmTemplate.Evaluate, EvolveChoices.All);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            var p2 = _population.Where(x => x.Error == 0);
+            var p2 = _population;//TODO.Where(x => x.Error == 0);
             if (p2.Count() > 0)
                 pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
             else

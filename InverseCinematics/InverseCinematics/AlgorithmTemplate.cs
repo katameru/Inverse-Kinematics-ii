@@ -12,14 +12,14 @@ namespace InverseCinematics
         public T Node;
         public Tree<T> Subtree1;
         public Tree<T> Subtree2;
-        public List<T> Leafs;
+        //public List<T> Leafs;
 
         public Tree(T node)
         {
             Node = node;
             Subtree1 = null;
             Subtree2 = null;
-            Leafs = new List<T>{node};
+            //Leafs = new List<T>{node};
         }
 
         public Tree(T node, Tree<T> tree1, Tree<T> tree2)
@@ -27,7 +27,14 @@ namespace InverseCinematics
             Node = node;
             Subtree1 = tree1;
             Subtree2 = tree2;
-            Leafs = tree1.Leafs.Concat(tree2.Leafs).ToList();
+            //var leafs = new List<T>();
+            //if (tree1 == null && tree2 == null)
+            //    leafs.Add(Node);
+            //if (tree1 != null)
+            //    leafs.AddRange(tree1.Leafs);
+            //if (tree2 != null)
+            //    leafs.AddRange(tree2.Leafs);
+            //Leafs = leafs;
         }
 
         public Tree(int depth)
@@ -37,18 +44,18 @@ namespace InverseCinematics
                 return;
             Subtree1 = new Tree<T>(depth - 1);
             Subtree2 = new Tree<T>(depth - 1);
-            RestoreLeafs();
+            //RestoreLeafs();
         }
 
-        public List<T> RestoreLeafs()
-        {
-            var l = new List<T>();
-            if (Subtree1 != null)
-                l.AddRange(Subtree1.RestoreLeafs());
-            if (Subtree2 != null)
-                l.AddRange(Subtree2.RestoreLeafs());
-            return l;
-        }
+        //public List<T> RestoreLeafs()
+        //{
+        //    var l = new List<T>();
+        //    if (Subtree1 != null)
+        //        l.AddRange(Subtree1.RestoreLeafs());
+        //    if (Subtree2 != null)
+        //        l.AddRange(Subtree2.RestoreLeafs());
+        //    return l;
+        //}
 
         public void Add(string path, T node)
         {
@@ -64,6 +71,22 @@ namespace InverseCinematics
                 Subtree2.Add(path.Remove(0, 1), node);
         }
 
+        public Tree<S> Map<S>(Func<T, S> map)
+        {
+            var s1 = Subtree1 == null ? null : Subtree1.Map(map);
+            var s2 = Subtree2 == null ? null : Subtree2.Map(map);
+            var node = Node == null ? default(S) : map(Node);
+            return new Tree<S>(node,s1 , s2);
+        }
+
+        public Tree<S> MapTree<S>(Func<Tree<T>, S> map)
+        {
+            var s1 = Subtree1 == null ? null : Subtree1.MapTree(map);
+            var s2 = Subtree2 == null ? null : Subtree2.MapTree(map);
+            var node = Node == null ? default(S) : map(this);
+            return new Tree<S>(node, s1, s2);
+        }
+
         public override string ToString()
         {
             var n = Node == null ? "%" : Node.ToString();
@@ -73,90 +96,50 @@ namespace InverseCinematics
         }
     }
 
- 
+    class ChromosomeNode
+    {
+        public double Angle;
+        public Line Line;
+        public double Error;
+        public double Score;
 
+        public ChromosomeNode(double angle, Line line)
+        {
+            Angle = angle;
+            Line = line;
+        }
+    }
 
     /// <summary>
     /// Podstawowe informacje o chromosomie, zawierające głównie wartości kątów.
     /// </summary>
-    //class Chromosome
-    //{
-
-        
-    //}
-
     class Chromosome
     {
-        public List<double> Arm;
-        public List<List<double>> Fingers;
-        public List<Point> TouchPoints;
-        public List<Line> Bones;
-        public List<Line> BonesFingers;
-        public List<Line> BonesArm;
-        public double Score;
-        public double Error;
-        //TODO
-        public double ArmScore;
-        public double ArmError;
-        public List<double> BestFingeringScore;
-        public List<double> BestFingeringError;
-        public List<int> BestFingering;
+        public Tree<ChromosomeNode> Tree;
+
+
+        private static Tree<ChromosomeNode> GenerateTree(Tree<ChromosomeNode> tree, Tree<double> angles, Tree<NodeSpec> spec)
+        {
+            if (angles.Subtree1 == null && angles.Subtree2 == null)
+                return null;
+
+            var angle = Geometry.RelateAngle(tree.Node.Angle, angles.Subtree1.Node);
+            var line = new Line(tree.Node.Line.P2, spec.Subtree1.Node.Length, angle);
+            tree.Subtree1 = GenerateTree(tree.Subtree1, angles.Subtree1, spec.Subtree1);
+            tree.Subtree2 = GenerateTree(tree.Subtree2, angles.Subtree2, spec.Subtree2);
+            return tree;
+        }
 
         /// <summary>
         /// Tworzy nowy chromosom
         /// </summary>
-        /// <param name="arm">Lista kątów ramienia</param>
-        /// <param name="fingers">Lista kątów palców</param>
-        /// <param name="world">świat</param>
-        public Chromosome(List<double> arm, List<List<double>> fingers, WorldInstance world)
+        /// <param name="angles">Drzewo kątów</param>
+        /// <param name="world">Świat</param>
+        public Chromosome(Tree<double> angles, WorldInstance world)
         {
-            Arm = arm;
-            Fingers = fingers;
-
-
-            var angle = 0.0; // Initial angle is north
-            var point = world.Start;
-            Bones = new List<Line>();
-            BonesArm = new List<Line>();
-            BonesFingers = new List<Line>();
-
-            TouchPoints = new List<Point>();
-
-            for (var i = 0; i < arm.Count; i++)
-            {
-                angle = Geometry.RelateAngle(angle, Arm[i]);
-                //TODO BonesArm.Add(new Line(point, world.Specification.ArmArcLen[i], angle));
-                point = BonesArm.Last().P2;
-            }
-
-            for (var i = 0; i < Fingers.Count; i++)
-            {
-                var angle2 = angle; // remember last angle;
-
-                var point2 = point;
-                for (var j = 0; j < fingers[i].Count; j++)
-                {
-                    angle2 = Geometry.RelateAngle(angle2, Fingers[i][j]);
-                    //TODO BonesFingers.Add(new Line(point2, world.Specification.FingersArcLen[i][j], angle2));
-                    point2 = BonesFingers.Last().P2;
-                }
-                TouchPoints.Add(point2);
-            }
-
-            Bones = BonesArm.Concat(BonesFingers).ToList();
+            Tree = new Tree<ChromosomeNode>(new ChromosomeNode(0.0, new Line(world.Start, world.Start)));
+            Tree = GenerateTree(Tree, angles, world.Specification.Spec);
         }
-
-        /// <summary>
-        /// Zapisuje w chromosomie rezultat jego ewaluacji
-        /// </summary>
-        /// <param name="score">Wynik chromosomu</param>
-        /// <param name="error">Liczba błędów</param>
-        public void SaveEvaluation(double score, double error)
-        {
-            Score = score;
-            Error = error;
-        }
-
     }
 
     class NodeSpec
@@ -174,9 +157,9 @@ namespace InverseCinematics
 
         public NodeSpec(IList<string> spec)
         {
-            Length = int.Parse(spec[0]);
-            ArcMin = int.Parse(spec[1]);
-            ArcMax = int.Parse(spec[2]);
+            Length = double.Parse(spec[0]);
+            ArcMin = double.Parse(spec[1]);
+            ArcMax = double.Parse(spec[2]);
         }
 
         public override string ToString()
@@ -208,37 +191,8 @@ namespace InverseCinematics
         public Specification(int depth, List<string> spec)
         {
             Spec = new Tree<NodeSpec>(depth);
-            foreach (var sp in spec)
-            {
-                var s = sp.Split();
+            foreach (var s in spec.Select(sp => sp.Split()))
                 Spec.Add(s[0], new NodeSpec(s.Skip(1).ToList()));
-            }
-            return;
-            Tree<NodeSpec> tup = null;
-            var tdown = new Tree<NodeSpec>(null);
-            Spec = tdown;
-            var lvl = 0;
-
-            foreach (var sp in spec)
-            {
-                var s = sp.Split();
-                var l = s[0].Count();
-                var t = new Tree<NodeSpec>(new NodeSpec(s.Skip(1).ToList()));
-
-                if (l > lvl)
-                {    
-                    tdown.Subtree1 = t;
-                    tup = tdown;
-                    tdown = tdown.Subtree1;
-                }
-                else
-                {
-                    tup.Subtree2 = t;
-                    tdown = tup.Subtree2;
-                }
-
-                lvl = l;
-            }
         }
     }
 
@@ -263,22 +217,11 @@ namespace InverseCinematics
 
             var spec = world.Specification;
 
+            Func<NodeSpec, double> randomNode = 
+                s => s==null? -1 : s.ArcMin + rand.NextDouble()*(s.ArcMax - s.ArcMin);
+
             for (var i =0; i < size; i++)
-            {
-                var arm = new List<double>();
-                var fingers = new List<List<double>>();
-
-                //TODO for (var k = 0; k < spec.ArmArcLen.Count; k++)
-                //TODO        arm.Add(spec.ArmArcMin[k] + rand.NextDouble() * (spec.ArmArcMax[k] - spec.ArmArcMin[k]));
-
-                //TODO for (var k = 0; k < spec.FingersArcLen.Count; k++)
-                //{
-                //    fingers.Add(new List<double>());
-                    //TODO for (var l = 0; l < spec.FingersArcLen[k].Count; l++)
-                    //TODO    fingers[k].Add(spec.FingersArcMin[k][l] + rand.NextDouble()*(spec.FingersArcMax[k][l] - spec.FingersArcMin[k][l]));
-                //}
-                population.Add(new Chromosome(arm, fingers, world));
-            }
+                population.Add(new Chromosome(spec.Spec.Map(randomNode), world));
 
             return population;
         }
@@ -294,6 +237,7 @@ namespace InverseCinematics
         /// <returns></returns>
         public static Bitmap PrintPopulation(WorldInstance world, List<Chromosome> population, Bitmap img, float penwidth, Color pencolor)
         {
+            /*
             var s = Math.Min((float)img.Width / world.SizeX, (float)img.Height / world.SizeY);
 
             var p = new Pen(pencolor, penwidth);
@@ -306,6 +250,7 @@ namespace InverseCinematics
                 
             g.DrawImage(img, 0, 0, img.Width, img.Height);
             g.Dispose();
+             */
             return img;
         }
         
@@ -320,6 +265,7 @@ namespace InverseCinematics
         /// <returns></returns>
         public static Chromosome Mutate(Chromosome before, double chance, WorldInstance world, EvolveChoices evolveWhat)
         {
+            /*
             var rand = new Random();
             var spec = world.Specification;
             var arm = before.Arm;
@@ -337,6 +283,8 @@ namespace InverseCinematics
                             {} //TODO fingers[i][j] = spec.FingersArcMin[i][j] + rand.NextDouble()*(spec.FingersArcMax[i][j] - spec.FingersArcMin[i][j]);
 
             return new Chromosome(arm, fingers, world);
+             */
+            return null;
         }
 
         /// <summary>
@@ -344,6 +292,7 @@ namespace InverseCinematics
         /// </summary>
         public static List<Chromosome> Crossover(Chromosome p1, Chromosome p2, WorldInstance world, EvolveChoices evolveWhat)
         {
+            /*
             var beta = new Random().NextDouble();
             var c1_arm = new List<double>();
             var c1_fingers = new List<List<double>>();
@@ -397,6 +346,8 @@ namespace InverseCinematics
 
  
             return new List<Chromosome>{new Chromosome(c1_arm, c1_fingers, world), new Chromosome(c2_arm, c2_fingers, world)};
+             */
+            return null;
         }
 
         /// <summary>
@@ -404,6 +355,7 @@ namespace InverseCinematics
         /// </summary>
         public static List<Chromosome> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world)
         {
+            /*
             if (population.Count == 0) return new List<Chromosome>();
             var selected = new List<Chromosome>();
             var rand = new Random();
@@ -417,6 +369,8 @@ namespace InverseCinematics
             }
 
             return selected;
+             */
+            return null;
         }
 
         /// <summary>
@@ -424,6 +378,7 @@ namespace InverseCinematics
         /// </summary>
         public static Chromosome Evaluate(Chromosome c, WorldInstance world, EvolveChoices whichDistance)
         {
+            /*
             var dist = new List<KeyValuePair<KeyValuePair<Point, Point>, double>> ();
             foreach (var tp in c.TouchPoints)
                 foreach (var t in world.Targets)
@@ -486,6 +441,8 @@ namespace InverseCinematics
             
             c.SaveEvaluation(score, error);
             return c;
+             */
+            return null;
         }
 
         public static List<Chromosome> GeneticAlgorithmStart(WorldInstance world, int populationSize, 
@@ -505,7 +462,7 @@ namespace InverseCinematics
             Func<Chromosome, Chromosome, WorldInstance, EvolveChoices, List<Chromosome>> crossoverFun,
             Func<Chromosome, WorldInstance, EvolveChoices, Chromosome> evaluateFun, EvolveChoices evolveWhat)
         {
-
+            /*
             var parents = selectionFun(population, population.Count, 4, world);
             var children = new List<Chromosome>();
             for (var i = 0; i < parents.Count; i++)
@@ -521,6 +478,8 @@ namespace InverseCinematics
             bad = selectionFun(bad, population.Count - goodnum, 4, world);
             var res = good.Concat(bad);
             return res.OrderBy(c => c.Score).ToList();
+             */
+            return null;
         }
     }
 }
