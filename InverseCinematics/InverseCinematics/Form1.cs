@@ -62,31 +62,29 @@ namespace InverseCinematics
 
         private void UpdateStats()
         {
-            /*
             labelGAll.Text = _generationsAll.ToString();
             labelGFingers.Text = _generationsFingers.ToString();
             labelGArms.Text = _generationsArm.ToString();
 
             var c =_population.First();
-            UpdateLabel(label13, c.Score);
-            UpdateLabel(label14, c.Error);
-            var p = _population.Where(x => x.Error == 0);
+            UpdateLabel(label13, c.Tree.Node.Score);
+            UpdateLabel(label14, c.Tree.Node.Error);
+            var p = _population.Where(x => x.Tree.Node.Error == 0);
             if (p.Count() > 0)
-                UpdateLabel(label15, p.First().Score);
+                UpdateLabel(label15, p.First().Tree.Node.Score);
             else
                 label15.Text = "";
-            
-            var avgScore = _population.Average(x => x.Score);
-            var avgScore2 = _population.Average(x => x.Score*x.Score);
-            var avgError = _population.Average(x => x.Error);
-            var avgError2 = _population.Average(x => x.Error * x.Error);
+
+            var avgScore = _population.Average(x => x.Tree.Node.Score);
+            var avgScore2 = _population.Average(x => x.Tree.Node.Score * x.Tree.Node.Score);
+            var avgError = _population.Average(x => x.Tree.Node.Error);
+            var avgError2 = _population.Average(x => x.Tree.Node.Error * x.Tree.Node.Error);
             UpdateLabel(label17, avgScore);
             UpdateLabel(label18, avgError, true);
             UpdateLabel(label24, avgScore2 - avgScore * avgScore);
             UpdateLabel(label23, avgError2 - avgError * avgError);
 
             UpdateLabel(label29, _population.Distinct().Count() / (double)_populationSize, true);
-             * */
         }
 
         private void UpdateLabel(Label l, double v, bool inverse=false)
@@ -118,7 +116,7 @@ namespace InverseCinematics
                 pictureBox1.Image = _baseImage;
                 _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize,
                                                                       AlgorithmTemplate.GenerateRandomPopulation,
-                                                                      AlgorithmTemplate.Evaluate, EvolveChoices.All);
+                                                                      AlgorithmTemplate.Evaluate);
                 UpdateStats();
             }
         }
@@ -156,12 +154,12 @@ namespace InverseCinematics
 
         private void button3_Click(object sender, EventArgs e)
         {
-            /*
+            
             _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
                 AlgorithmTemplate.Mutate, _mutation,
                 AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                AlgorithmTemplate.Evaluate, EvolveChoices.All);
-            */
+                AlgorithmTemplate.Evaluate);
+
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
             //var p2 = _population;//TODO.Where(x => x.Error == 0);
             //if (p2.Count() > 0)
