@@ -362,21 +362,22 @@ namespace InverseCinematics
 
         public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles)
         {
+            var error = 0;
+            foreach (var o in obstacles)
+                if (tree.Node.Line.P1 != tree.Node.Line.P2 && Geometry.Intersects(tree.Node.Line, o))
+                    error++;
+
             if (tree.Subtree1 == null && tree.Subtree2 == null)
             {
+                tree.Node.Error = error;
                 tree.Node.Score = Geometry.SLDistance(tree.Node.Line.P2, targets.First());
                 targets = targets.Skip(1).ToList();
-                var error = 0;
-                foreach (var o in obstacles)
-                        if (Geometry.Intersects(tree.Node.Line, o))
-                            error++;
-                tree.Node.Error = error;
                 return;
             }
             Evaluate(ref tree.Subtree1, ref targets, obstacles);
             Evaluate(ref tree.Subtree2, ref targets, obstacles);
             tree.Node.Score = tree.Subtree1.Node.Score + tree.Subtree2.Node.Score;
-            tree.Node.Error = tree.Subtree1.Node.Error + tree.Subtree2.Node.Error;
+            tree.Node.Error = error + tree.Subtree1.Node.Error + tree.Subtree2.Node.Error;
         }
 
         /// <summary>
