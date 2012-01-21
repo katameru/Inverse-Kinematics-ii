@@ -132,7 +132,8 @@ namespace InverseCinematics
             var n = Node == null ? "%" : Node.ToString();
             var s1 = Subtree1 == null ? "%" : Subtree1.ToString();
             var s2 = Subtree2 == null ? "%" : Subtree2.ToString();
-            return "<" + s1 + "|" + n + "|" + s2 + ">";
+            //return "(" + s1 + "\t|\t" + n + "\t|\t" + s2 + ")";
+            return n + "   *(" + s1 + ")*      *("+ s2 + ")*";
         }
     }
 
@@ -148,6 +149,12 @@ namespace InverseCinematics
             Angle = angle;
             Line = line;
         }
+
+        public override string ToString()
+        {
+            //return "<" + Angle + " ; " + Line + " [" + Score + ", " + Error + ">";
+            return "<" + Score + ", " + Error + "> #" + Angle + " " + Line;
+        }
     }
 
     /// <summary>
@@ -156,6 +163,11 @@ namespace InverseCinematics
     class Chromosome
     {
         public Tree<ChromosomeNode> Tree;
+
+        public override string ToString()
+        {
+            return Tree.ToString();
+        }
 
         private static Tree<ChromosomeNode> GenerateTree(Tree<ChromosomeNode> tree, Tree<double> angles, Tree<NodeSpec> spec)
         {
