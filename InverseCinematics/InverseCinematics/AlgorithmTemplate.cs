@@ -331,10 +331,11 @@ namespace InverseCinematics
             for (var s = 0; s < popSize; s++)
             {
                 var parents = new List<Chromosome>();
-                for (var j = 0; j < tournament; j++) // mamy listę rodziców z których będzie stworzony dany potomek
+                for (var j = 0; j < tournament; j++) // tworzymy listę rodziców z których będzie stworzony dany potomek
                     parents.Add(population[rand.Next(population.Count)]);
 
-                var child = parents.OrderBy(p => p.Tree.Node.Score + p.Tree.Node.Score).First(); // jako podstawę wybieramy najlepszego ogólnie
+                var child = parents[rand.Next(tournament)]; // jako podstawę wybieramy losowego rodzica
+
                 foreach (var path in paths.OrderBy(p => p.Count())) // zaczynamy podstawianie od drzew najbliżej roota
                 {
                     var best = parents.OrderBy(p => p.Tree.Get(path).Score + p.Tree.Get(path).Error).ToList();
@@ -351,7 +352,7 @@ namespace InverseCinematics
                             f = (n1, n2) => n1.Angle + n2.Angle + beta*(n1.Angle - n2.Angle);
                         else
                             f = (n1, n2) => n1.Angle + n2.Angle + beta*(n2.Angle - n1.Angle);
-                        var tree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[1].Tree.GetSubtree(path), f);
+                        var tree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament-1)+1].Tree.GetSubtree(path), f);
                         var tree2 = Tree<ChromosomeNode>.Map2(child.Tree.GetSubtree(path), tree, (c, t) => new ChromosomeNode(t, c.Line));
                         child.Tree.AddSubtree(path, tree2);
                     }
@@ -434,7 +435,7 @@ namespace InverseCinematics
             double mutationChance)
         {
             var selectionPaths = new List<string> {"L", "R"};
-            var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.1);
+            var children = Crossover(population, selectionPaths, world, 10, population.Count, 0.05);
             //var parents = selectionFun(population, 3, 4, world, selectionPaths); //TODO population.Count => 3
             var x = new List<Chromosome>();
             /*
