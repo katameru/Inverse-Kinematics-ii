@@ -110,9 +110,7 @@ namespace InverseCinematics
             if (b)
             {
                 pictureBox1.Image = _baseImage;
-                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize,
-                                                                      AlgorithmTemplate.GenerateRandomPopulation,
-                                                                      AlgorithmTemplate.Evaluate);
+                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize);
                 UpdateStats();
             }
         }
@@ -151,10 +149,7 @@ namespace InverseCinematics
         private void button3_Click(object sender, EventArgs e)
         {
             
-            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
-                AlgorithmTemplate.Mutate, _mutation,
-                AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                AlgorithmTemplate.Evaluate);
+            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
             //var p2 = _population;//TODO.Where(x => x.Error == 0);
