@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -131,6 +132,12 @@ namespace InverseCinematics
 
             _generationsArm += ga;
             _generationsAll += ga;
+
+            var f = new StreamWriter(_generationsAll + ".txt");
+            foreach (var chromosome in _population)
+                f.WriteLine(chromosome);
+            f.Close();
+
             UpdateStats();
         }
 
@@ -148,6 +155,11 @@ namespace InverseCinematics
             _generationsArm ++;
             _generationsFingers ++;
             _generationsAll++;
+
+            var f = new StreamWriter(_generationsAll + ".txt");
+            foreach (var chromosome in _population)
+                f.WriteLine(chromosome);
+            f.Close();
 
             UpdateStats();
         }
