@@ -189,6 +189,14 @@ namespace InverseCinematics
             Tree = new Tree<ChromosomeNode>(new ChromosomeNode(0.0, new Line(world.Start, world.Start)));
             Tree = GenerateTree(Tree, angles, world.Specification.Spec);
         }
+
+        public Chromosome recalculate(Tree<NodeSpec> spec)
+        {
+            var tree = Tree;
+            Tree<double> angles = tree.Map(n => n.Angle);
+            Tree = GenerateTree(tree, angles, spec);
+            return this;
+        }
     }
 
     class NodeSpec
@@ -416,6 +424,7 @@ namespace InverseCinematics
         /// </summary>
         public static Chromosome Evaluate(Chromosome c, WorldInstance world)
         {
+            c.recalculate(world.Specification.Spec);
             var targets = world.Targets.Select(t => t).ToList();
             Evaluate(ref c.Tree, ref targets, world.Obstacles);
 
@@ -435,7 +444,8 @@ namespace InverseCinematics
             double mutationChance)
         {
             var selectionPaths = new List<string> {"L", "R"};
-            var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05);
+            var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05).Select(c => Evaluate(c, world)).ToList();
+            
             //var parents = selectionFun(population, 3, 4, world, selectionPaths); //TODO population.Count => 3
             var x = new List<Chromosome>();
             /*
@@ -455,7 +465,7 @@ namespace InverseCinematics
             var res = good.Concat(bad);
             return res.OrderBy(c => c.Tree.Node.Score).ToList();
             */
-            return children.OrderBy(c => c.Tree.Node.Score).Take(population.Count).ToList();
+            return children.OrderBy(c => c.Tree.Node.Score).Take(population.Count).Select(c => Evaluate(c, world)).ToList();
         }
     }
 }
