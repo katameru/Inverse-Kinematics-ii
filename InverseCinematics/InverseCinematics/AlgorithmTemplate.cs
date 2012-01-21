@@ -349,9 +349,9 @@ namespace InverseCinematics
                         Func<ChromosomeNode, ChromosomeNode, double> f;
                         var beta = rand.NextDouble();
                         if (rand.NextDouble() < 0.5) // wibieramy jedną z dwóch funkcji
-                            f = (n1, n2) => n1.Angle + n2.Angle + beta*(n1.Angle - n2.Angle);
+                            f = (n1, n2) => (n1.Angle + n2.Angle + beta*(n1.Angle - n2.Angle))%360;
                         else
-                            f = (n1, n2) => n1.Angle + n2.Angle + beta*(n2.Angle - n1.Angle);
+                            f = (n1, n2) => (n1.Angle + n2.Angle + beta*(n2.Angle - n1.Angle))%360;
                         var tree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament-1)+1].Tree.GetSubtree(path), f);
                         var tree2 = Tree<ChromosomeNode>.Map2(child.Tree.GetSubtree(path), tree, (c, t) => new ChromosomeNode(t, c.Line));
                         child.Tree.AddSubtree(path, tree2);
