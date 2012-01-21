@@ -232,12 +232,14 @@ namespace InverseCinematics
     class Specification
     {
         public Tree<NodeSpec> Spec = new Tree<NodeSpec>(null);
+        public int Depth;
 
         /// <summary>
         /// Tworzy specyfikację na podstawie konkretnych danych.
         /// </summary>
-        public Specification(Tree<NodeSpec> spec)
+        public Specification(int depth, Tree<NodeSpec> spec)
         {
+            Depth = depth;
             Spec = spec;
         }
 
@@ -247,6 +249,7 @@ namespace InverseCinematics
         /// <param name="spec">Kolejne linie pliku wejściowego</param>
         public Specification(int depth, List<string> spec)
         {
+            Depth = depth;
             Spec = new Tree<NodeSpec>(depth);
             foreach (var s in spec.Select(sp => sp.Split()))
                 Spec.Add(s[0], new NodeSpec(s.Skip(1).ToList()));

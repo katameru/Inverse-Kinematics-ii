@@ -182,7 +182,8 @@
             "scenario_01.txt",
             "scenario_02.txt",
             "scenario_03.txt",
-            "scenario_04.txt"});
+            "scenario_04.txt",
+            "scenario_05.txt"});
             this.comboBox1.Location = new System.Drawing.Point(2, 26);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(190, 21);
