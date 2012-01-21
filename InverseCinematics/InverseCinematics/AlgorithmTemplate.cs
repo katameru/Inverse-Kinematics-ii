@@ -435,19 +435,18 @@ namespace InverseCinematics
             double mutationChance)
         {
             var selectionPaths = new List<string> {"L", "R"};
-            var children = Crossover(population, selectionPaths, world, 10, population.Count, 0.05);
+            var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05);
             //var parents = selectionFun(population, 3, 4, world, selectionPaths); //TODO population.Count => 3
             var x = new List<Chromosome>();
             /*
             for (var i = 0; i < parents.Count; i++)
                 children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
-            
+            */
             var rand = new Random();
-            children = children.Select(c => mutateFun(c, mutationChance, world, rand)).Select(c => evaluateFun(c, world)).ToList();
-            parents = parents.Select(c => evaluateFun(c, world)).ToList();
-            children.AddRange(parents);
-            children = children.Distinct().ToList();
-            
+            children = children.Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
+            children.AddRange(population.Select(c => Evaluate(c, world)).ToList());
+            //children = children.Distinct().ToList();
+            /*
             var good = children.Where(c => c.Tree.Node.Error == 0.0).ToList();
             var bad = children.Where(c => c.Tree.Node.Error > 0.0).ToList();
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
@@ -456,7 +455,7 @@ namespace InverseCinematics
             var res = good.Concat(bad);
             return res.OrderBy(c => c.Tree.Node.Score).ToList();
             */
-            return children.OrderBy(c => c.Tree.Node.Score).ToList(); ;
+            return children.OrderBy(c => c.Tree.Node.Score).Take(population.Count).ToList();
         }
     }
 }

@@ -117,45 +117,32 @@ namespace InverseCinematics
 
         private void button2_Click(object sender, EventArgs e)
         {
-            /*
             var ga = (int)numericGArm.Value;
-            var gf = (int) numericGFingers.Value;
 
             for (var i = 0; i < ga; i++ )
-                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
-                    AlgorithmTemplate.Mutate, _mutation,
-                    AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                    AlgorithmTemplate.Evaluate, EvolveChoices.Arm);
-            for (var i = 0; i < gf; i++)
-                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys,
-                    AlgorithmTemplate.Mutate, _mutation,
-                    AlgorithmTemplate.Selection, AlgorithmTemplate.Crossover,
-                    AlgorithmTemplate.Evaluate, EvolveChoices.Fingers);
+                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            var p2 = _population;//TODO.Where(x => x.Error == 0);
+            var p2 = _population.Where(x => x.Tree.Node.Error == 0);
             if (p2.Count() > 0)
                 pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
             else
                 pictureBox1.Image = img2;
 
             _generationsArm += ga;
-            _generationsFingers += gf;
-            _generationsAll += ga + gf;
+            _generationsAll += ga;
             UpdateStats();
-             */
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            
             _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
-            //var p2 = _population;//TODO.Where(x => x.Error == 0);
-            //if (p2.Count() > 0)
-            //    pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
-            //else
+            var p2 = _population.Where(x => x.Tree.Node.Error == 0);
+            if (p2.Count() > 0)
+                pictureBox1.Image = AlgorithmTemplate.PrintPopulation(_world, p2.Take(_showbest).ToList(), img2, 1.0f, Color.Green);
+            else
                 pictureBox1.Image = img2;
 
             _generationsArm ++;
@@ -163,7 +150,6 @@ namespace InverseCinematics
             _generationsAll++;
 
             UpdateStats();
-
         }
 
     }
