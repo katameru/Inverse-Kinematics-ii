@@ -458,6 +458,7 @@ namespace InverseCinematics
         public static List<Chromosome> GeneticAlgorithmStep(WorldInstance world, List<Chromosome> population, double alpha,
             double mutationChance)
         {
+            population = population.OrderBy(c => c.Tree.Node.Score).ToList();
             var selectionPaths = new List<string> {"L", "R"};
             var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05).Select(c => Evaluate(c, world)).ToList();
             
@@ -469,7 +470,8 @@ namespace InverseCinematics
             */
             var rand = new Random();
             children = children.Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
-            children.AddRange(population.Select(c => Evaluate(c, world)).ToList());
+            children.AddRange(population);
+            children = children.OrderBy(c => c.Tree.Node.Score).ToList();
             //children = children.Distinct().ToList();
             /*
             var good = children.Where(c => c.Tree.Node.Error == 0.0).ToList();
@@ -480,7 +482,8 @@ namespace InverseCinematics
             var res = good.Concat(bad);
             return res.OrderBy(c => c.Tree.Node.Score).ToList();
             */
-            return children.OrderBy(c => c.Tree.Node.Score).Take(population.Count).Select(c => Evaluate(c, world)).ToList();
+            var retval = children.Take(population.Count).ToList();
+            return retval.ToList();
         }
     }
 }
