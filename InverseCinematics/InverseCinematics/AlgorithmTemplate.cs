@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 
 namespace InverseCinematics
 {
+
+    [Serializable]
     class Tree<T>
     {
         public T Node;
@@ -35,6 +39,8 @@ namespace InverseCinematics
             Subtree1 = new Tree<T>(depth - 1);
             Subtree2 = new Tree<T>(depth - 1);
         }
+
+
 
         public void Add(string path, T node)
         {
@@ -137,6 +143,7 @@ namespace InverseCinematics
         }
     }
 
+    [Serializable]
     class ChromosomeNode
     {
         public double Angle;
@@ -160,6 +167,7 @@ namespace InverseCinematics
     /// <summary>
     /// Podstawowe informacje o chromosomie, zawierające głównie wartości kątów.
     /// </summary>
+    [Serializable]
     class Chromosome
     {
         public Tree<ChromosomeNode> Tree;
@@ -211,6 +219,7 @@ namespace InverseCinematics
         }
     }
 
+    [Serializable]
     class NodeSpec
     {
         public double Length;
@@ -241,6 +250,7 @@ namespace InverseCinematics
     /// Specyfikacja chromosomów.
     /// Zawiera informacje o długościach poszczególnych kości oraz możliwych kątach rozwarć stawów
     /// </summary>
+    [Serializable]
     class Specification
     {
         public Tree<NodeSpec> Spec = new Tree<NodeSpec>(null);
@@ -270,6 +280,18 @@ namespace InverseCinematics
 
     class AlgorithmTemplate
     {
+        public static T DeepClone<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
+            }
+        }
+
         /// <summary>
         /// Tworzy losową populację chromosomów
         /// </summary>
@@ -355,9 +377,9 @@ namespace InverseCinematics
             {
                 var parents = new List<Chromosome>();
                 for (var j = 0; j < tournament; j++) // tworzymy listę rodziców z których będzie stworzony dany potomek
-                    parents.Add(population[rand.Next(population.Count)]);
+                    parents.Add(DeepClone(population[rand.Next(population.Count)]));
 
-                var child = parents[rand.Next(tournament)]; // jako podstawę wybieramy losowego rodzica
+                var child = DeepClone(parents[rand.Next(tournament)]); // jako podstawę wybieramy losowego rodzica
 
                 foreach (var path in paths.OrderBy(p => p.Count())) // zaczynamy podstawianie od drzew najbliżej roota
                 {
@@ -458,7 +480,6 @@ namespace InverseCinematics
         public static List<Chromosome> GeneticAlgorithmStep(WorldInstance world, List<Chromosome> population, double alpha,
             double mutationChance)
         {
-            population = population.OrderBy(c => c.Tree.Node.Score).ToList();
             var selectionPaths = new List<string> {"L", "R"};
             var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05).Select(c => Evaluate(c, world)).ToList();
             

@@ -119,10 +119,10 @@ namespace InverseCinematics
         private void button2_Click(object sender, EventArgs e)
         {
             var ga = (int)numericGArm.Value;
-
-            for (var i = 0; i < ga; i++ )
+            for (var i = 0; i < ga; i++)
+            {
                 _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation);
-
+            }
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
             var p2 = _population.Where(x => x.Tree.Node.Error == 0);
             if (p2.Count() > 0)
@@ -132,7 +132,6 @@ namespace InverseCinematics
 
             _generationsArm += ga;
             _generationsAll += ga;
-
             var f = new StreamWriter(_generationsAll + ".txt");
             foreach (var chromosome in _population)
                 f.WriteLine(chromosome);
