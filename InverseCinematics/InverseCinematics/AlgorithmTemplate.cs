@@ -369,7 +369,7 @@ namespace InverseCinematics
         /// </summary>
         public static List<Chromosome> Crossover(List<Chromosome> population, List<string> paths, WorldInstance world, int tournament, int popSize, double chance)
         {
-            population = population.Select(c => Evaluate(c, world)).ToList();
+            population.Select(c => Evaluate(c, world));
             var rand = new Random();
             var children = new List<Chromosome>();
 
@@ -387,7 +387,7 @@ namespace InverseCinematics
 
                     if (rand.NextDouble() < chance) // dziedziczenie wprost
                     {
-                        child.Tree.AddSubtree(path, best.First().Tree.GetSubtree(path));
+                        child.Tree.AddSubtree(path, DeepClone(best.First().Tree).GetSubtree(path));
                     }
                     else
                     {
@@ -406,35 +406,6 @@ namespace InverseCinematics
             }
             return children;
         }
-
-        /// <summary>
-        /// Operator selekcji metodą turniejową.
-        /// </summary>
-        public static Dictionary<string, List<Chromosome>> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world, List<string> paths)
-        {
-            var rand = new Random();
-            var selected = new Dictionary<string, List<Chromosome>>();
-            population.Select(c => Evaluate(c, world));
-            
-            foreach (var path in paths)
-            {
-                //var ranked = population.OrderBy(c => c.Tree.Get(path).Score);
-                var choice = new List<Chromosome>();
-                if (population.Count>0)
-                {
-                    for (var i = 0; i < selSize; i++)
-                    {
-                        var candidates = new List<Chromosome>();
-                        for (var j = 0; j < tournament; j++)
-                            candidates.Add(population[rand.Next(population.Count)]);
-                        choice.Add(candidates.OrderBy(p => p.Tree.Get(path).Score + p.Tree.Get(path).Error).First());
-                    }
-                }
-                selected.Add(path, choice);
-            }
-            return selected;
-        }
-
 
         public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles)
         {
@@ -481,7 +452,7 @@ namespace InverseCinematics
             double mutationChance)
         {
             var selectionPaths = new List<string> {"L", "R"};
-            var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05).Select(c => Evaluate(c, world)).ToList();
+            var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05).AsParallel().Select(c => Evaluate(c, world)).ToList();
             
             //var parents = selectionFun(population, 3, 4, world, selectionPaths); //TODO population.Count => 3
             var x = new List<Chromosome>();
@@ -490,21 +461,18 @@ namespace InverseCinematics
                 children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
             */
             var rand = new Random();
-            children = children.Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
+            children = children.AsParallel().Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
             children.AddRange(population);
-            children = children.OrderBy(c => c.Tree.Node.Score).ToList();
-            //children = children.Distinct().ToList();
-            /*
+            children = children.OrderBy(c => c.Tree.Node.Score).Distinct().ToList();
+            
             var good = children.Where(c => c.Tree.Node.Error == 0.0).ToList();
             var bad = children.Where(c => c.Tree.Node.Error > 0.0).ToList();
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
-            good = selectionFun(good, goodnum, 4, world);
-            bad = selectionFun(bad, population.Count - goodnum, 4, world);
-            var res = good.Concat(bad);
-            return res.OrderBy(c => c.Tree.Node.Score).ToList();
-            */
-            var retval = children.Take(population.Count).ToList();
-            return retval.ToList();
+            
+            var res = good.Take(goodnum).Concat(bad).Take(population.Count);
+            
+            //var retval = children.Take(population.Count).ToList();
+            return res.ToList();
         }
     }
 }
