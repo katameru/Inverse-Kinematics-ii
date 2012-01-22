@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace InverseCinematics
 {
     /// <summary>
     /// Podstawowe informacje o chromosomie, zawierające głównie wartości kątów.
     /// </summary>
+    [Serializable]
     class Chromosome
     {
         public List<double> Arm;
@@ -88,6 +90,7 @@ namespace InverseCinematics
     /// Specyfikacja chromosomów.
     /// Zawiera informacje o długościach poszczególnych kości oraz możliwych kątach rozwarć stawów
     /// </summary>
+    [Serializable]
     class Specification
     {
         public List<double> ArmArcLen;
@@ -156,11 +159,24 @@ namespace InverseCinematics
     /// <summary>
     /// Typ wyliczeniowy wskazujacy ktory element ramienia bedziemy chcieli zmieniac.
     /// </summary>
+    [Serializable]
     enum EvolveChoices { Arm, Fingers, All};
 
-
+    [Serializable]
     class AlgorithmTemplate
     {
+        public static T DeepClone<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
+            }
+        }
+
         /// <summary>
         /// Tworzy losową populację chromosomów
         /// </summary>
@@ -229,8 +245,9 @@ namespace InverseCinematics
         /// <param name="world">swiat</param>
         /// <param name="evolveWhat">ktore elementy zmieniac</param>
         /// <returns></returns>
-        public static Chromosome Mutate(Chromosome before, double chance, WorldInstance world, EvolveChoices evolveWhat)
+        public static Chromosome Mutate(Chromosome _before, double chance, WorldInstance world, EvolveChoices evolveWhat)
         {
+            var before = DeepClone(_before);
             var rand = new Random();
             var spec = world.Specification;
             var arm = before.Arm;
@@ -253,8 +270,10 @@ namespace InverseCinematics
         /// <summary>
         /// Krzyzowanie dwoch chromosomow. Jezeli jakiegos fragmentu nie chcemy zmieniac, to jest on dziedziczony od rodzicow wprost.
         /// </summary>
-        public static List<Chromosome> Crossover(Chromosome p1, Chromosome p2, WorldInstance world, EvolveChoices evolveWhat)
+        public static List<Chromosome> Crossover(Chromosome _p1, Chromosome _p2, WorldInstance world, EvolveChoices evolveWhat)
         {
+            var p1 = DeepClone(_p1);
+            var p2 = DeepClone(_p2);
             var beta = new Random().NextDouble();
             var c1_arm = new List<double>();
             var c1_fingers = new List<List<double>>();
@@ -324,7 +343,7 @@ namespace InverseCinematics
                 var candidates = new List<Chromosome>();
                 for (var j =0; j < tournament; j++)
                     candidates.Add(population[rand.Next(population.Count)]);
-                selected.Add(candidates.OrderBy(p => p.Score + p.Error).First());
+                selected.Add(DeepClone(candidates.OrderBy(p => p.Score + p.Error).First()));
             }
 
             return selected;
