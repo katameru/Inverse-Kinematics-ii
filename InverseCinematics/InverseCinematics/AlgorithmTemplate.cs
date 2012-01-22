@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 
 namespace InverseCinematics
 {
+
+    [Serializable]
     class Tree<T>
     {
         public T Node;
@@ -35,6 +39,8 @@ namespace InverseCinematics
             Subtree1 = new Tree<T>(depth - 1);
             Subtree2 = new Tree<T>(depth - 1);
         }
+
+
 
         public void Add(string path, T node)
         {
@@ -137,6 +143,7 @@ namespace InverseCinematics
         }
     }
 
+    [Serializable]
     class ChromosomeNode
     {
         public double Angle;
@@ -160,6 +167,7 @@ namespace InverseCinematics
     /// <summary>
     /// Podstawowe informacje o chromosomie, zawierające głównie wartości kątów.
     /// </summary>
+    [Serializable]
     class Chromosome
     {
         public Tree<ChromosomeNode> Tree;
@@ -211,6 +219,7 @@ namespace InverseCinematics
         }
     }
 
+    [Serializable]
     class NodeSpec
     {
         public double Length;
@@ -241,6 +250,7 @@ namespace InverseCinematics
     /// Specyfikacja chromosomów.
     /// Zawiera informacje o długościach poszczególnych kości oraz możliwych kątach rozwarć stawów
     /// </summary>
+    [Serializable]
     class Specification
     {
         public Tree<NodeSpec> Spec = new Tree<NodeSpec>(null);
@@ -270,6 +280,18 @@ namespace InverseCinematics
 
     class AlgorithmTemplate
     {
+        public static T DeepClone<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
+            }
+        }
+
         /// <summary>
         /// Tworzy losową populację chromosomów
         /// </summary>
@@ -347,17 +369,27 @@ namespace InverseCinematics
         /// </summary>
         public static List<Chromosome> Crossover(List<Chromosome> population, List<string> paths, WorldInstance world, int tournament, int popSize, double chance)
         {
-            population = population.Select(c => Evaluate(c, world)).ToList();
+            population.Select(c => Evaluate(c, world));
             var rand = new Random();
             var children = new List<Chromosome>();
+
+            var parentsList = new List<List<Chromosome>>();
 
             for (var s = 0; s < popSize; s++)
             {
                 var parents = new List<Chromosome>();
                 for (var j = 0; j < tournament; j++) // tworzymy listę rodziców z których będzie stworzony dany potomek
+                {
                     parents.Add(population[rand.Next(population.Count)]);
+                }
 
-                var child = parents[rand.Next(tournament)]; // jako podstawę wybieramy losowego rodzica
+                parentsList.Add(parents);
+
+            }
+
+            parentsList.AsParallel().ForAll(parents =>
+            {
+                var child = DeepClone(parents[rand.Next(tournament)]); // jako podstawę wybieramy losowego rodzica
 
                 foreach (var path in paths.OrderBy(p => p.Count())) // zaczynamy podstawianie od drzew najbliżej roota
                 {
@@ -365,54 +397,29 @@ namespace InverseCinematics
 
                     if (rand.NextDouble() < chance) // dziedziczenie wprost
                     {
-                        child.Tree.AddSubtree(path, best.First().Tree.GetSubtree(path));
+                        child.Tree.AddSubtree(path, DeepClone(best.First().Tree).GetSubtree(path));
                     }
                     else
                     {
                         Func<ChromosomeNode, ChromosomeNode, double> f;
                         var beta = rand.NextDouble();
                         if (rand.NextDouble() < 0.5) // wibieramy jedną z dwóch funkcji
-                            f = (n1, n2) => (n1.Angle + n2.Angle + beta*(n1.Angle - n2.Angle))%360;
+                            f = (n1, n2) => (n1.Angle + n2.Angle + beta * (n1.Angle - n2.Angle)) % 360;
                         else
-                            f = (n1, n2) => (n1.Angle + n2.Angle + beta*(n2.Angle - n1.Angle))%360;
-                        var tree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament-1)+1].Tree.GetSubtree(path), f);
+                            f = (n1, n2) => (n1.Angle + n2.Angle + beta * (n2.Angle - n1.Angle)) % 360;
+                        var tree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament - 1) + 1].Tree.GetSubtree(path), f);
                         var tree2 = Tree<ChromosomeNode>.Map2(child.Tree.GetSubtree(path), tree, (c, t) => new ChromosomeNode(t, c.Line));
                         child.Tree.AddSubtree(path, tree2);
                     }
                 }
-                children.Add(child);
-            }
+                if (child == null) System.Diagnostics.Debugger.Break();
+                lock (children)
+                {
+                    children.Add(child);
+                }
+            });
             return children;
         }
-
-        /// <summary>
-        /// Operator selekcji metodą turniejową.
-        /// </summary>
-        public static Dictionary<string, List<Chromosome>> Selection(List<Chromosome> population, int selSize, int tournament, WorldInstance world, List<string> paths)
-        {
-            var rand = new Random();
-            var selected = new Dictionary<string, List<Chromosome>>();
-            population.Select(c => Evaluate(c, world));
-            
-            foreach (var path in paths)
-            {
-                //var ranked = population.OrderBy(c => c.Tree.Get(path).Score);
-                var choice = new List<Chromosome>();
-                if (population.Count>0)
-                {
-                    for (var i = 0; i < selSize; i++)
-                    {
-                        var candidates = new List<Chromosome>();
-                        for (var j = 0; j < tournament; j++)
-                            candidates.Add(population[rand.Next(population.Count)]);
-                        choice.Add(candidates.OrderBy(p => p.Tree.Get(path).Score + p.Tree.Get(path).Error).First());
-                    }
-                }
-                selected.Add(path, choice);
-            }
-            return selected;
-        }
-
 
         public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles)
         {
@@ -458,9 +465,10 @@ namespace InverseCinematics
         public static List<Chromosome> GeneticAlgorithmStep(WorldInstance world, List<Chromosome> population, double alpha,
             double mutationChance)
         {
-            population = population.OrderBy(c => c.Tree.Node.Score).ToList();
             var selectionPaths = new List<string> {"L", "R"};
-            var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05).Select(c => Evaluate(c, world)).ToList();
+            var cross = Crossover(population, selectionPaths, world, 4, population.Count, 0.05);
+            if (cross.Any(c => c == null)) { System.Diagnostics.Debugger.Break(); }
+            var children = cross.Select(c => Evaluate(c, world)).ToList();
             
             //var parents = selectionFun(population, 3, 4, world, selectionPaths); //TODO population.Count => 3
             var x = new List<Chromosome>();
@@ -469,21 +477,18 @@ namespace InverseCinematics
                 children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
             */
             var rand = new Random();
-            children = children.Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
+            children = children.AsParallel().Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
             children.AddRange(population);
-            children = children.OrderBy(c => c.Tree.Node.Score).ToList();
-            //children = children.Distinct().ToList();
-            /*
+            children = children.OrderBy(c => c.Tree.Node.Score).Distinct().ToList();
+            
             var good = children.Where(c => c.Tree.Node.Error == 0.0).ToList();
             var bad = children.Where(c => c.Tree.Node.Error > 0.0).ToList();
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
-            good = selectionFun(good, goodnum, 4, world);
-            bad = selectionFun(bad, population.Count - goodnum, 4, world);
-            var res = good.Concat(bad);
-            return res.OrderBy(c => c.Tree.Node.Score).ToList();
-            */
-            var retval = children.Take(population.Count).ToList();
-            return retval.ToList();
+            
+            var res = good.Take(goodnum).Concat(bad).Take(population.Count);
+            
+            //var retval = children.Take(population.Count).ToList();
+            return res.ToList();
         }
     }
 }

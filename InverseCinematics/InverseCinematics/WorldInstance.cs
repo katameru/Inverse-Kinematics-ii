@@ -9,6 +9,7 @@ namespace InverseCinematics
     /// <summary>
     /// Zawiera definicje funkcji geometrycznych i nnych przydatnych metod.
     /// </summary>
+    [Serializable]
     static class Geometry
     {
         /// <summary>
@@ -323,6 +324,7 @@ namespace InverseCinematics
 
     }
 
+    [Serializable]
     class Point : IComparable<Point>
     {
         public double X;
@@ -412,6 +414,7 @@ namespace InverseCinematics
         }
     }
 
+    [Serializable]
     class Line
     {
         public Point P1;
@@ -502,6 +505,7 @@ namespace InverseCinematics
     /// <summary>
     /// Zbiór linii tworzących (raczej spójną) przeszkodę
     /// </summary>
+    [Serializable]
     class Obstacle
     {
         public List<Line> Edges;
@@ -562,7 +566,8 @@ namespace InverseCinematics
             return cachedHull;
         }
     }
-    
+
+    [Serializable]
     class Hull : Obstacle
     {
         public Hull(List<Line> edges)
@@ -588,6 +593,7 @@ namespace InverseCinematics
     /// <summary>
     /// Opisuje świat w którym toczy się ewolucja
     /// </summary>
+    [Serializable]
     class WorldInstance
     {
         //public int N;
