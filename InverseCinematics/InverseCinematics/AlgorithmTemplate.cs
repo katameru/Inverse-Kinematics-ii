@@ -373,12 +373,22 @@ namespace InverseCinematics
             var rand = new Random();
             var children = new List<Chromosome>();
 
+            var parentsList = new List<List<Chromosome>>();
+
             for (var s = 0; s < popSize; s++)
             {
                 var parents = new List<Chromosome>();
                 for (var j = 0; j < tournament; j++) // tworzymy listę rodziców z których będzie stworzony dany potomek
-                    parents.Add(DeepClone(population[rand.Next(population.Count)]));
+                {
+                    parents.Add(population[rand.Next(population.Count)]);
+                }
 
+                parentsList.Add(parents);
+
+            }
+
+            parentsList.AsParallel().ForAll(parents =>
+            {
                 var child = DeepClone(parents[rand.Next(tournament)]); // jako podstawę wybieramy losowego rodzica
 
                 foreach (var path in paths.OrderBy(p => p.Count())) // zaczynamy podstawianie od drzew najbliżej roota
@@ -394,16 +404,20 @@ namespace InverseCinematics
                         Func<ChromosomeNode, ChromosomeNode, double> f;
                         var beta = rand.NextDouble();
                         if (rand.NextDouble() < 0.5) // wibieramy jedną z dwóch funkcji
-                            f = (n1, n2) => (n1.Angle + n2.Angle + beta*(n1.Angle - n2.Angle))%360;
+                            f = (n1, n2) => (n1.Angle + n2.Angle + beta * (n1.Angle - n2.Angle)) % 360;
                         else
-                            f = (n1, n2) => (n1.Angle + n2.Angle + beta*(n2.Angle - n1.Angle))%360;
-                        var tree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament-1)+1].Tree.GetSubtree(path), f);
+                            f = (n1, n2) => (n1.Angle + n2.Angle + beta * (n2.Angle - n1.Angle)) % 360;
+                        var tree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament - 1) + 1].Tree.GetSubtree(path), f);
                         var tree2 = Tree<ChromosomeNode>.Map2(child.Tree.GetSubtree(path), tree, (c, t) => new ChromosomeNode(t, c.Line));
                         child.Tree.AddSubtree(path, tree2);
                     }
                 }
-                children.Add(child);
-            }
+                if (child == null) System.Diagnostics.Debugger.Break();
+                lock (children)
+                {
+                    children.Add(child);
+                }
+            });
             return children;
         }
 
@@ -452,7 +466,9 @@ namespace InverseCinematics
             double mutationChance)
         {
             var selectionPaths = new List<string> {"L", "R"};
-            var children = Crossover(population, selectionPaths, world, 4, population.Count, 0.05).AsParallel().Select(c => Evaluate(c, world)).ToList();
+            var cross = Crossover(population, selectionPaths, world, 4, population.Count, 0.05);
+            if (cross.Any(c => c == null)) { System.Diagnostics.Debugger.Break(); }
+            var children = cross.Select(c => Evaluate(c, world)).ToList();
             
             //var parents = selectionFun(population, 3, 4, world, selectionPaths); //TODO population.Count => 3
             var x = new List<Chromosome>();
