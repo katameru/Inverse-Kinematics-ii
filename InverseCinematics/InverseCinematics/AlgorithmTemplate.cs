@@ -406,15 +406,40 @@ namespace InverseCinematics
                     continue;
 
                 var angles = world.Specification.Spec.Get(path);
-                var delta = (angles.ArcMax - angles.ArcMin) * adjustment * rand.NextDouble() - (angles.ArcMax - angles.ArcMin)/2;
-                if (node.Angle + delta < angles.ArcMin)
+                var delta = (angles.ArcMax - angles.ArcMin) * adjustment * rand.NextDouble();
+                if ((node.Angle + delta)%360 < angles.ArcMin)
                     node.Angle = angles.ArcMin;
-                else if (node.Angle + delta > angles.ArcMax)
+                else if ((node.Angle + delta)%360 > angles.ArcMax)
                     node.Angle = angles.ArcMax;
                 else
-                    node.Angle = node.Angle + delta;
+                    node.Angle = (node.Angle + delta)%360;
             }
             return before; // zwraca zmodyfikowany chromosom!!
+        }
+
+        public static Chromosome Mutate3(Chromosome before, double chance, WorldInstance world, Random rand)
+        {
+            var rl = rand.Next(world.Specification.Paths.Count);
+            var randomLevel = world.Specification.Paths[rl+1];
+            var randomPath = randomLevel[rand.Next(randomLevel.Count)];
+            var randomNode = before.Tree.Get(randomPath);
+
+            if (rand.NextDouble() > chance) return before;
+
+            var t = rand.NextDouble();
+            var x = 8 * (t - 0.5);
+            var r = 1 - Math.Pow(Math.E, -Math.Pow(x, 2));
+
+            var angles = world.Specification.Spec.Get(randomPath);
+            var delta = (angles.ArcMax - angles.ArcMin) * r;
+            if ((randomNode.Angle + delta) % 360 < angles.ArcMin)
+                randomNode.Angle = angles.ArcMin;
+            else if ((randomNode.Angle + delta) % 360 > angles.ArcMax)
+                randomNode.Angle = angles.ArcMax;
+            else
+                randomNode.Angle = (randomNode.Angle + delta) % 360;
+
+            return before;
         }
 
         /// <summary>
@@ -524,17 +549,17 @@ namespace InverseCinematics
             var cross = Crossover(population, selectionPaths, world, tournament, population.Count, explicite);
             if (cross.Any(c => c == null)) { System.Diagnostics.Debugger.Break(); }
             var children = cross.Select(c => Evaluate(c, world)).ToList();
+            //var children2 = cross.Select(c => Evaluate(c, world)).ToList();
+            //var children3 = cross.Select(c => Evaluate(c, world)).ToList();
             
-            //var parents = selectionFun(population, 3, 4, world, selectionPaths); //TODO population.Count => 3
-            var x = new List<Chromosome>();
-            /*
-            for (var i = 0; i < parents.Count; i++)
-                children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
-            */
+
             var rand = new Random();
-            //children = children.AsParallel().Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
-            children = children.AsParallel().Select(c => Mutate2(c, mutationChance, world, rand, generation, adjustment)).Select(c => Evaluate(c, world)).ToList();
+            //children  = children.AsParallel().Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
+            //children2 = children2.AsParallel().Select(c => Mutate2(c, mutationChance, world, rand, generation, adjustment)).Select(c => Evaluate(c, world)).ToList();
+            children = children.AsParallel().Select(c => Mutate3(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
             children.AddRange(population);
+            //children.AddRange(children2);
+            children.AddRange(children);
             children = children.OrderBy(c => c.Tree.Node.Score).Distinct().ToList();
             
             var good = children.Where(c => c.Tree.Node.Error == 0.0).ToList();
