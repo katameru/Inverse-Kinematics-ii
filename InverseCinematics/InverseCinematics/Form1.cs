@@ -13,23 +13,23 @@ namespace InverseCinematics
     public partial class Form1 : Form
     {
         private bool _started = false;
-        private const int _showbest = 1;
-
+        
         private WorldInstance _world;
         private int _populationSize;
-        private int _generationsArm;
-        private int _generationsFingers;
-        private int _generationsAll;
+        private int _generations;
         private double _badguys;
         private double _mutation;
+        private double _adjustment;
+        private int _tournament;
+        private double _explicite;
+        private int _showbest = 3;
+
         private Bitmap _baseImage;
         private List<Chromosome> _population;
               
         private bool LoadData()
         {
-            _generationsArm = 0;
-            _generationsFingers = 0;
-            _generationsAll = 0;
+            _generations = 0;
             label13.Text = "";
             label14.Text = "";
             label15.Text = "";
@@ -47,6 +47,10 @@ namespace InverseCinematics
                 _populationSize = (int) numericUpDown1.Value;
                 _badguys = (double) numericUpDown3.Value/100;
                 _mutation = (double)numericUpDown4.Value / 100;
+                _showbest = (int) numericUpDown7.Value;
+                _adjustment = (double) numericUpDown5.Value/100;
+                _tournament = (int) numericUpDown2.Value;
+                _explicite = (double)numericUpDown6.Value / 100;
             }
             catch (Exception e)
             {
@@ -61,7 +65,7 @@ namespace InverseCinematics
 
         private void UpdateStats()
         {
-            labelGAll.Text = _generationsAll.ToString();
+            labelGAll.Text = _generations.ToString();
 
             var c =_population.First();
             UpdateLabel(label13, c.Tree.Node.Score);
@@ -121,7 +125,7 @@ namespace InverseCinematics
             var ga = (int)numericGArm.Value;
             for (var i = 0; i < ga; i++)
             {
-                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation);
+                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation, _generations, _adjustment, _tournament, _explicite);
             }
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
             var p2 = _population.Where(x => x.Tree.Node.Error == 0);
@@ -130,9 +134,8 @@ namespace InverseCinematics
             else
                 pictureBox1.Image = img2;
 
-            _generationsArm += ga;
-            _generationsAll += ga;
-            var f = new StreamWriter(_generationsAll + ".txt");
+            _generations += ga;
+            var f = new StreamWriter(_generations + ".txt");
             foreach (var chromosome in _population)
                 f.WriteLine(chromosome);
             f.Close();
@@ -142,7 +145,7 @@ namespace InverseCinematics
 
         private void button3_Click(object sender, EventArgs e)
         {
-            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation);
+            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation, _generations, _adjustment, _tournament, _explicite);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
             var p2 = _population.Where(x => x.Tree.Node.Error == 0);
@@ -151,11 +154,9 @@ namespace InverseCinematics
             else
                 pictureBox1.Image = img2;
 
-            _generationsArm ++;
-            _generationsFingers ++;
-            _generationsAll++;
+            _generations++;
 
-            var f = new StreamWriter(_generationsAll + ".txt");
+            var f = new StreamWriter(_generations + ".txt");
             foreach (var chromosome in _population)
                 f.WriteLine(chromosome);
             f.Close();

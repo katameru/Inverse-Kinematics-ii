@@ -255,6 +255,7 @@ namespace InverseCinematics
     {
         public Tree<NodeSpec> Spec = new Tree<NodeSpec>(null);
         public int Depth;
+        public Dictionary<int,List<string>> Paths;
 
         /// <summary>
         /// Tworzy specyfikację na podstawie konkretnych danych.
@@ -263,6 +264,7 @@ namespace InverseCinematics
         {
             Depth = depth;
             Spec = spec;
+            generatePaths();
         }
 
         /// <summary>
@@ -272,9 +274,26 @@ namespace InverseCinematics
         public Specification(int depth, List<string> spec)
         {
             Depth = depth;
+            generatePaths();
             Spec = new Tree<NodeSpec>(depth);
             foreach (var s in spec.Select(sp => sp.Split()))
                 Spec.Add(s[0], new NodeSpec(s.Skip(1).ToList()));
+        }
+
+        private void generatePaths()
+        {
+            Paths = new Dictionary<int, List<string>>();
+            Paths.Add(1, new List<string>{"L", "R"});
+
+            for (var d = 2; d <= Depth; d++)
+            {
+                Paths.Add(d, new List<string>());
+                foreach (var path in Paths[d-1])
+                {
+                    Paths[d].Add(path + "L");
+                    Paths[d].Add(path + "R");
+                }
+            }
         }
     }
 
@@ -360,6 +379,42 @@ namespace InverseCinematics
                                                                             : c.Angle;
             
             return new Chromosome(Tree<double>.Map2(world.Specification.Spec, before.Tree, mutateNode), world);
+        }
+
+        /// <summary>
+        /// Mutacja chromosomu
+        /// </summary>
+        /// <param name="before">chromosom do mutacji</param>
+        /// <param name="chance">szansa na mutacje</param>
+        /// <param name="world">swiat</param>
+        /// <param name="rand">Generator liczb losowych</param>
+        /// <returns></returns>
+        public static Chromosome Mutate2(Chromosome before, double chance, WorldInstance world, Random rand, int generation, double adjustment)
+        {
+            int lvl = generation/100 + rand.Next(3);
+            if (lvl < 1)
+                lvl = 1;
+            if (lvl > world.Specification.Depth)
+                lvl = world.Specification.Depth;
+
+            foreach (var path in world.Specification.Paths[lvl])
+            {
+                var node = before.Tree.Get(path);
+                if (rand.NextDouble() > chance)
+                    continue;
+                if (node.Score == 0 && node.Error == 0)
+                    continue;
+
+                var angles = world.Specification.Spec.Get(path);
+                var delta = (angles.ArcMax - angles.ArcMin) * adjustment * rand.NextDouble() - (angles.ArcMax - angles.ArcMin)/2;
+                if (node.Angle + delta < angles.ArcMin)
+                    node.Angle = angles.ArcMin;
+                else if (node.Angle + delta > angles.ArcMax)
+                    node.Angle = angles.ArcMax;
+                else
+                    node.Angle = node.Angle + delta;
+            }
+            return before; // zwraca zmodyfikowany chromosom!!
         }
 
         /// <summary>
@@ -463,10 +518,10 @@ namespace InverseCinematics
         /// Pojedynczy krok algorytmu.
         /// </summary>
         public static List<Chromosome> GeneticAlgorithmStep(WorldInstance world, List<Chromosome> population, double alpha,
-            double mutationChance)
+            double mutationChance, int generation, double adjustment, int tournament, double explicite)
         {
             var selectionPaths = new List<string> {"L", "R"};
-            var cross = Crossover(population, selectionPaths, world, 4, population.Count, 0.05);
+            var cross = Crossover(population, selectionPaths, world, tournament, population.Count, explicite);
             if (cross.Any(c => c == null)) { System.Diagnostics.Debugger.Break(); }
             var children = cross.Select(c => Evaluate(c, world)).ToList();
             
@@ -477,7 +532,8 @@ namespace InverseCinematics
                 children.AddRange(crossoverFun(parents[i], parents[parents.Count - i - 1], world));
             */
             var rand = new Random();
-            children = children.AsParallel().Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
+            //children = children.AsParallel().Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
+            children = children.AsParallel().Select(c => Mutate2(c, mutationChance, world, rand, generation, adjustment)).Select(c => Evaluate(c, world)).ToList();
             children.AddRange(population);
             children = children.OrderBy(c => c.Tree.Node.Score).Distinct().ToList();
             
