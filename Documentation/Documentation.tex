@@ -25,7 +25,7 @@
   \setlength{\parsep}{0pt}}
 {\end{itemize}}
 
-\title{Inverse Kinematics for Arm + Fingers Genetic Algorithm}
+\title{Inverse Kinematics for Binary Trees}
 \date{\today}
 \author{Marcin Januszkiewicz, Jakub Kowalski}
 
@@ -40,68 +40,54 @@
 \section{Sformułowanie zadania}
 Zagadnienie kinematyki odwrotnej (\textit{ang.}\ inverse kinematics) dotyczy reprezentacji kończyn (ogólnie tzw.\ efektora) za pomocą geometrycznego modelu w którym kości estymowane są przez linie, natomiast stawom odpowiadają kąty. Zadaniem kinematyki odwrotnej jest znalezienie takich położeń stawów, dla których osiągana jest pożądana pozycja kończyny, np.\ zamocowana w pewnym punkcie startowym dosięga ona zadanego punktu końcowego. Możliwe położenia stawów określone są przez minimalny i maksymalny kąt rozwarcia. Chromosom jest to lista kątów odpowiadających rozwarciom kolejnych stawów kończyny.
 
-Rozpatrywana przez nas rozszerzona wersja standardowego zagadnienia dotyczy kończyn o strukturze analogicznej do ręki, a mianowicie składających się z ciągu kości po którym następuje rozgałęzienie na kilka ciągów symulujących palce (rysunek \ref{fig:armf}.). Zadanie polega na znalezieniu ustawienia ręki w którym każdy palec dotyka innego punktu docelowego (punktów docelowych jest tyle samo co palców) a ręka nie koliduje z żadną znajdującą się na planszy przeszkodą.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[scale=0.5]{armfingers}
-	\caption{Kończyna o strukturze ręki: na czarno zaznaczone jest ramię, natomiast na niebiesko palce.}
-	\label{fig:armf}
-\end{figure}
+Rozpatrywana przez nas rozszerzona wersja standardowego zagadnienia dotyczy ,,kończyn'' o strukturze pełnego drzewa binarnego. Zadanie polega na znalezieniu ustawienia drzewa w którym każdy punkt końcowy dotyka określonego punktu docelowego (punktów docelowych jest tyle samo co liści drzewa) a krawędzie drzewa nie stykają się z żadną znajdującą się na planszy przeszkodą.
 
 
 \subsection{Format pliku wejściowego}
-Scenariusz (plik zawierający informację o planszy oraz właściwościach ręki) jest plikiem o następującej konstrukcji (linie rozpoczynające się od \# traktowane są jako komentarz):
+Scenariusz (plik zawierający informację o planszy oraz właściwościach drzewa) jest plikiem o następującej konstrukcji (linie rozpoczynające się od \# traktowane są jako komentarz):
 \begin{verbatim}
 # Wielkość planszy w poziomie
-10
+8
 # Wielkość planszy w pionie
-5
+6
 # Punkt startowy (wszystkie punkty podane są w notacji X Y)
-5 4
-# Liczba punktów docelowych a tym samym liczba palców
-2
+3 5
 # Punkty docelowe
 1 1
-9 1
-# Liczba kości w ramieniu
-2
-# Specyfikacja ramienia, każda kość opisana jest za pomocą długości 
-# oraz minimalnej i maksymalnej miary kąta stawu względem kości poprzedzającej
-3 0 360
-1 0 360
-# W analogiczny sposób podawane są informacje o wszystkich palcach
-# Liczba kości pierwszego palca
-2
-# Specyfikacja pierwszego palca
-3 0 360
-3 0 360
-# Tak samo dla drugiego palca i kolejnych
-2
-3 0 360
-3 0 360
-# Liczba przeszkód
-2
-# Liczba punktów w pierwszej przeszkodzie
-3
-# Kolejne punkty pierwszej przeszkody
-# Przeszkoda traktowana jest jako zbiór linii pomiędzy kolejnymi podanymi punktami
-# aby przeszkoda tworzyła figurę zamkniętą, ostatni punkt powinien być taki sam jak pierwszy
-1 3
-2 4
-4 4
-# Analogicznie wyspecyfikowana jest druga przeszkoda i dalsze
-5
-2 1
-3 2
-4 1
-3 0
-2 1
+5 1
+6 1
+7 5
+# Specyfikacja drzewa
+# Początkowy ciąg znaków (R|L)+ koduje umiejscowienie danej krawędzi w drzewie
+# Każda krawędź opisana jest za pomocą długości oraz minimalnej
+# i maksymalnej miary kąta stawu względem krawędzi poprzedzającej
+L 4 0 360
+LL 2 0 360
+LR 2 0 360
+R 3 0 360
+RL 4 0 360
+RR 1 0 360
+# Znajdujące się na planszy przeszkody definiowane są jako linie.
+# Linia pomiędzy punktami (x1, y1) a (x2, y2) podawana jest w formacie 
+# x1 y1 x2 y2
+1 2 2 2
+2 2 2 4
+2 4 1 4
+1 4 1 2
+4 2 5 2
+5 2 5 4
+5 4 4 4
+4 4 4 2
+7 2 8 2
+8 4 7 4
+7 4 7 2
 \end{verbatim}
+
+Przypisanie punktów docelowych do liści drzewa odpowiada trawersowaniu go od lewej do prawej, tak więc pierwszy punkt docelowy zostanie przypisany do krawędzi \texttt{LL}, drugi do \texttt{LR}, trzeci do \texttt{RL} itd.
 
 \section{Obsługa programu}
 Graficzny interfejs użytkownika, wykorzystywany przez program testowy, przedstawiony jest na rysunku \ref{fig:gui}.
-
+\textbf{TODO -- TOUPDATE}
 \begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.5]{gui}
