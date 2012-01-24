@@ -483,11 +483,9 @@ namespace InverseCinematics
                     else
                     {
                         Func<ChromosomeNode, ChromosomeNode, double> f;
-                        var beta = rand.NextDouble();
-                        if (rand.NextDouble() < 0.5) // wibieramy jedną z dwóch funkcji
-                            f = (n1, n2) => (n1.Angle + n2.Angle + beta * (n1.Angle - n2.Angle)) % 360;
-                        else
-                            f = (n1, n2) => (n1.Angle + n2.Angle + beta * (n2.Angle - n1.Angle)) % 360;
+                        var beta = 2 * rand.NextDouble() - 1;
+                        f = (n1, n2) => (n1.Angle + n2.Angle + beta * (n1.Angle - n2.Angle)) % 360;
+                        
                         var tree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament - 1) + 1].Tree.GetSubtree(path), f);
                         var tree2 = Tree<ChromosomeNode>.Map2(child.Tree.GetSubtree(path), tree, (c, t) => new ChromosomeNode(t, c.Line));
                         child.Tree.AddSubtree(path, tree2);
@@ -500,6 +498,62 @@ namespace InverseCinematics
             });
             return children;
         }
+
+        public static List<Chromosome> Crossover2(List<Chromosome> population, List<string> paths, WorldInstance world, int tournament, int popSize, double chance)
+        {
+            population.Select(c => Evaluate(c, world));
+            var rand = new Random();
+            var children = new List<Chromosome>();
+
+            var parentsList = new List<List<Chromosome>>();
+
+            for (var s = 0; s < popSize; s++)
+            {
+                var parents = new List<Chromosome>();
+                for (var j = 0; j < tournament; j++) // tworzymy listę rodziców z których będzie stworzony dany potomek
+                {
+                    parents.Add(population[rand.Next(population.Count)]);
+                }
+
+                parentsList.Add(parents);
+
+            }
+
+            parentsList.AsParallel().ForAll(parents =>
+            {
+                var child1 = DeepClone(parents[rand.Next(tournament)]); // jako podstawę wybieramy losowego rodzica
+                var child2 = DeepClone(child1);
+                var beta = rand.NextDouble();
+
+                foreach (var path in paths.OrderBy(p => p.Count())) // zaczynamy podstawianie od drzew najbliżej roota
+                {
+                    var best = parents.OrderBy(p => p.Tree.Get(path).Score + p.Tree.Get(path).Error).ToList();
+                    Func<ChromosomeNode, ChromosomeNode, double> f, g;
+                    
+                    f = (n1, n2) => (n1.Angle + n2.Angle + beta * (n1.Angle - n2.Angle)) % 360;
+                    g = (n1, n2) => (n1.Angle + n2.Angle + beta * (n2.Angle - n1.Angle)) % 360;
+                    
+                    var ftree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament - 1) + 1].Tree.GetSubtree(path), f);
+                    var ftree2 = Tree<ChromosomeNode>.Map2(child1.Tree.GetSubtree(path), ftree, (c, t) => new ChromosomeNode(t, c.Line));
+                    child1.Tree.AddSubtree(path, ftree2);
+
+                    var gtree = Tree<double>.Map2(best[0].Tree.GetSubtree(path), best[rand.Next(tournament - 1) + 1].Tree.GetSubtree(path), g);
+                    var gtree2 = Tree<ChromosomeNode>.Map2(child1.Tree.GetSubtree(path), gtree, (c, t) => new ChromosomeNode(t, c.Line));
+                    child2.Tree.AddSubtree(path, gtree2);
+                }
+                child1.recalculate(world.Specification.Spec);
+                child2.recalculate(world.Specification.Spec);
+
+                var child = child1.Tree.Node.Score < child2.Tree.Node.Score ? child1 : child2;
+
+                lock (children)
+                {
+                    children.Add(child);
+                }
+            });
+            return children;
+        }
+
 
         public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles)
         {
