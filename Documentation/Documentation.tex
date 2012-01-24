@@ -42,7 +42,7 @@
 \section{Sformułowanie zadania}
 Zagadnienie kinematyki odwrotnej (\textit{ang.}\ inverse kinematics) dotyczy reprezentacji kończyn (ogólnie tzw.\ efektora) za pomocą geometrycznego modelu w którym kości estymowane są przez linie, natomiast stawom odpowiadają kąty. Zadaniem kinematyki odwrotnej jest znalezienie takich położeń stawów, dla których osiągana jest pożądana pozycja kończyny, np.\ zamocowana w pewnym punkcie startowym dosięga ona zadanego punktu końcowego. Możliwe położenia stawów określone są przez minimalny i maksymalny kąt rozwarcia. Chromosom jest to lista kątów odpowiadających rozwarciom kolejnych stawów kończyny.
 
-Rozpatrywana przez nas rozszerzona wersja standardowego zagadnienia dotyczy ,,kończyn'' o strukturze pełnego drzewa binarnego. Zadanie polega na znalezieniu ustawienia drzewa w którym każdy punkt końcowy dotyka określonego punktu docelowego (punktów docelowych jest tyle samo co liści drzewa) a krawędzie drzewa nie stykają się z żadną znajdującą się na planszy przeszkodą.
+Rozpatrywana przez nas rozszerzona wersja standardowego zagadnienia dotyczy ,,kończyn'' o strukturze pełnego drzewa binarnego. Zadanie polega na znalezieniu ustawienia drzewa, w którym każdy punkt końcowy dotyka określonego punktu docelowego (punktów docelowych jest tyle samo co liści drzewa), a krawędzie drzewa nie stykają się z żadną znajdującą się na planszy przeszkodą.
 
 
 \subsection{Format pliku wejściowego}
@@ -100,7 +100,7 @@ Program pozwala wybrać jeden z przygotowanych plików scenariusza oraz określi
 
 Statystyki aktualnej populacji pozwalają ocenić osobników (pokazywane są wartości błędu i minimalizowanej funkcji celu dla osobnika najlepszego w całej populacji, najlepszego bezbłędnego oraz wartości średnie), a także ocenić zbieżność populacji poprzez zmieniające się wartości wariancji (dla błędu oraz funkcji oceny) i oryginalności populacji. 
 
-Wizualizacja przedstawia planszę zakodowaną w scenariuszu. Czerwone linie oznaczają przeszkody, zielony punkt jest punktem startowym, natomiast pomarańczowe punkty są punktami docelowymi. Na wizualizacji zaznaczeni są również najlepsi osobnicy w liczbie zdefiniowanej przez uzytkownika. Niebieskie linie pokazują przebieg osobników błędnych, natomiast zielone bezbłędnych.
+Wizualizacja przedstawia planszę zakodowaną w scenariuszu. Czerwone linie oznaczają przeszkody, zielony punkt jest punktem startowym, natomiast pomarańczowe punkty są punktami docelowymi. Na wizualizacji zaznaczeni są również najlepsi osobnicy w liczbie zdefiniowanej przez użytkownika. Niebieskie linie pokazują przebieg osobników błędnych, natomiast zielone bezbłędnych.
 
 \section{Ewolucja}
 Zastosowany algorytm ewolucyjny częściowo bazuje na algorytmie IDEA \cite{PFI}, jednak ze względu na specyfikę problemu zastosowane zostały rozwiązania dedykowane. Drzewiasta struktura kończyny pozwala na (przynajmniej w pewnym zakresie) niezależne rozpatrywanie ewolucji niektórych poddrzew, co wpłynęło na sposób konstruowania operatorów ewolucyjnych.
@@ -112,9 +112,9 @@ Zakodowane w operatorach heurystyki starają się określić które poddrzewa wa
 Aplikacja pozwala na wybór operatorów z puli kilku przygotowanych.
 
 \subsubsection{Krzyżowanie}
-Przygotowane zostały dwa operatory krzyżowania o wspólnym schemacie działania. Operatory przyjmują jako argument listę ścieżek określającą poddrzewa które mają zostać skrzyżowane. Z puli wszystkich chromosomów wybierana jest losowo próbka o wielkości zadanej parametrem \i{rozmiar turnieju}. Następnie dla każdego poddrzewa, z próbki rodziców tworzone jest nowe poddrzewo które zostaje wstawione do chromosomu wynikowego. Po wykonaniu tej operacji dla wszystkich poddrzewa, wygenerowany zostaje jeden potomek.
+Przygotowane zostały dwa operatory krzyżowania o wspólnym schemacie działania. Operatory przyjmują jako argument listę ścieżek określającą poddrzewa, które mają zostać skrzyżowane. Z puli wszystkich chromosomów wybierana jest losowo próbka o wielkości zadanej parametrem \i{rozmiar turnieju}. Następnie dla każdego poddrzewa, z próbki rodziców tworzone jest nowe poddrzewo które zostaje wstawione do chromosomu wynikowego. Po wykonaniu tej operacji dla wszystkich poddrzew, wygenerowany zostaje jeden potomek.
 
-Oba operatory rozróżnia właśnie sposób tworzenia poddrzewa z próbki rodziców. Pierwszy algorytm (\i{losowy potomek}) z prawdopodobieństwem zadanym parametrem \i{bezpośrednie dziedziczenie} otrzymuje poddrzewo najlepszego (na tym poddrzewie) ze swoich rodziców. W przeciwnym wypadku wybieranych jest dwóch rodziców: najlepszy na danym poddrzewie oraz losowy z próbki i dla pewnego losowego zaburzenia $\beta\in[0, 1]$, ma 50\% na ewolucję w potomka $c_1$ i 50\% na ewolucję w $c_2$, zgodnie ze wzorami:
+Oba operatory rozróżnia właśnie sposób tworzenia poddrzewa z próbki rodziców. Pierwszy algorytm (\i{losowy potomek}) z prawdopodobieństwem zadanym parametrem \i{bezpośrednie dziedziczenie} otrzymuje poddrzewo najlepszego (na tym poddrzewie) ze swoich rodziców. W przeciwnym wypadku wybieranych jest dwóch rodziców: najlepszy na danym poddrzewie ($\alpha_1$) oraz losowy z próbki ($\alpha_2$) i dla pewnego losowego zaburzenia $\beta\in[0, 1]$, ma 50\% na ewolucję w potomka $c_1$ i 50\% na ewolucję w $c_2$, zgodnie ze wzorami:
 	\[
 		c_1 = \frac{\alpha_1 + \alpha_2 + \beta(\alpha_1 - \alpha_2)}{2} \quad\quad c_2 = \frac{\alpha_1 + \alpha_2 + \beta(\alpha_2 - \alpha_1)}{2}
 	\]
@@ -122,14 +122,14 @@ Oba operatory rozróżnia właśnie sposób tworzenia poddrzewa z próbki rodzic
 Drugi algorytm, \i{najlepszy potomek}, nie ma możliwości bezpośredniego dziedziczenia poddrzewa, ewaluuje jednak obie wersje potomków ($c_1$ i $c_2$) i wybiera lepszego z nich.
 
 \subsubsection{Mutacja}
-Mutacja jest w naszym algorytmie bardzo ważnym operatorem, ponieważ odpowiednio sparametryzowana pozwala na poszukiwanie miar kątów w poddrzewach, które mogą tego wymagać. Przygotowane zostały trzy operatory mutacji. Pierwszy, zapożyczony z algorytmu IDEA polega po prostu na losowym zaburzaniu (o dowolna wartość) każdego kąta z pewnym prawdopodobieństwem zadanym parametrem \i{szansa na mutację}. Mutacja ta nie jest w~żaden sposób precyzyjna i~ustawienie dużej szansy na jej zajście, zaburza zbieżność algorytmu.
+Mutacja jest w naszym algorytmie bardzo ważnym operatorem, ponieważ odpowiednio sparametryzowana pozwala na poszukiwanie miar kątów w poddrzewach, które mogą tego wymagać. Przygotowane zostały trzy operatory mutacji. Pierwszy, zapożyczony z algorytmu IDEA polega po prostu na losowym zaburzaniu (o dowolną losową wartość) każdego kąta z pewnym prawdopodobieństwem, zadanym parametrem \i{szansa na mutację}. Mutacja ta nie jest w~żaden sposób precyzyjna i~ustawienie dużej szansy na jej zajście, zaburza zbieżność algorytmu.
 
-Druga wersja mutacji (\i{jedna głębokość}) określa na podstawie numer u iteracji algorytmu poziom drzewa, który należy mutować (z pewnym losowym wahaniem $\pm 1$). Następnie każde poddrzewo na tej głębokości obraca (z szansą \i{szansa na mutację}) o pewną wartość z zakresu $[-\alpha, \alpha]$, gdzie $\alpha$ jest liczbą stopni podaną w parametrze \i{dopasowanie kąta mutacji}. Mutacja ta nie dotyka poddrzew o optymalnej wartości funkcji celu.
+Druga wersja mutacji (\i{jedna głębokość}) określa, na podstawie numeru iteracji algorytmu, poziom drzewa, który należy mutować (z pewnym losowym wahaniem $\pm 1$). Następnie każde poddrzewo na tej głębokości obraca (z szansą \i{szansa na mutację}) o pewną wartość z zakresu $[-\alpha, \alpha]$, gdzie $\alpha$ jest liczbą stopni podaną w parametrze \i{dopasowanie kąta mutacji}. Mutacja ta nie dotyka poddrzew o optymalnej wartości funkcji celu.
 
 Trzecia mutacja, \i{losowe poddrzewo}, wbiera losowe poddrzewo i zaburza ramiona wychodzące z korzenia tego poddrzewa o losową wartość. Rozkład prawdopodobieństwa został tak wybrany, aby częściej występowały małe zmiany wartości kąta.
 
 \subsection{Funkcja celu}
-Podstawą wartości funkcji jest dystans od liścia do przypisanego mu punktu docelowego, wyznaczany jako odległość w linii prostej. Istnieje możliwośc wybrania funkcji ze względu na to czy czynnik ten jest brany pod uwagę liniowo czy też kwadratowo.
+Podstawą wartości funkcji jest dystans od liścia do przypisanego mu punktu docelowego, wyznaczany jako odległość w linii prostej. Istnieje możliwośc wybrania funkcji ze względu na to czy czynnik ten jest brany pod uwagę liniowo, czy też kwadratowo.
 
 Oprócz odległości do celu wyznaczana jest również miara niepoprawności osobnika, liczona jako liczba przecięć segmentów chromosomu z przeszkodami. Docelowo algorytm dąży do trzymania jedynie niewielkiej liczby osobników niepoprawnych, rokujących na uzyskanie dobrych potomków.
 
@@ -138,7 +138,7 @@ Ocena węzła drzewa jest sumą ocen jego poddrzew.
 
 \section{Testy}
 
-Algorytm był testowany na kilku przygotowanych scenariuszy i dla różnych wartości parametrów.
+Algorytm był testowany na kilku przygotowanych scenariuszach i dla różnych wartości parametrów oraz kombinacji operatorów.
 
 \subsection{Scenariusze testowe}
 Stworzonych zostało pięć scenariuszy testowych, które zostały przedstawione na rysunkach \ref{fig:sc1}, \ref{fig:sc2}, \ref{fig:sc3}, \ref{fig:sc4}, \ref{fig:sc5}. Mają one na celu sprawdzenie różnych aspektów algorytmu ewolucjynego.
@@ -180,14 +180,17 @@ Stworzonych zostało pięć scenariuszy testowych, które zostały przedstawione
 \end{figure}
 
 \subsection{Wyniki}
-Osiągane wyniki są jedynie częściowo zadowalające. Algorytm, dość szybko znajduje osobniki które są bliskie rozwiązaniom optymalnym. Niestety od pewnego momentu wyniki przestają być poprawiane mimo wywoływania tysięcy iteracji algorytmu. Jest to zapewne skutkiem operatora mutacji który ma kłopot ze zmianą kątów o małe wartości. Mimo to ogólne tendencje ewolucji osobników pokazują, że algorytm jest na dobrej drodze do znalezienia osobników optymalnych
+Algorytm dość szybko znajduje osobniki które są bliskie rozwiązaniom optymalnym. Niestety od pewnego momentu wyniki przestają być poprawiane mimo wywoływania tysięcy iteracji algorytmu. Jest to zapewne skutkiem operatora mutacji, który (pomimo zastosowanych rozwiązań) ma kłopot ze zmianą kątów o małe wartości. Mimo to ogólne tendencje ewolucji osobników pokazują, że algorytm jest na dobrej drodze do znalezienia osobników optymalnych.
+
+Należy jednak zwrócić uwagę na fakt, że dla struktury drzewiastej, każdy scenariusz ma dokładnie jedno rozwiązanie optymalne, podczas gdy zarówno w standardowym zagadnieniu kinematyki odwrotnej jak i wersji zmodyfikowanej z podziałem na ramię i palce, takich rozwiązań w większości scenariuszy istnieje nieskończenie wiele. Wynika to z~tego, że punkty docelowe są ściśle przywiązane do liści, a~każdy węzeł jest związany z co najmniej dwoma końcami efektora, musi mieć więc jednoznaczne ustawienie i nawet niewielkie odchylenia miar kątów mają w~tym przypadku kluczowe znaczenie. Tak więc, ze względu na naturę problemu, znalezienie bezbłędnych osobników bliskich rozwiązaniu optymalnemu wydaje się dobrym osiągnięciem.
+
 
 \section{Podsumowanie}
-Podsumowując, rozszerzenie pojęcia osobnika z łamanej do drzewa wprowadza szereg problemów przy projektowaniu operatorów ewolucyjnych. Przez komplikację struktury osobnika pojawiaja się wiele nowych możliwości wyboru przy operacjach krzyżowania i mutacji. Znika też możliwość stworzenia jednego ogólnego algorytmu i pojawia się konieczność tworzenia dedykowanych operatorów dla konkretnych sytuacji które pozwolą na optymalny rozwój populacji w kierunku rozwiązania optymalnego.
+Podsumowując, rozszerzenie pojęcia osobnika z łamanej do drzewa po pierwsze diametralnie zmniejsza liczbę optymalnych rozwiązań, po drugie wprowadza szereg problemów przy projektowaniu operatorów ewolucyjnych. Z~powodu komplikacji struktury osobnika pojawia się wiele możliwych rozwiązań podczas projektowania operatorów krzyżowania i mutacji, nie są one jednak uniwersalne. Znika możliwość stworzenia jednego ogólnego algorytmu działającego przez wszystkie pokolenia i pojawia się konieczność tworzenia dedykowanych operatorów dla konkretnych sytuacji, które to operatory pozwolą na optymalny rozwój populacji w kierunku rozwiązania optymalnego.
+
 
 \begin{thebibliography}{1}
 	\bibitem{PFI} Patryk Filipiak, {\it Optymalizacja ewolucyjna z predykcją w dynamicznym problemie kinematyki odwrotnej}. Wrocław, Seminarium ZMN IIUWr 2011.
 \end{thebibliography}
-
 
 \end{document}
