@@ -406,7 +406,7 @@ namespace InverseCinematics
                     continue;
 
                 var angles = world.Specification.Spec.Get(path);
-                var delta = (angles.ArcMax - angles.ArcMin) * adjustment * rand.NextDouble();
+                var delta = (angles.ArcMax - angles.ArcMin) * 2 * ( adjustment * rand.NextDouble() - 0.5 );
                 if ((node.Angle + delta)%360 < angles.ArcMin)
                     node.Angle = angles.ArcMin;
                 else if ((node.Angle + delta)%360 > angles.ArcMax)
@@ -427,11 +427,12 @@ namespace InverseCinematics
             if (rand.NextDouble() > chance) return before;
 
             var t = rand.NextDouble();
-            var x = 8 * (t - 0.5);
+            var x = 4 * (t - 0.5);
             var r = 1 - Math.Pow(Math.E, -Math.Pow(x, 2));
+            var sign = rand.NextDouble() < 0.5 ? -1 : 1;
 
             var angles = world.Specification.Spec.Get(randomPath);
-            var delta = (angles.ArcMax - angles.ArcMin) * r;
+            var delta = sign * (angles.ArcMax - angles.ArcMin) * r * r;
             if ((randomNode.Angle + delta) % 360 < angles.ArcMin)
                 randomNode.Angle = angles.ArcMin;
             else if ((randomNode.Angle + delta) % 360 > angles.ArcMax)
@@ -492,7 +493,6 @@ namespace InverseCinematics
                         child.Tree.AddSubtree(path, tree2);
                     }
                 }
-                if (child == null) System.Diagnostics.Debugger.Break();
                 lock (children)
                 {
                     children.Add(child);

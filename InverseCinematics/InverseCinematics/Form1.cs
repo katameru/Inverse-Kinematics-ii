@@ -96,7 +96,7 @@ namespace InverseCinematics
                 l.ForeColor = Color.Orange;
             else
                 l.ForeColor = Color.Red;
-            l.Text = v.ToString();
+            l.Text = v.ToString("F");
         }
 
         public Form1()
