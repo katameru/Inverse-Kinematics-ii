@@ -24,6 +24,8 @@
   \setlength{\parskip}{0pt}
   \setlength{\parsep}{0pt}}
 {\end{itemize}}
+\renewcommand{\i}[1]{\textit{#1}}
+
 
 \title{Inverse Kinematics for Binary Trees}
 \date{\today}
@@ -87,7 +89,6 @@ Przypisanie punktów docelowych do liści drzewa odpowiada trawersowaniu go od l
 
 \section{Obsługa programu}
 Graficzny interfejs użytkownika, wykorzystywany przez program testowy, przedstawiony jest na rysunku \ref{fig:gui}.
-\textbf{TODO -- TOUPDATE}
 \begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.5]{gui}
@@ -95,41 +96,44 @@ Graficzny interfejs użytkownika, wykorzystywany przez program testowy, przedsta
 	\label{fig:gui}
 \end{figure}
 
-Program pozwala wybrać jeden z przygotowanych plików scenariusza oraz określić podstawowe parametry ewolucji. Po wczytaniu scenariusza można uruchomić ewolucję na kilka pokoleń zgodnie z przekazanymi danymi (najpierw wykonywana jest zadana liczba ewolucji dla ramion a następnie dla palców) lub wyewoluować kolejną generację zajmując się całymi kończynami.
+Program pozwala wybrać jeden z przygotowanych plików scenariusza oraz określić podstawowe parametry ewolucji a także wybrać kombinację stosowanych przy ewolucji operatorów. Po wczytaniu scenariusza można uruchomić ewolucję od razu na kilka pokoleń zgodnie z~przekazanymi danymi lub sprawdzać jej zachowanie krok po kroku.
 
-Statystyki aktualnej populacji pozwalają ocenić osobników (pokazywane są wartości błędu i minimalizowanej funkcji celu dla osobnika najlepszego w całej populacji, najlepszego bezbłędnego oraz wartości średnie), a także ocenić różnorodność i zbieżność populacji poprzez zmieniające się wartości wariancji (dla błędu oraz funkcji oceny) i oryginalności populacji (liczonej jako stosunek osobników bez duplikatów do liczebności populacji).
+Statystyki aktualnej populacji pozwalają ocenić osobników (pokazywane są wartości błędu i minimalizowanej funkcji celu dla osobnika najlepszego w całej populacji, najlepszego bezbłędnego oraz wartości średnie), a także ocenić zbieżność populacji poprzez zmieniające się wartości wariancji (dla błędu oraz funkcji oceny) i oryginalności populacji. 
 
-Wizualizacja przedstawia planszę zakodowaną w scenariuszu. Czerwone linie oznaczają przeszkody, zielony punkt jest punktem startowym, natomiast pomarańczowe punkty są punktami docelowymi. Czarne obszary są to miejsca nieosiągalne z punktu startowego, błękitne -- takie w których może znajdować się nadgarstek poprawnej kończyny. Na wizualizacji zaznaczeni są również najlepsi osobnicy. Niebieskie linie pokazują przebieg najlepszego osobnika w~całej populacji, natomiast zielone najlepszego bezbłędnego (jeśli istnieje).
+Wizualizacja przedstawia planszę zakodowaną w scenariuszu. Czerwone linie oznaczają przeszkody, zielony punkt jest punktem startowym, natomiast pomarańczowe punkty są punktami docelowymi. Na wizualizacji zaznaczeni są również najlepsi osobnicy w liczbie zdefiniowanej przez uzytkownika. Niebieskie linie pokazują przebieg osobników błędnych, natomiast zielone bezbłędnych.
 
 \section{Ewolucja}
-Zastosowany algorytm ewolucyjny częściowo bazuje na algorytmie IDEA \cite{PFI}, jednak ze względu na specyfikę problemu zastosowane zostały rozwiązania dedykowane. W szczególności za najistotniejszy punkt kończyny uznaliśmy nadgarstek, w którym kończy się ramię a zaczynają palce. Rozpatrywanie umiejscowień nadgarstka pozwala rozbić problem dla całej ręki na podproblemy bardziej podobne do postawionych przez kinematykę odwrotną w standardowym jej sformułowaniu. 
+Zastosowany algorytm ewolucyjny częściowo bazuje na algorytmie IDEA \cite{PFI}, jednak ze względu na specyfikę problemu zastosowane zostały rozwiązania dedykowane. Drzewiasta struktura kończyny pozwala na (przynajmniej w pewnym zakresie) niezależne rozpatrywanie ewolucji niektórych poddrzew, co wpłynęło na sposób konstruowania operatorów ewolucyjnych.waniu.
 
 \subsection{Heurystyki}
-W celu wyznaczenia możliwych umiejscowień nadgarstka wykonywane są pewne heurystyczne obliczenia dla planszy podzielonej na odpowiednio małe partycje. Heurystyki te pozwalają na odnalezienie takich obszarów, z których można dosięgnąć palcami wszystkich punktów docelowych a ramieniem punktu startowego. Sprawdzana jest jedynie osiągalność w linii prostej, po wyznaczeniu dla każdej kończyny (biorąc pod uwagę możliwe rozwarcia stawów) jej maksymalnej i minimalnej długości. Heurystycznie, za pomocą algorytmu przeszukiwań, wyznaczana jest również osiągalność obszarów planszy od punktu startowego.
-
+Zakodowane w operatorach heurystyki starają się określić które poddrzewa warto w danej iteracji mutować oraz krzyżować. W momencie gdy zdecydujemy, że do pewnej głębokości krawędzie są w położeniu odpowiednim, to wystarczy manipulować krawędziami z niższych poziomów, im większy numer iteracji tym precyzyjniej. Wybór poddrzew podlegających krzyżowaniu również może stanowić pole do działania dla heurystyk, choć wszystkie stosowane przez nas operatory korzystają tylko z podstawowego podziału na pierwszym poziomie rozgałęzienia.
 
 \subsection{Operatory ewolucyjne}
+Aplikacja pozwala na wybór operatorów z puli kilku przygotowanych.
 
-\begin{itemize}
-	\item Mutacja polega na losowym zaburzeniu pojedynczych miar kątów.
-	\item Selekcja odbywa się metodą turniejową z sumy mnogościowej populacji dzieci i rodziców.
-	\item Krzyżowanie odbywa się pomiędzy parą rodziców, która generje parę potomków. Metoda krzyżowania zależy od parametru nakierowującego ewolucję. Miary kątów są dziedziczone po rodzicach lub wyznaczane (dla pewnego losowego zaburzenie $\beta\in[0, 1]$ i rodziców $\alpha_1$, $\alpha_2$) za pomocą wzorów:
+\subsubsection{Krzyżowanie}
+Przygotowane zostały dwa operatory krzyżowania o wspólnym schemacie działania. Operatory przyjmują jako argument listę ścieżek określającą poddrzewa które mają zostać skrzyżowane. Z puli wszystkich chromosomów wybierana jest losowo próbka o wielkości zadanej parametrem \i{rozmiar turnieju}. Następnie dla każdego poddrzewa, z próbki rodziców tworzone jest nowe poddrzewo które zostaje wstawione do chromosomu wynikowego. Po wykonaniu tej operacji dla wszystkich poddrzewa, wygenerowany zostaje jeden potomek.
+
+Oba operatory rozróżnia właśnie sposób tworzenia poddrzewa z próbki rodziców. Pierwszy algorytm (\i{losowy potomek}) z prawdopodobieństwem zadanym parametrem \i{bezpośrednie dziedziczenie} otrzymuje poddrzewo najlepszego (na tym poddrzewie) ze swoich rodziców. W przeciwnym wypadku wybieranych jest dwóch rodziców: najlepszy na danym poddrzewie oraz losowy z próbki i dla pewnego losowego zaburzenia $\beta\in[0, 1]$, ma 50\% na ewolucję w potomka $c_1$ i 50\% na ewolucję w $c_2$, zgodnie ze wzorami:
 	\[
-		\frac{\alpha_1 + \alpha_2 + \beta(\alpha_1 - \alpha_2)}{2} \quad\quad \frac{\alpha_1 + \alpha_2 + \beta(\alpha_2 - \alpha_1)}{2}
+		c_1 = \frac{\alpha_1 + \alpha_2 + \beta(\alpha_1 - \alpha_2)}{2} \quad\quad c_2 = \frac{\alpha_1 + \alpha_2 + \beta(\alpha_2 - \alpha_1)}{2}
 	\]
-	\begin{itemize}
-		\item jeżeli ewolucja jest nastawiona na modyfikację ramienia, to uśrednieniu ulegają wartości kątów ramienia a palce są dziedziczne po rodzicach,
-		\item nakierowanie na ewolucję palców prowadzi do bezpośredniego dziedziczenia ramienia i modyfikacji kątów palców,
-		\item opcja krzyżowania całościowego ewoluuje wszystkie stawy kończyny.
-	\end{itemize}
-\end{itemize}
+
+Drugi algorytm, \i{najlepszy potomek}, nie ma możliwości bezpośredniego dziedziczenia poddrzewa, ewaluuje jednak obie wersje potomków ($c_1$ i $c_2$) i wybiera lepszego z nich.
+
+\subsubsection{Mutacja}
+Mutacja jest w naszym algorytmie bardzo ważnym operatorem, ponieważ odpowiednio sparametryzowana pozwala na poszukiwanie miar kątów w poddrzewach, które mogą tego wymagać. Przygotowane zostały trzy operatory mutacji. Pierwszy, zapożyczony z algorytmu IDEA polega po prostu na losowym zaburzaniu (o dowolna wartość) każdego kąta z pewnym prawdopodobieństwem zadanym parametrem \i{szansa na mutację}. Mutacja ta nie jest w~żaden sposób precyzyjna i~ustawienie dużej szansy na jej zajście, zaburza zbieżność algorytmu.
+
+Druga wersja mutacji (\i{jedna głębokość}) określa na podstawie numer u iteracji algorytmu poziom drzewa, który należy mutować (z pewnym losowym wahaniem $\pm 1$). Następnie każde poddrzewo na tej głębokości obraca (z szansą \i{szansa na mutację}) o pewną wartość z zakresu $[-\alpha, \alpha]$, gdzie $\alpha$ jest liczbą stopni podaną w parametrze \i{dopasowanie kąta mutacji}. Mutacja ta nie dotyka poddrzew o optymalnej wartości funkcji celu.
+
+Trzecia mutacja, \i{losowe poddrzewo}, \textbf{TODO -- TOUPDATE}
 
 \subsection{Funkcja celu}
-Podstawą wartości funkcji jest dystans od punktu ramienia do celu, wyznaczany za pomocą dwóch metod: zwracania dystansu w linii prostej oraz obliczania drogi potrzebnej na obejście przeszkód z wyznaczonymi otoczkami wypukłymi. W obecnej wersji algorytmu, ze względu na szybkość obliczeń, wykorzystywana jest prostsza z napisanych funkcji.
+Podstawą wartości funkcji jest dystans od liścia do przypisanego mu punktu docelowego, wyznaczany jako odległość w linii prostej. Istnieje możliwośc wybrania funkcji ze względu na to czy czynnik ten jest brany pod uwagę liniowo czy też kwadratowo.
 
 Oprócz odległości do celu wyznaczana jest również miara niepoprawności osobnika, liczona jako liczba przecięć segmentów chromosomu z przeszkodami. Docelowo algorytm dąży do trzymania jedynie niewielkiej liczby osobników niepoprawnych, rokujących na uzyskanie dobrych potomków.
 
-Sposób wyznaczania wartości funkcji celu zależy od nakierowania aktualnego kroku ewolucji. Nakierowanie na ewolucję ramienia sprawia, że ocena chromosomu zależy od dystansu nadgarstka do najbliższego, wyznaczonego heurystycznie, obiecującego obszaru w którym mógłby się on znajdować. W takim wypadku nie są liczone błędy wynikające z niepoprawnego ułożenia palców a jedynie spowodowane przez kości ramienia. Z kolei ewolucja palców znajduje zachłannie dopasowanie palec--punkt docelowy i liczy dla tego dopasowania sumę odległości.
+Ocena węzła drzewa jest sumą ocen jego poddrzew. 
 
 
 \section{Testy}
@@ -137,7 +141,8 @@ Sposób wyznaczania wartości funkcji celu zależy od nakierowania aktualnego kr
 Algorytm był testowany na kilku przygotowanych scenariuszy i dla różnych wartości parametrów.
 
 \subsection{Scenariusze testowe}
-Stworzone zostały cztery scenariusze testowe, przedstawione na rysunkach \ref{fig:sc1}, \ref{fig:sc2}, \ref{fig:sc3}, \ref{fig:sc4} (scenariusz 1 różni się od scenariusza 2 dodatkową kością ramienia, co w widoczny sposób zwiększa manewrowość kończyny zmniejszając skuteczność heurystyki wyznaczającej możliwe pozycje nadgarstka).
+\textbf{TODO -- TOUPDATE}
+Stworzonych zostało pięć scenariuszy testowych, które zostały przedstawione na rysunkach \ref{fig:sc1}, \ref{fig:sc2}, \ref{fig:sc3}, \ref{fig:sc4}, \ref{fig:sc5}.
 
 
 \begin{figure}[h!]
@@ -168,11 +173,19 @@ Stworzone zostały cztery scenariusze testowe, przedstawione na rysunkach \ref{f
 	\label{fig:sc4}
 \end{figure}
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.4]{scenario5}
+	\caption{Scenariusz testowy 5}
+	\label{fig:sc5}
+\end{figure}
 
 \subsection{Wyniki}
+\textbf{TODO -- TOUPDATE}
 Osiągane wyniki nie są zadowalające ponieważ algorytm, pomimo sprawnego umiejscowienia nadgarstka i wyewoluowania osobników znajdujących się blisko celu, ma problem z osiągnięciem optymalnego rozwiązania. Dla nawet małej populacji (50 osobników) w scenariuszach testowych nadgarstek był obiecująco umieszczany w przeciągu pierwszych 10 -- 20 iteracji. Problem ze zbieżnością całego chromosomu wynika zapewne ze specyfiki zadania, które w~szczególności nie określa odgórnie jaki palec ma zmierzać do jakiego celu. Powoduje to, że krzyżowanie osobników obierających różne dopasowania oddala populację od osiągnięcia rozwiązania.
 
 \section{Podsumowanie}
+\textbf{TODO -- TOUPDATE}
 Podsumowując, rozszerzenie dziedziny zadania poskutkowało znacznym jego utrudnieniem. Różnicę tę widać na przykładzie szybkości osiągania połowicznego celu jakim jest umiejscowienie nadgarstka. Aby podobne rezultaty osiągać dla całego osobnika, należałoby rozbudować chromosom przechowując w nim informację o najbardziej obiecującym przypasowaniu palców do punktów docelowych. Wiązałoby się to również z modyfikacją operacji krzyżowania tak aby przekazywała również informację o dopasowaniu palców.
 
 Ponadto, w rozwiązaniach zauważone zostały również pewne artefakty (znikanie osobników dopuszczalnych, pogarszanie najlepszych rozwiązań), które mogą wskazywać na błąd w~implementacji.

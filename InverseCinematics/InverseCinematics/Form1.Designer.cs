@@ -175,7 +175,7 @@
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(100, 21);
             this.comboBox2.TabIndex = 24;
-            this.comboBox2.Text = "wszystkie kąty";
+            this.comboBox2.Text = "jedna głębokość";
             // 
             // label26
             // 
@@ -300,7 +300,7 @@
             this.numericGArm.Size = new System.Drawing.Size(56, 20);
             this.numericGArm.TabIndex = 18;
             this.numericGArm.Value = new decimal(new int[] {
-            20,
+            50,
             0,
             0,
             0});
@@ -349,7 +349,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(100, 21);
             this.comboBox1.TabIndex = 15;
-            this.comboBox1.Text = "scenario_01.txt";
+            this.comboBox1.Text = "scenario_04.txt";
             // 
             // numericUpDown4
             // 
