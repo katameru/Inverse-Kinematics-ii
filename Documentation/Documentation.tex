@@ -103,7 +103,7 @@ Statystyki aktualnej populacji pozwalają ocenić osobników (pokazywane są war
 Wizualizacja przedstawia planszę zakodowaną w scenariuszu. Czerwone linie oznaczają przeszkody, zielony punkt jest punktem startowym, natomiast pomarańczowe punkty są punktami docelowymi. Na wizualizacji zaznaczeni są również najlepsi osobnicy w liczbie zdefiniowanej przez uzytkownika. Niebieskie linie pokazują przebieg osobników błędnych, natomiast zielone bezbłędnych.
 
 \section{Ewolucja}
-Zastosowany algorytm ewolucyjny częściowo bazuje na algorytmie IDEA \cite{PFI}, jednak ze względu na specyfikę problemu zastosowane zostały rozwiązania dedykowane. Drzewiasta struktura kończyny pozwala na (przynajmniej w pewnym zakresie) niezależne rozpatrywanie ewolucji niektórych poddrzew, co wpłynęło na sposób konstruowania operatorów ewolucyjnych.waniu.
+Zastosowany algorytm ewolucyjny częściowo bazuje na algorytmie IDEA \cite{PFI}, jednak ze względu na specyfikę problemu zastosowane zostały rozwiązania dedykowane. Drzewiasta struktura kończyny pozwala na (przynajmniej w pewnym zakresie) niezależne rozpatrywanie ewolucji niektórych poddrzew, co wpłynęło na sposób konstruowania operatorów ewolucyjnych.
 
 \subsection{Heurystyki}
 Zakodowane w operatorach heurystyki starają się określić które poddrzewa warto w danej iteracji mutować oraz krzyżować. W momencie gdy zdecydujemy, że do pewnej głębokości krawędzie są w położeniu odpowiednim, to wystarczy manipulować krawędziami z niższych poziomów, im większy numer iteracji tym precyzyjniej. Wybór poddrzew podlegających krzyżowaniu również może stanowić pole do działania dla heurystyk, choć wszystkie stosowane przez nas operatory korzystają tylko z podstawowego podziału na pierwszym poziomie rozgałęzienia.
@@ -126,7 +126,7 @@ Mutacja jest w naszym algorytmie bardzo ważnym operatorem, ponieważ odpowiedni
 
 Druga wersja mutacji (\i{jedna głębokość}) określa na podstawie numer u iteracji algorytmu poziom drzewa, który należy mutować (z pewnym losowym wahaniem $\pm 1$). Następnie każde poddrzewo na tej głębokości obraca (z szansą \i{szansa na mutację}) o pewną wartość z zakresu $[-\alpha, \alpha]$, gdzie $\alpha$ jest liczbą stopni podaną w parametrze \i{dopasowanie kąta mutacji}. Mutacja ta nie dotyka poddrzew o optymalnej wartości funkcji celu.
 
-Trzecia mutacja, \i{losowe poddrzewo}, \textbf{TODO -- TOUPDATE}
+Trzecia mutacja, \i{losowe poddrzewo}, wbiera losowe poddrzewo i zaburza ramiona wychodzące z korzenia tego poddrzewa o losową wartość. Rozkład prawdopodobieństwa został tak wybrany, aby częściej występowały małe zmiany wartości kąta.
 
 \subsection{Funkcja celu}
 Podstawą wartości funkcji jest dystans od liścia do przypisanego mu punktu docelowego, wyznaczany jako odległość w linii prostej. Istnieje możliwośc wybrania funkcji ze względu na to czy czynnik ten jest brany pod uwagę liniowo czy też kwadratowo.
@@ -141,8 +141,7 @@ Ocena węzła drzewa jest sumą ocen jego poddrzew.
 Algorytm był testowany na kilku przygotowanych scenariuszy i dla różnych wartości parametrów.
 
 \subsection{Scenariusze testowe}
-\textbf{TODO -- TOUPDATE}
-Stworzonych zostało pięć scenariuszy testowych, które zostały przedstawione na rysunkach \ref{fig:sc1}, \ref{fig:sc2}, \ref{fig:sc3}, \ref{fig:sc4}, \ref{fig:sc5}.
+Stworzonych zostało pięć scenariuszy testowych, które zostały przedstawione na rysunkach \ref{fig:sc1}, \ref{fig:sc2}, \ref{fig:sc3}, \ref{fig:sc4}, \ref{fig:sc5}. Mają one na celu sprawdzenie różnych aspektów algorytmu ewolucjynego.
 
 
 \begin{figure}[h!]
@@ -181,18 +180,10 @@ Stworzonych zostało pięć scenariuszy testowych, które zostały przedstawione
 \end{figure}
 
 \subsection{Wyniki}
-\textbf{TODO -- TOUPDATE}
-Osiągane wyniki nie są zadowalające ponieważ algorytm, pomimo sprawnego umiejscowienia nadgarstka i wyewoluowania osobników znajdujących się blisko celu, ma problem z osiągnięciem optymalnego rozwiązania. Dla nawet małej populacji (50 osobników) w scenariuszach testowych nadgarstek był obiecująco umieszczany w przeciągu pierwszych 10 -- 20 iteracji. Problem ze zbieżnością całego chromosomu wynika zapewne ze specyfiki zadania, które w~szczególności nie określa odgórnie jaki palec ma zmierzać do jakiego celu. Powoduje to, że krzyżowanie osobników obierających różne dopasowania oddala populację od osiągnięcia rozwiązania.
+Osiągane wyniki są jedynie częściowo zadowalające. Algorytm, dość szybko znajduje osobniki które są bliskie rozwiązaniom optymalnym. Niestety od pewnego momentu wyniki przestają być poprawiane mimo wywoływania tysięcy iteracji algorytmu. Jest to zapewne skutkiem operatora mutacji który ma kłopot ze zmianą kątów o małe wartości. Mimo to ogólne tendencje ewolucji osobników pokazują, że algorytm jest na dobrej drodze do znalezienia osobników optymalnych
 
 \section{Podsumowanie}
-\textbf{TODO -- TOUPDATE}
-Podsumowując, rozszerzenie dziedziny zadania poskutkowało znacznym jego utrudnieniem. Różnicę tę widać na przykładzie szybkości osiągania połowicznego celu jakim jest umiejscowienie nadgarstka. Aby podobne rezultaty osiągać dla całego osobnika, należałoby rozbudować chromosom przechowując w nim informację o najbardziej obiecującym przypasowaniu palców do punktów docelowych. Wiązałoby się to również z modyfikacją operacji krzyżowania tak aby przekazywała również informację o dopasowaniu palców.
-
-Ponadto, w rozwiązaniach zauważone zostały również pewne artefakty (znikanie osobników dopuszczalnych, pogarszanie najlepszych rozwiązań), które mogą wskazywać na błąd w~implementacji.
-
-Warto zwrócić także uwagę na aspekty obliczeniowe związane z problemami geometrycznymi. Zarówno wyznaczenie początkowych heurystyk, jak i obliczanie funkcji dystansu oraz błędu wymagają sprawdzania dużej liczby warunków, co przenosi ciężar obliczeń z ewolucji właściwej na aspekty dodatkowe i pozwala na wyewoluowanie w sensownym czasie mniejszej liczby generacji na mniejszych populacjach osobników. 
-
-W szczególności inne metody liczenia odległości (chodzenie po figurze lub jej otoczce wypukłej) powodowały bardzo duże spowolnienie nawet dla niewiekich domyślnych parametrów programu. Bez rozwiązania kwestii optymalizacji tych metod korzystanie z nich na większych planszach lub dla większego rozmiaru populacji byłoby niepraktyczne.
+Podsumowując, rozszerzenie pojęcia osobnika z łamanej do drzewa wprowadza szereg problemów przy projektowaniu operatorów ewolucyjnych. Przez komplikację struktury osobnika pojawiaja się wiele nowych możliwości wyboru przy operacjach krzyżowania i mutacji. Znika też możliwość stworzenia jednego ogólnego algorytmu i pojawia się konieczność tworzenia dedykowanych operatorów dla konkretnych sytuacji które pozwolą na optymalny rozwój populacji w kierunku rozwiązania optymalnego.
 
 \begin{thebibliography}{1}
 	\bibitem{PFI} Patryk Filipiak, {\it Optymalizacja ewolucyjna z predykcją w dynamicznym problemie kinematyki odwrotnej}. Wrocław, Seminarium ZMN IIUWr 2011.

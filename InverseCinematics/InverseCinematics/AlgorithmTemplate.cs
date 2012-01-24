@@ -432,7 +432,7 @@ namespace InverseCinematics
             var sign = rand.NextDouble() < 0.5 ? -1 : 1;
 
             var angles = world.Specification.Spec.Get(randomPath);
-            var delta = sign * (angles.ArcMax - angles.ArcMin) * r * r;
+            var delta = sign * (angles.ArcMax - angles.ArcMin) * r * 0.3;
             if ((randomNode.Angle + delta) % 360 < angles.ArcMin)
                 randomNode.Angle = angles.ArcMin;
             else if ((randomNode.Angle + delta) % 360 > angles.ArcMax)
@@ -554,6 +554,19 @@ namespace InverseCinematics
             return children;
         }
 
+        public static Chromosome BestFromSubtrees(List<Chromosome> population, WorldInstance world)
+        {
+            var left = population.Select(c => c.Tree.Subtree1).OrderBy(t => t.Node.Score).First();
+            var right = population.Select(c => c.Tree.Subtree2).OrderBy(t => t.Node.Score).First();
+            var nt = new Tree<ChromosomeNode>(new ChromosomeNode(0.0, new Line(world.Start, world.Start)));
+            nt.Subtree1 = left;
+            nt.Subtree2 = right;
+            var angles = nt.Map(n => n.Angle);
+            var chromosome = new Chromosome(angles, world);
+            chromosome = chromosome.recalculate(world.Specification.Spec);
+            return chromosome;
+        }
+
 
         public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles, int id)
         {
@@ -622,6 +635,7 @@ namespace InverseCinematics
             children.AddRange(population);
 
             children.AddRange(children);
+            //children.Add(BestFromSubtrees(children, world));
             children = children.OrderBy(c => c.Tree.Node.Score).Distinct().ToList();
             
             var good = children.Where(c => c.Tree.Node.Error == 0.0).ToList();
