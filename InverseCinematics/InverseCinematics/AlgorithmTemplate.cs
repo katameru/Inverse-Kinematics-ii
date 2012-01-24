@@ -448,9 +448,9 @@ namespace InverseCinematics
         /// Dziecko otzrymuje pewną średnią dwóch najlepszych rodziców na danym poddrzewie
         /// lub dziedziczy poddrzewo bezpośrednio od najlepszego (na tym poddrzewie) rodzica.
         /// </summary>
-        public static List<Chromosome> Crossover(List<Chromosome> population, List<string> paths, WorldInstance world, int tournament, int popSize, double chance)
+        public static List<Chromosome> Crossover(List<Chromosome> population, List<string> paths, WorldInstance world, int tournament, int popSize, double chance, int evalId)
         {
-            population.Select(c => Evaluate(c, world));
+            population.Select(c => Evaluate(c, world, evalId));
             var rand = new Random();
             var children = new List<Chromosome>();
 
@@ -499,9 +499,9 @@ namespace InverseCinematics
             return children;
         }
 
-        public static List<Chromosome> Crossover2(List<Chromosome> population, List<string> paths, WorldInstance world, int tournament, int popSize, double chance)
+        public static List<Chromosome> Crossover2(List<Chromosome> population, List<string> paths, WorldInstance world, int tournament, int popSize, double chance, int evalId)
         {
-            population.Select(c => Evaluate(c, world));
+            population.Select(c => Evaluate(c, world, evalId));
             var rand = new Random();
             var children = new List<Chromosome>();
 
@@ -555,7 +555,7 @@ namespace InverseCinematics
         }
 
 
-        public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles)
+        public static void Evaluate(ref Tree<ChromosomeNode> tree, ref List<Point> targets, List<Line> obstacles, int id)
         {
             var error = 0;
             foreach (var o in obstacles)
@@ -565,12 +565,15 @@ namespace InverseCinematics
             if (tree.Subtree1 == null && tree.Subtree2 == null)
             {
                 tree.Node.Error = error;
-                tree.Node.Score = Geometry.SLDistance(tree.Node.Line.P2, targets.First());
+                if (id == 0)
+                    tree.Node.Score = Geometry.SLDistance(tree.Node.Line.P2, targets.First());
+                if (id == 1)
+                    tree.Node.Score = Math.Pow(Geometry.SLDistance(tree.Node.Line.P2, targets.First()), 2);
                 targets = targets.Skip(1).ToList();
                 return;
             }
-            Evaluate(ref tree.Subtree1, ref targets, obstacles);
-            Evaluate(ref tree.Subtree2, ref targets, obstacles);
+            Evaluate(ref tree.Subtree1, ref targets, obstacles, id);
+            Evaluate(ref tree.Subtree2, ref targets, obstacles, id);
             tree.Node.Score = tree.Subtree1.Node.Score + tree.Subtree2.Node.Score;
             tree.Node.Error = error + tree.Subtree1.Node.Error + tree.Subtree2.Node.Error;
         }
@@ -578,41 +581,46 @@ namespace InverseCinematics
         /// <summary>
         /// Funkcja celu dla chromosomu, moze liczyc odleglosc nadgarstka od pola wskazanego przez heurystyke oraz palcow od celu.
         /// </summary>
-        public static Chromosome Evaluate(Chromosome c, WorldInstance world)
+        public static Chromosome Evaluate(Chromosome c, WorldInstance world, int id)
         {
             c.recalculate(world.Specification.Spec);
             var targets = world.Targets.Select(t => t).ToList();
-            Evaluate(ref c.Tree, ref targets, world.Obstacles);
+            Evaluate(ref c.Tree, ref targets, world.Obstacles, id);
 
             return c;
         }
 
-        public static List<Chromosome> GeneticAlgorithmStart(WorldInstance world, int populationSize)
+        public static List<Chromosome> GeneticAlgorithmStart(WorldInstance world, int populationSize, int evaluateId)
         {
             var p = GenerateRandomPopulation(world, populationSize);
-            return p.Select(i => Evaluate(i, world)).OrderBy(c => c.Tree.Node.Score).ToList();
+            return p.Select(i => Evaluate(i, world, evaluateId)).OrderBy(c => c.Tree.Node.Score).ToList();
         }
 
         /// <summary>
         /// Pojedynczy krok algorytmu.
         /// </summary>
         public static List<Chromosome> GeneticAlgorithmStep(WorldInstance world, List<Chromosome> population, double alpha,
-            double mutationChance, int generation, double adjustment, int tournament, double explicite)
+            double mutationChance, int generation, double adjustment, int tournament, double explicite,
+            int mutationId, int crossoverId, int evaluateId)
         {
             var selectionPaths = new List<string> {"L", "R"};
-            var cross = Crossover(population, selectionPaths, world, tournament, population.Count, explicite);
-            if (cross.Any(c => c == null)) { System.Diagnostics.Debugger.Break(); }
-            var children = cross.Select(c => Evaluate(c, world)).ToList();
-            //var children2 = cross.Select(c => Evaluate(c, world)).ToList();
-            //var children3 = cross.Select(c => Evaluate(c, world)).ToList();
-            
+            List<Chromosome> cross = new List<Chromosome>();
+            if (crossoverId == 0)
+                cross = Crossover(population, selectionPaths, world, tournament, population.Count, explicite, evaluateId);
+            if (crossoverId == 1)
+                cross = Crossover2(population, selectionPaths, world, tournament, population.Count, explicite, evaluateId);
+            //if (cross.Any(c => c == null)) { System.Diagnostics.Debugger.Break(); }
+            var children = cross.Select(c => Evaluate(c, world, evaluateId)).ToList();
 
             var rand = new Random();
-            //children  = children.AsParallel().Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
-            //children2 = children2.AsParallel().Select(c => Mutate2(c, mutationChance, world, rand, generation, adjustment)).Select(c => Evaluate(c, world)).ToList();
-            children = children.AsParallel().Select(c => Mutate3(c, mutationChance, world, rand)).Select(c => Evaluate(c, world)).ToList();
+            if (mutationId == 0)
+                children = children.AsParallel().Select(c => Mutate(c, mutationChance, world, rand)).Select(c => Evaluate(c, world, evaluateId)).ToList();
+            if (mutationId == 1)
+                children = children.AsParallel().Select(c => Mutate2(c, mutationChance, world, rand, generation, adjustment)).Select(c => Evaluate(c, world, evaluateId)).ToList();
+            if (mutationId == 2)
+                children = children.AsParallel().Select(c => Mutate3(c, mutationChance, world, rand)).Select(c => Evaluate(c, world, evaluateId)).ToList();
             children.AddRange(population);
-            //children.AddRange(children2);
+
             children.AddRange(children);
             children = children.OrderBy(c => c.Tree.Node.Score).Distinct().ToList();
             
@@ -621,8 +629,7 @@ namespace InverseCinematics
             var goodnum = Math.Min(good.Count, population.Count - (int) (alpha*population.Count));
             
             var res = good.Take(goodnum).Concat(bad).Take(population.Count);
-            
-            //var retval = children.Take(population.Count).ToList();
+
             return res.ToList();
         }
     }

@@ -18,11 +18,14 @@ namespace InverseCinematics
         private int _populationSize;
         private int _generations;
         private double _badguys;
-        private double _mutation;
+        private double _mutChance;
+        private int _mutationId;
         private double _adjustment;
         private int _tournament;
         private double _explicite;
-        private int _showbest = 3;
+        private int _crossoverId;
+        private int _evaluationId;
+        private int _showbest;
 
         private Bitmap _baseImage;
         private List<Chromosome> _population;
@@ -46,11 +49,14 @@ namespace InverseCinematics
                 _baseImage = new Bitmap(_world.ShowWorld(pictureBox1.Width, pictureBox1.Height, 2.0f));
                 _populationSize = (int) numericUpDown1.Value;
                 _badguys = (double) numericUpDown3.Value/100;
-                _mutation = (double)numericUpDown4.Value / 100;
+                _mutChance = (double)numericUpDown4.Value / 100;
                 _showbest = (int) numericUpDown7.Value;
                 _adjustment = (double) numericUpDown5.Value/100;
                 _tournament = (int) numericUpDown2.Value;
                 _explicite = (double)numericUpDown6.Value / 100;
+                _mutationId = comboBox2.SelectedIndex;
+                _crossoverId = comboBox3.SelectedIndex;
+                _evaluationId = comboBox4.SelectedIndex;
             }
             catch (Exception e)
             {
@@ -84,8 +90,6 @@ namespace InverseCinematics
             UpdateLabel(label18, avgError, true);
             UpdateLabel(label24, avgScore2 - avgScore * avgScore);
             UpdateLabel(label23, avgError2 - avgError * avgError);
-
-            UpdateLabel(label29, _population.Distinct().Count() / (double)_populationSize, true);
         }
 
         private void UpdateLabel(Label l, double v, bool inverse=false)
@@ -115,7 +119,7 @@ namespace InverseCinematics
             if (b)
             {
                 pictureBox1.Image = _baseImage;
-                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize);
+                _population = AlgorithmTemplate.GeneticAlgorithmStart(_world, _populationSize, _evaluationId);
                 UpdateStats();
             }
         }
@@ -125,7 +129,7 @@ namespace InverseCinematics
             var ga = (int)numericGArm.Value;
             for (var i = 0; i < ga; i++)
             {
-                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation, _generations, _adjustment, _tournament, _explicite);
+                _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutChance, _generations, _adjustment, _tournament, _explicite, _mutationId, _crossoverId, _evaluationId);
             }
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
             var p2 = _population.Where(x => x.Tree.Node.Error == 0);
@@ -145,7 +149,7 @@ namespace InverseCinematics
 
         private void button3_Click(object sender, EventArgs e)
         {
-            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutation, _generations, _adjustment, _tournament, _explicite);
+            _population = AlgorithmTemplate.GeneticAlgorithmStep(_world, _population, _badguys, _mutChance, _generations, _adjustment, _tournament, _explicite, _mutationId, _crossoverId, _evaluationId);
 
             var img2 = AlgorithmTemplate.PrintPopulation(_world, _population.Take(_showbest).ToList(), new Bitmap(_baseImage), 1.0f, Color.Blue);
             var p2 = _population.Where(x => x.Tree.Node.Error == 0);
