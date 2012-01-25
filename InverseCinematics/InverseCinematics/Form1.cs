@@ -139,10 +139,6 @@ namespace InverseCinematics
                 pictureBox1.Image = img2;
 
             _generations += ga;
-            var f = new StreamWriter(_generations + ".txt");
-            foreach (var chromosome in _population)
-                f.WriteLine(chromosome);
-            f.Close();
 
             UpdateStats();
         }
@@ -159,11 +155,6 @@ namespace InverseCinematics
                 pictureBox1.Image = img2;
 
             _generations++;
-
-            var f = new StreamWriter(_generations + ".txt");
-            foreach (var chromosome in _population)
-                f.WriteLine(chromosome);
-            f.Close();
 
             UpdateStats();
         }
