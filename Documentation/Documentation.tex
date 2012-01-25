@@ -40,13 +40,13 @@
 \newpage
 
 \section{Sformułowanie zadania}
-Zagadnienie kinematyki odwrotnej (\textit{ang.}\ inverse kinematics) dotyczy reprezentacji kończyn (ogólnie tzw.\ efektora) za pomocą geometrycznego modelu w którym kości estymowane są przez linie, natomiast stawom odpowiadają kąty. Zadaniem kinematyki odwrotnej jest znalezienie takich położeń stawów, dla których osiągana jest pożądana pozycja kończyny, np.\ zamocowana w pewnym punkcie startowym dosięga ona zadanego punktu końcowego. Możliwe położenia stawów określone są przez minimalny i maksymalny kąt rozwarcia. Chromosom jest to lista kątów odpowiadających rozwarciom kolejnych stawów kończyny.
+Zagadnienie kinematyki odwrotnej (\textit{ang.}\ inverse kinematics) dotyczy reprezentacji kończyn (ogólnie tzw.\ efektora) za pomocą geometrycznego modelu w którym kości estymowane są przez linie, natomiast stawom odpowiadają kąty. Zadaniem kinematyki odwrotnej jest znalezienie takich położeń stawów, dla których osiągana jest pożądana pozycja kończyny, np.~zamocowana w pewnym punkcie startowym dosięga ona zadanego punktu końcowego. Możliwe położenia stawów określone są przez minimalny i maksymalny kąt rozwarcia. Chromosom jest to lista kątów odpowiadających rozwarciom kolejnych stawów kończyny.
 
 Rozpatrywana przez nas rozszerzona wersja standardowego zagadnienia dotyczy ,,kończyn'' o strukturze pełnego drzewa binarnego. Zadanie polega na znalezieniu ustawienia drzewa, w którym każdy punkt końcowy dotyka określonego punktu docelowego (punktów docelowych jest tyle samo co liści drzewa), a krawędzie drzewa nie stykają się z żadną znajdującą się na planszy przeszkodą.
 
 
 \subsection{Format pliku wejściowego}
-Scenariusz (plik zawierający informację o planszy oraz właściwościach drzewa) jest plikiem o następującej konstrukcji (linie rozpoczynające się od \# traktowane są jako komentarz):
+Scenariusz (plik zawierający informację o planszy oraz właściwościach drzewa) jest plikiem tekstowym o~następującej konstrukcji (linie rozpoczynające się od \# traktowane są jako komentarz):
 \begin{verbatim}
 # Wielkość planszy w poziomie
 8
@@ -114,7 +114,7 @@ Aplikacja pozwala na wybór operatorów z puli kilku przygotowanych.
 \subsubsection{Krzyżowanie}
 Przygotowane zostały dwa operatory krzyżowania o wspólnym schemacie działania. Operatory przyjmują jako argument listę ścieżek określającą poddrzewa, które mają zostać skrzyżowane. Z puli wszystkich chromosomów wybierana jest losowo próbka o wielkości zadanej parametrem \i{rozmiar turnieju}. Następnie dla każdego poddrzewa, z próbki rodziców tworzone jest nowe poddrzewo które zostaje wstawione do chromosomu wynikowego. Po wykonaniu tej operacji dla wszystkich poddrzew, wygenerowany zostaje jeden potomek.
 
-Oba operatory rozróżnia właśnie sposób tworzenia poddrzewa z próbki rodziców. Pierwszy algorytm (\i{losowy potomek}) z prawdopodobieństwem zadanym parametrem \i{bezpośrednie dziedziczenie} otrzymuje poddrzewo najlepszego (na tym poddrzewie) ze swoich rodziców. W przeciwnym wypadku wybieranych jest dwóch rodziców: najlepszy na danym poddrzewie ($\alpha_1$) oraz losowy z próbki ($\alpha_2$) i dla pewnego losowego zaburzenia $\beta\in[0, 1]$, ma 50\% na ewolucję w potomka $c_1$ i 50\% na ewolucję w $c_2$, zgodnie ze wzorami:
+Oba operatory rozróżnia właśnie sposób tworzenia poddrzewa z próbki rodziców. Pierwszy algorytm (\i{losowy potomek}) z prawdopodobieństwem zadanym parametrem \i{bezpośrednie dziedziczenie} otrzymuje poddrzewo najlepszego (na tym poddrzewie) ze swoich rodziców. W~przeciwnym wypadku wybieranych jest dwóch rodziców: najlepszy na danym poddrzewie ($\alpha_1$) oraz losowy z próbki ($\alpha_2$) i dla pewnego losowego zaburzenia $\beta\in[0, 1]$, ma 50\% na ewolucję w potomka $c_1$ i 50\% na ewolucję w $c_2$, zgodnie ze wzorami:
 	\[
 		c_1 = \frac{\alpha_1 + \alpha_2 + \beta(\alpha_1 - \alpha_2)}{2} \quad\quad c_2 = \frac{\alpha_1 + \alpha_2 + \beta(\alpha_2 - \alpha_1)}{2}
 	\]
