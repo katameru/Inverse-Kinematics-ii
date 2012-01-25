@@ -1,8 +1,8 @@
-Program na pracowniê z algorytmów ewolucyjnych
+Program drugi na pracowniê z algorytmów ewolucyjnych
 autorzy: Jakub Kowalski, Marcin Januszkiewicz
 
-Program rozwi¹zuje problem inverse kinematics za pomoc¹ algorytmu IDEA.
-Wersja wykonywalna programu znajduje siê w folderze "Program " w nadrzêdnym katalogu archiwum.
+Program rozwi¹zuje problem inverse kinematics rozszerzonego do pelnych drzew binarnych za pomoc¹ algorytmu IDEA.
+Wersja wykonywalna programu znajduje siê w folderze "Program " w katalogu g³ównym archiwum.
 Wszystkie pliki Ÿród³owe s¹ w postaci projektu Microsoft Visual Studio, w 
 jêzyku C# i znajduj¹ siê w folderze InverseCinematics.
-Dokumentacja znajduje siê w folderze "Documaentation"
+Dokumentacja znajduje siê w folderze "Documentation"
